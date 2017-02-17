@@ -95,7 +95,7 @@
 <meta property="og:description" content="本文是作为上一篇文章 并查集算法原理和改进 的后续，焦点主要集中在一些并查集的应用上。材料主要是取自POJ，HDOJ上的一些算法练习题。">
 <meta property="og:image" content="http://my.csdn.net/uploads/201207/22/1342965314_9760.png">
 <meta property="og:image" content="http://my.csdn.net/uploads/201207/22/1342965708_8741.png">
-<meta property="og:updated_time" content="2017-02-17T03:52:23.000Z">
+<meta property="og:updated_time" content="2017-02-17T04:04:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="并查集(Union-Find) 应用举例 --- 基础篇">
 <meta name="twitter:description" content="本文是作为上一篇文章 并查集算法原理和改进 的后续，焦点主要集中在一些并查集的应用上。材料主要是取自POJ，HDOJ上的一些算法练习题。">
@@ -416,14 +416,14 @@
       
 
       
-        <p>本文是作为上一篇文章 <a href="">并查集算法原理和改进</a> 的后续，焦点主要集中在一些并查集的应用上。材料主要是取自POJ，HDOJ上的一些算法练习题。</p>
+        <p>本文是作为上一篇文章 <a href="http://www.rxjiang.com/2012/06/12/%E5%B9%B6%E6%9F%A5%E9%9B%86-Union-Find-%E7%AE%97%E6%B3%95%E4%BB%8B%E7%BB%8D/" target="_blank" rel="external">并查集算法原理和改进</a> 的后续，焦点主要集中在一些并查集的应用上。材料主要是取自POJ，HDOJ上的一些算法练习题。</p>
 <a id="more"></a>
 <ol>
 <li>以树作为节点的组织结构，结构的形态很是否采取优化策略有很大关系，未进行优化的树结构可能会是“畸形”树(严重不平衡，头重脚轻，退化成链表等)，按尺寸(正规说法叫做秩，后文全部用秩来表示)进行平衡，同时辅以路径压缩后，树结构会高度扁平化。</li>
 <li>虽然组织结构比较复杂，数据表示方式却十分简洁，主要采用数组作为其底层数据结构。一般会使用两个数组(parent-link array and size array)，分别用来保存当前节点的父亲节点以及当前节点所代表子树的秩。第一个数组(parent-link array)无论是否优化，都需要使用，而第二个数组(size array)，在不需要按秩合并优化或者不需要保存子树的秩时，可以不使用。根据应用的不同，可能需要第三个数组来保存其它相关信息，比如HDU-3635中提到的“转移次数”。</li>
 <li>主要操作包括两部分，union以及find。union负责对两颗树进行合并，合并的过程中可以根据具体应用的性质选择是否按秩优化。需要注意的是，执行合并操作之前，需要检查待合并的两个节点是否已经存在于同一颗树中，如果两个节点已经在一棵树中了，就没有合并的必要了。这是通过比较两个节点所在树的根节点来实现的，而寻找根节点的功能，自然是由find来完成了。find通过parent-link数组中的信息来找到指定节点的根节点，同样地，也可以根据应用的具体特征，选择是否采用路径压缩这一优化手段。然而在需要保存<strong>每个</strong>节点代表子树的秩的时候，则无法采用路径压缩，因为这样会破坏掉非根节点的尺寸信息(<strong>注意这里的“每个”，一般而言，在按秩合并的时候，需要的信息仅仅是根节点的秩，这时，路径压缩并无影响，路径压缩影响的只是非根节点的秩信息</strong>)。</li>
 </ol>
-<p>以上就是我认为并查集中存在的几个关键点。关于并查集更详尽的演化过程，可以参考上一篇关于并查集的文章：<a href="">并查集算法原理和改进</a></p>
+<p>以上就是我认为并查集中存在的几个关键点。关于并查集更详尽的演化过程，可以参考上一篇关于并查集的文章：<a href="http://www.rxjiang.com/2012/06/12/%E5%B9%B6%E6%9F%A5%E9%9B%86-Union-Find-%E7%AE%97%E6%B3%95%E4%BB%8B%E7%BB%8D/" target="_blank" rel="external">并查集算法原理和改进</a></p>
 <p>言归正传，来看几个利用并查集来解决问题的例子：<br>(说明：除了第一个问题贴了完整的代码，后面的问题都只会贴出关键部分的代码)</p>
 <h2 id="HDU-1213-How-many-tables"><a href="#HDU-1213-How-many-tables" class="headerlink" title="HDU-1213 How many tables"></a>HDU-1213 How many tables</h2><p>问题的描述是这样的：</p>
 <p>Today is Ignatius’ birthday. He invites a lot of friends. Now it’s dinner time. Ignatius wants to know how many tables he needs at least. You have to notice that not all the friends know each other, and all the friends do not want to stay with strangers.</p>
