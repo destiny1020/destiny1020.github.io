@@ -90,9 +90,7 @@
 <meta name="description" content="翻译自：http://beust.com/weblog/2009/11/28/hard-core-multicore-with-testng/
 限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！
 
-近期我实现了TestNG中的一个新特性，该特性有趣地将图论和并发结合在了一起。
-问题描述TestNG允许你声明测试方法之间的依赖性关系，这是一个简单的例子：
-12">
+近期我实现了TestNG中的一个新特性，该特性有趣地将图论和并发结合在了一起。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TestNG 并发运行相关的核心概念">
 <meta property="og:url" content="http://rxjiang.com/2012/06/14/TestNG-并发运行相关的核心概念/index.html">
@@ -100,9 +98,7 @@
 <meta property="og:description" content="翻译自：http://beust.com/weblog/2009/11/28/hard-core-multicore-with-testng/
 限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！
 
-近期我实现了TestNG中的一个新特性，该特性有趣地将图论和并发结合在了一起。
-问题描述TestNG允许你声明测试方法之间的依赖性关系，这是一个简单的例子：
-12">
+近期我实现了TestNG中的一个新特性，该特性有趣地将图论和并发结合在了一起。">
 <meta property="og:image" content="http://my.csdn.net/uploads/201206/14/1339685809_5919.png">
 <meta property="og:image" content="http://my.csdn.net/uploads/201206/14/1339685833_4569.png">
 <meta property="og:image" content="http://my.csdn.net/uploads/201206/14/1339686271_1956.png">
@@ -112,15 +108,13 @@
 <meta property="og:image" content="http://my.csdn.net/uploads/201206/14/1339686578_8409.png">
 <meta property="og:image" content="http://my.csdn.net/uploads/201206/14/1339686616_8364.png">
 <meta property="og:image" content="http://my.csdn.net/uploads/201206/14/1339686632_4887.png">
-<meta property="og:updated_time" content="2017-02-17T06:04:28.000Z">
+<meta property="og:updated_time" content="2017-02-17T06:06:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TestNG 并发运行相关的核心概念">
 <meta name="twitter:description" content="翻译自：http://beust.com/weblog/2009/11/28/hard-core-multicore-with-testng/
 限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！
 
-近期我实现了TestNG中的一个新特性，该特性有趣地将图论和并发结合在了一起。
-问题描述TestNG允许你声明测试方法之间的依赖性关系，这是一个简单的例子：
-12">
+近期我实现了TestNG中的一个新特性，该特性有趣地将图论和并发结合在了一起。">
 <meta name="twitter:image" content="http://my.csdn.net/uploads/201206/14/1339685809_5919.png">
 
 
@@ -442,6 +436,7 @@
 <p><strong>限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！</strong></p>
 <p><img src="http://my.csdn.net/uploads/201206/14/1339685809_5919.png" alt=""></p>
 <p>近期我实现了TestNG中的一个新特性，该特性有趣地将图论和并发结合在了一起。</p>
+<a id="more"></a>
 <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>TestNG允许你声明测试方法之间的依赖性关系，这是一个简单的例子：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span>  </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">a1</span><span class="params">()</span> </span>&#123;&#125;  </div><div class="line"></div><div class="line"><span class="meta">@Test</span>(dependsOnMethods = <span class="string">"a1"</span>)  </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">b1</span><span class="params">()</span> </span>&#123;&#125;  </div><div class="line"></div><div class="line"><span class="meta">@Test</span>  </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">x</span><span class="params">()</span> </span>&#123;&#125;  </div><div class="line"></div><div class="line"><span class="meta">@Test</span>  </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">y</span><span class="params">()</span> </span>&#123;&#125;</div></pre></td></tr></table></figure>
 <p>在这个例子中，b1()直到a1()成功结束之后才会运行。如果a1()失败了，b1()会被标注为跳过。在这篇文章中，我称a1()和b1()方法为依赖方法，而x()以及y()为独立方法。</p>

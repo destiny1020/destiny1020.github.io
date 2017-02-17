@@ -100,7 +100,7 @@
 
 在上篇文章中我介绍了在TestNG中新实现的多线程拓扑排序(译注：严格说来，应该是更加动态的拓扑排序，为了支持对待测试方法的并发运行，上">
 <meta property="og:image" content="http://my.csdn.net/uploads/201206/15/1339772470_1861.png">
-<meta property="og:updated_time" content="2017-02-17T06:04:38.000Z">
+<meta property="og:updated_time" content="2017-02-17T06:06:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TestNG 并发运行相关的核心概念 - 补充">
 <meta name="twitter:description" content="翻译自：http://beust.com/weblog/2009/12/13/more-on-multithreaded-topological-sorting-2/ 
@@ -428,6 +428,7 @@
 <p><strong>限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！</strong></p>
 <p><img src="http://my.csdn.net/uploads/201206/15/1339772470_1861.png" alt=""></p>
 <p>在上篇文章中我介绍了在TestNG中新实现的多线程拓扑排序(译注：严格说来，应该是更加动态的拓扑排序，为了支持对待测试方法的并发运行，上一篇文章的译文连接在<a href="http://www.rxjiang.com/2012/06/14/TestNG-%E5%B9%B6%E5%8F%91%E8%BF%90%E8%A1%8C%E7%9B%B8%E5%85%B3%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/" target="_blank" rel="external">这里</a>)，这篇文章收到了一些有意思的评论，其中有一条来自Rafael Naufal的评论我想拿出来讨论一下：</p>
+<a id="more"></a>
 <p>他提到：</p>
 <p>@Priority注解难道不能改进，从而能够表明哪个独立方法应该被首先调度？顺便说一下，判断哪些方法是独立的难道不能放到测试方法的graph对象中么？</p>
 <p>这个想法让当前的算法更进一步，即我们不仅需要在测试方法变成独立节点的时候去调度它们，最好还能够根据它们重要的程度去调度。</p>
