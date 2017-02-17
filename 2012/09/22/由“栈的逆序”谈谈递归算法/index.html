@@ -1,0 +1,815 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="算法,递归,栈," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="最近看到一道题目：要求将一个栈逆序，使用递归。
+我们先看看最常规的解法应该是怎样的，显然对于“逆序”这种问题描述，栈这种数据结构就会蹦入我们的脑海。
+实现代码如下：
+123456789101112public static LinkedStack&amp;lt;Integer&amp;gt; reverseStackDirectly(LinkedStack&amp;lt;Integer&amp;gt; stack) &amp;#123;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="由“栈的逆序”谈谈递归算法">
+<meta property="og:url" content="http://rxjiang.com/2012/09/22/由“栈的逆序”谈谈递归算法/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="最近看到一道题目：要求将一个栈逆序，使用递归。
+我们先看看最常规的解法应该是怎样的，显然对于“逆序”这种问题描述，栈这种数据结构就会蹦入我们的脑海。
+实现代码如下：
+123456789101112public static LinkedStack&amp;lt;Integer&amp;gt; reverseStackDirectly(LinkedStack&amp;lt;Integer&amp;gt; stack) &amp;#123;">
+<meta property="og:updated_time" content="2017-02-17T07:15:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="由“栈的逆序”谈谈递归算法">
+<meta name="twitter:description" content="最近看到一道题目：要求将一个栈逆序，使用递归。
+我们先看看最常规的解法应该是怎样的，显然对于“逆序”这种问题描述，栈这种数据结构就会蹦入我们的脑海。
+实现代码如下：
+123456789101112public static LinkedStack&amp;lt;Integer&amp;gt; reverseStackDirectly(LinkedStack&amp;lt;Integer&amp;gt; stack) &amp;#123;">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2012/09/22/由“栈的逆序”谈谈递归算法/"/>
+
+
+
+
+
+  <title> 由“栈的逆序”谈谈递归算法 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2012/09/22/由“栈的逆序”谈谈递归算法/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                由“栈的逆序”谈谈递归算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-09-22T20:23:00+08:00">
+                2012-09-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近看到一道题目：要求将一个栈逆序，使用递归。</p>
+<p>我们先看看最常规的解法应该是怎样的，显然对于“逆序”这种问题描述，栈这种数据结构就会蹦入我们的脑海。</p>
+<p>实现代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> LinkedStack&lt;Integer&gt; <span class="title">reverseStackDirectly</span><span class="params">(LinkedStack&lt;Integer&gt; stack)</span> </span>&#123;  </div><div class="line">      </div><div class="line">    <span class="keyword">if</span>(<span class="keyword">null</span> != stack &amp;&amp; !stack.isEmpty()) &#123;  </div><div class="line">        LinkedStack&lt;Integer&gt; auxiliary = <span class="keyword">new</span> LinkedStack&lt;Integer&gt;();  </div><div class="line">        <span class="keyword">while</span>(!stack.isEmpty()) &#123;  </div><div class="line">            auxiliary.push(stack.pop());  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">return</span> auxiliary;  </div><div class="line">    &#125;  </div><div class="line">      </div><div class="line">    <span class="keyword">return</span> stack;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>代码的思路很明确，首先开辟了一个新的栈作为辅助栈，将原栈中的元素依次弹出并压入到辅助栈中，最后返回辅助栈。</p>
+<a id="more"></a>
+<p>当然我们的这种做法是不符合题意的，题目规定需要使用递归来解决。其实大家都明白，递归究其本质，也使用到了栈这种数据结构，只不过在递归中使用的是程序运行期间的方法调用栈，它并不由我们显式创建和管理。</p>
+<p>下面我们考虑递归的解法，在考虑递归解法的时候，需要铭记的一点是：发现原问题中的子问题。</p>
+<p>就本问题而言，子问题就是可以考虑成以下两种形式：</p>
+<ol>
+<li>取出栈顶元素后，<strong>将栈进行逆序</strong>，最后将取出的栈顶元素插入到栈底</li>
+<li>取出栈底元素后，<strong>将栈进行逆序</strong>，最后将取出的栈底元素压入到栈顶</li>
+</ol>
+<p>我们可以发现，不管使用哪一种子问题的描述，都出现了将栈进行逆序这个步骤，而这个步骤，在不考虑具体的待操作对象的时候，和我们要解决的大问题是一样的。</p>
+<p>不妨将第一种子问题的描述形式转换成代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">reverseStack</span><span class="params">(LinkedStack&lt;Integer&gt; stack)</span> </span>&#123;  </div><div class="line">      </div><div class="line">    <span class="keyword">if</span>(<span class="keyword">null</span> != stack &amp;&amp; !stack.isEmpty()) &#123;  </div><div class="line">        <span class="comment">// 将栈顶元素取出  </span></div><div class="line">        Integer top = stack.pop();  </div><div class="line">        <span class="comment">// 递归地将该栈逆序  </span></div><div class="line">        reverseStack(stack);  </div><div class="line">        <span class="comment">// 将之前取出的元素插入栈底  </span></div><div class="line">        insertToStackBottom(stack, top);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们先不考虑如何实现最后一个步骤：将取出的元素插入栈底。</p>
+<p>仅仅对比一下使用递归以及非递归的方法时，程序结构上的不同点：</p>
+<ul>
+<li>在递归实现中，我们首先声明了一个变量来保存栈顶元素，然后递归调用本方法。</li>
+<li>在非递归实现中，我们直接拿到了栈顶元素并压入到辅助栈中。</li>
+</ul>
+<p>在声明一个方法内变量时，实际上是向方法调用栈的栈顶栈帧上添加了一个变量。这一点从代码上不明显，就Java程序而言，javap这个工具能够让你看到具体发生了什么，就上面的程序而言：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">reverseStack</span><span class="params">(LinkedStack stack)</span></span>;     <span class="number">0</span>  aload_0 [stack]  </div><div class="line">     <span class="number">1</span>  ifnull <span class="number">28</span>  </div><div class="line">     <span class="number">4</span>  aload_0 [stack]  </div><div class="line">     <span class="number">5</span>  invokevirtual LinkedStack.isEmpty() : <span class="keyword">boolean</span> [<span class="number">18</span>]  </div><div class="line">     <span class="number">8</span>  ifne <span class="number">28</span>  </div><div class="line">    <span class="number">11</span>  aload_0 [stack]  </div><div class="line">    <span class="number">12</span>  invokevirtual LinkedStack.pop() : java.lang.Object [<span class="number">24</span>]  </div><div class="line">    <span class="number">15</span>  checkcast java.lang.Integer [<span class="number">28</span>]  </div><div class="line">    <span class="number">18</span>  astore_1 [top]  </div><div class="line">    <span class="number">19</span>  aload_0 [stack]  </div><div class="line">    <span class="number">20</span>  invokestatic misc.ReverseStack.reverseStack(LinkedStack) : <span class="keyword">void</span> [<span class="number">30</span>]  </div><div class="line">    <span class="number">23</span>  aload_0 [stack]  </div><div class="line">    <span class="number">24</span>  aload_1 [top]  </div><div class="line">    <span class="number">25</span>  invokestatic misc.ReverseStack.insertToStackBottom(LinkedStack, java.lang.Integer) : <span class="keyword">void</span> [<span class="number">32</span>]  </div><div class="line">    <span class="number">28</span>  <span class="keyword">return</span>  </div><div class="line">  </div><div class="line">      Local variable table:  </div><div class="line">        [pc: <span class="number">0</span>, pc: <span class="number">29</span>] local: stack index: <span class="number">0</span> type: LinkedStack  </div><div class="line">        [pc: <span class="number">19</span>, pc: <span class="number">28</span>] local: top index: <span class="number">1</span> type: java.lang.Integer</div></pre></td></tr></table></figure>
+<p>几个重要的地方：</p>
+<ul>
+<li>aload_x这个指令的意思是本地变量x中的值压入当前栈帧中</li>
+<li>astore_x是将当前栈帧中栈顶的元素存储到本地变量x中</li>
+</ul>
+<p>当PC(程序计数器)的值为18时，发生的astore_1[top] 的意义就是讲top的值存储到索引为1的本地变量中，本地变量参考最下面的Local variable table。</p>
+<p>紧接着，在PC等于20时，进行了方法的递归调用，这里发生的操作是，创建了新的栈帧，新的栈帧中含有传入的参数(同样以本地变量的形式存在)，并将该新创建的栈帧压入方法调用栈。然后接着执行同样的操作，最后递归一层层返回，也就是方法调用栈一个栈帧接一个的弹出。</p>
+<p>重述一下，本地变量表是属于一个栈帧的，而一个栈帧则是方法调用栈的一个元素。所以，将栈顶元素保存到一个本地变量中，本质还是将这个本地变量压入了栈中(表现形式为栈帧被压入了方法调用栈)，只不过这个过程不那么明显罢了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 非递归实现  </span></div><div class="line">auxiliary.push(stack.pop());  </div><div class="line"></div><div class="line"><span class="comment">// 递归实现  </span></div><div class="line">Integer top = stack.pop();  </div><div class="line">reverseStack(stack);</div></pre></td></tr></table></figure>
+<p>此，前两个步骤已经完成。就剩下最后一个步骤：将取出的栈顶元素插入到栈底。</p>
+<p>首先还是从最直观的想法开始，栈的特性决定了直接将元素插入到栈底是不可能的。所以我们可以将当前栈中的所有元素弹出，然后将待插入元素压入栈，此时压入的位置当然就是栈底了，最后将之前弹出的元素再压入到栈中。很明显的，这里又涉及到了元素的弹出和压入，不难得出这个顺序也是满足栈的操作特点的，更具体的，元素的弹出和再压入是满足“后出先进”(Last-out-First-In)规律的。</p>
+<p>所以最直观的实现如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">insertToStackBottom</span><span class="params">(LinkedStack&lt;Integer&gt; stack, Integer bottom)</span> </span>&#123;  </div><div class="line">    <span class="keyword">assert</span> (<span class="keyword">null</span> != stack);  </div><div class="line">    LinkedStack&lt;Integer&gt; auxiliary = <span class="keyword">new</span> LinkedStack&lt;Integer&gt;();  </div><div class="line">    <span class="keyword">while</span>(!stack.isEmpty()) &#123;  </div><div class="line">        auxiliary.push(stack.pop());  </div><div class="line">    &#125;  </div><div class="line">    stack.push(bottom);  </div><div class="line">    <span class="keyword">while</span>(!auxiliary.isEmpty()) &#123;  </div><div class="line">        stack.push(auxiliary.pop());  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码使用了一个辅助栈作为原栈中元素的临时存储空间。待传入的元素被压入到栈底之后，再将临时栈中的元素压入原栈中。但是，很明显的，这里又使用了显式声明的栈。</p>
+<p>如果想将以上的方法使用递归实现，那么就必须找出可以利用的子问题。听起来好像是在使用动态规划求解问题。实际上，递归算法和动态规划算法之间也有很微妙的关系，一般的动态规划方法有自顶向下以及自底向上的方法。而自顶向下的方法往往会采用递归加上备忘录的方式实现。</p>
+<p>将以上问题使用递归的方式进行描述如下：</p>
+<ul>
+<li>将栈顶元素取出，<strong>将待插入元素插入到栈的栈底</strong>，将取出的栈顶元素压入</li>
+</ul>
+<p>以上的子问题描述感觉不是很自然，但是为了不显式的使用栈结构，也只能如此了。<br>很明显的，当栈中不含有任何元素的时候，就可以将待插入元素压入栈了，因此可以写出以下的递归实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">insertToStackBottom</span><span class="params">(LinkedStack&lt;Integer&gt; stack,  </span></span></div><div class="line">        Integer bottom) &#123;  </div><div class="line">    <span class="comment">// 当栈为空的时候，将待插入的元素放到栈底  </span></div><div class="line">    <span class="keyword">if</span>(stack.isEmpty()) &#123;  </div><div class="line">        stack.push(bottom);  </div><div class="line">        <span class="keyword">return</span>;  </div><div class="line">    &#125;  </div><div class="line">    <span class="comment">// 取出栈顶的元素  </span></div><div class="line">    Integer top = stack.pop();  </div><div class="line">    <span class="comment">// 将传入的栈底元素放到栈底  </span></div><div class="line">    insertToStackBottom(stack, bottom);  </div><div class="line">    <span class="comment">// 还原  </span></div><div class="line">    stack.push(top);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>还是来比较一下此方法的非递归版本和递归版本：</p>
+<ul>
+<li>递归实现中，存在声明本地变量然后利用方法调用栈来保存本地变量的情况</li>
+<li>非递归实现中，显式的创建了一个栈，来保存相关变量</li>
+</ul>
+<p>仔细比较一下，可以发现以下两种实现本质上也是相同的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 非递归实现  </span></div><div class="line"><span class="keyword">while</span>(!stack.isEmpty()) &#123;  </div><div class="line">    auxiliary.push(stack.pop());  </div><div class="line">&#125;  </div><div class="line">stack.push(bottom);  </div><div class="line"><span class="keyword">while</span>(!auxiliary.isEmpty()) &#123;  </div><div class="line">    stack.push(auxiliary.pop());  </div><div class="line">&#125;  </div><div class="line"></div><div class="line"><span class="comment">// 递归实现  </span></div><div class="line">Integer top = stack.pop();  </div><div class="line">insertToStackBottom(stack, bottom);  </div><div class="line">stack.push(top);</div></pre></td></tr></table></figure>
+<p>具体而言，非递归实现中将栈中的元素都显式地保存在了另外创建的一个栈中，而递归实现则隐式地将栈中的元素都保存到了方法调用栈中(通过栈帧中的本地变量表)。</p>
+<p>前文中还提到了另外一种子问题的描述，即：</p>
+<ul>
+<li>取出栈底元素后，<strong>将栈进行逆序</strong>，最后将取出的栈底元素压入到栈顶</li>
+</ul>
+<p>本质上是一样的，这里就不提供实现了。</p>
+<p>我想，之所以递归算法有时候难以理解，可能是因为对方法调用栈的运行规律还不够了解所致。一般而言，同一个问题的递归实现总是会比非递归实现来的更简洁一些，这里是指代码量上的简洁，而代码量上的简洁来源于对方法调用栈的隐式使用 —— 不需要显式声明、操作栈这类数据结构当然会减少代码量。但是毫无疑问，递归实现对思维的要求会更高一些，首先你需要对待解决问题有一个全局的认识，知道如何将问题分解成子问题；其次，还需要有较好的编程能力，知道如何处理递归过程中的各种边界判断和终止条件。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag"># 算法</a>
+          
+            <a href="/tags/递归/" rel="tag"># 递归</a>
+          
+            <a href="/tags/栈/" rel="tag"># 栈</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/07/22/并查集-Union-Find-应用举例-基础篇/" rel="next" title="并查集(Union-Find) 应用举例 --- 基础篇">
+                <i class="fa fa-chevron-left"></i> 并查集(Union-Find) 应用举例 --- 基础篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
