@@ -359,6 +359,39 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/TestNG/" itemprop="url" rel="index">
+                    <span itemprop="name">TestNG</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -386,55 +419,18 @@
       
         
           
-            <p>在上一篇文章中，留下了一些的问题：</p>
-<ul>
-<li>Graph对象中的一些字段是怎么被初始化的？在使用Graph对象的topologicalSort方法的时候，需要用到这些字段，比如m_nodes以及m_independentNodes这两个集合，它们分别存放的是所有的节点的引用以及所有独立节点的引用。</li>
-<li>Graph对象是如何使用的，即方法调用栈的上层是如何调用Graph中的topologicalSort方法的。</li>
-<li>关于环路检测算法的实现，用于在发现循环依赖的时候，检测出具体的循环依赖路径。</li>
-</ul>
-<p>本文就对上述的几个问题作出解释：</p>
-<h2 id="环路检测算法"><a href="#环路检测算法" class="headerlink" title="环路检测算法"></a>环路检测算法</h2><p>先来看看算法的实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Tarjan</span>&lt;<span class="title">T</span>&gt; </span>&#123;  </div><div class="line">  <span class="keyword">int</span> m_index = <span class="number">0</span>;  </div><div class="line">  <span class="keyword">private</span> Stack&lt;T&gt; m_s;  </div><div class="line">  Map&lt;T, Integer&gt; m_indices = Maps.newHashMap();  </div><div class="line">  Map&lt;T, Integer&gt; m_lowlinks = Maps.newHashMap(); <span class="comment">//  </span></div><div class="line">  <span class="keyword">private</span> List&lt;T&gt; m_cycle;    </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Tarjan</span><span class="params">(Graph&lt;T&gt; graph, T start)</span></span>&#123;  </div><div class="line">    m_s = <span class="keyword">new</span> Stack&lt;T&gt;();  </div><div class="line">    run(graph, start);  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">(Graph&lt;T&gt; graph, T v)</span> </span>&#123;  </div><div class="line">    m_indices.put(v, m_index);  </div><div class="line">    m_lowlinks.put(v, m_index);  </div><div class="line">    m_index++;  </div><div class="line">    m_s.push(v);  </div><div class="line">    <span class="keyword">for</span> (T vprime : graph.getPredecessors(v))&#123;  </div><div class="line">      <span class="keyword">if</span> (! m_indices.containsKey(v prime)) &#123;  </div><div class="line">        run(graph, vprime);  </div><div class="line">        <span class="keyword">int</span> min = Math.min(m_lowlinks.get(v),m_lowlinks.get(vprime));  </div><div class="line">        m_lowlinks.put(v, min);  </div><div class="line">      &#125;  </div><div class="line">      <span class="keyword">else</span> <span class="keyword">if</span> (m_s.contains(v prime)) &#123;  </div><div class="line">        m_lowlinks.put(v,Math.min(m_lowlinks.get(v), m_indices.get(vprime)));  </div><div class="line">      &#125;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">if</span> (m_lowlinks.get(v) == m_indices.get(v))&#123;  </div><div class="line">      m_cycle = Lists.newArrayList();  </div><div class="line">      T n;  </div><div class="line">      <span class="keyword">do</span> &#123;  </div><div class="line">        n = m_s.pop();  </div><div class="line">        m_cycle.add(n);  </div><div class="line">      &#125; <span class="keyword">while</span> (! n.equals(v));  </div><div class="line">    &#125;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> List&lt;T&gt; <span class="title">getCycle</span><span class="params">()</span> </span>&#123;  </div><div class="line">    <span class="keyword">return</span> m_cycle;  </div><div class="line">  &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这里实现的实际上是Tarjan判断强连通子图的算法，因为对于有向cycle，它一定是强连通的，所以在我们的场景中使用这个算法是没问题的，但是在细节上，上面的实现存在一点小瑕疵，即最后只能maintain一个cycle，如果在依赖关系中存在多个cycle的话，是无法将它们全部记录下来的。当然，这个算法的实现是为了提示用户存在循环依赖，而不是为了输出所有的循环依赖。有兴趣的可以查看维基百科中对于<a href="http://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm" target="_blank" rel="external">Tarjan SCC算法</a>的描述。</p>
-<p>另外，在上面的实现中，和Tarjan SCC算法的实现也不是完全一致的，比如，是对当前node的所有前驱结点进行检查，而不是像Tarjan SCC中，是对所有的可达节点进行检查。这样做也是为了加快算法的执行速度，即在存在循环依赖的情况下，尽量减少循环的次数，只需要保证至少能够检测到一个环即可。</p>
-<h2 id="Graph对象的初始化以及使用"><a href="#Graph对象的初始化以及使用" class="headerlink" title="Graph对象的初始化以及使用"></a>Graph对象的初始化以及使用</h2><p>我们再来回顾一下那个stacktrace：</p>
-<p><img src="http://my.csdn.net/uploads/201206/07/1339047914_1787.png" alt=""></p>
-<p>可以发现，调用Graph中的拓扑排序方法的是MethodHelper类中的静态方法topologicalSort，而后者又被该类中的几个静态方法调用，所以，为了弄清楚Graph中的数据是如何准备的，我们需要对这个类进行探究：</p>
-<h3 id="MethodHelper-topologicalSort方法"><a href="#MethodHelper-topologicalSort方法" class="headerlink" title="MethodHelper.topologicalSort方法"></a>MethodHelper.topologicalSort方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Graph&lt;ITestNGMethod&gt; <span class="title">topologicalSort</span><span class="params">(ITestNGMethod[] methods,  </span></span></div><div class="line">      List&lt;ITestNGMethod&gt; sequentialList, List&lt;ITestNGMethod&gt; parallelList) &#123;  </div><div class="line">    Graph&lt;ITestNGMethod&gt; result = <span class="keyword">new</span> Graph&lt;ITestNGMethod&gt;();  <span class="comment">// 首先创建一个Graph类，Graph类中只有一个默认的constructor  </span></div><div class="line">    <span class="keyword">if</span> (methods.length == <span class="number">0</span>) &#123;    </div><div class="line">      <span class="keyword">return</span> result;   <span class="comment">//如果传入的methods数组长度为0，直接返回了空的graph  </span></div><div class="line">    &#125;  </div><div class="line">    <span class="comment">// Create the graph  </span></div><div class="line">    <span class="keyword">for</span> (ITestNGMethod m : methods) &#123;  </div><div class="line">      result.addNode(m);    <span class="comment">//对于每个方法instance，添加到graph中  </span></div><div class="line">      List&lt;ITestNGMethod&gt; predecessors = Lists.newArrayList();  <span class="comment">//获得该方法依赖的方法，获得该方法依赖的group名字，返回的都是string数组  </span></div><div class="line">      String[] methodsDependedUpon = m.getMethodsDependedUpon();  </div><div class="line">      String[] groupsDependedUpon = m.getGroupsDependedUpon();  </div><div class="line">      <span class="keyword">if</span> (methodsDependedUpon.length &gt; <span class="number">0</span>) &#123;   <span class="comment">//如果存在依赖的方法  </span></div><div class="line">        ITestNGMethod[] methodsNamed =  </div><div class="line">          MethodHelper.findDependedUponMethods(m,methods);  <span class="comment">// 通过该静态方法找到相应的method instances  </span></div><div class="line">        <span class="keyword">for</span> (ITestNGMethod pred : methodsNamed)&#123;  </div><div class="line">         predecessors.add(pred);   <span class="comment">//将找到的依赖方法添加到pred list中  </span></div><div class="line">        &#125;  </div><div class="line">      &#125;  </div><div class="line">      <span class="keyword">if</span> (groupsDependedUpon.length &gt; <span class="number">0</span>) &#123;  </div><div class="line">        <span class="keyword">for</span> (String group : groupsDependedUpon)&#123; <span class="comment">// 对于每个组，找到组中的方法  </span></div><div class="line">          ITestNGMethod[] methodsThatBelongToGroup =  </div><div class="line">            MethodGroupsHelper.findMethodsThatBelongToGroup(m, methods, group);  </div><div class="line">          <span class="keyword">for</span> (ITestNGMethod pred : methodsThatBelongToGroup) &#123;  </div><div class="line">            predecessors.add(pred); <span class="comment">// 将找到的依赖方法添加到pred list中  </span></div><div class="line">          &#125;  </div><div class="line">        &#125;  </div><div class="line">      &#125;  </div><div class="line">      <span class="keyword">for</span> (ITestNGMethod predecessor : predecessors) &#123;  </div><div class="line">        result.addPredecessor(m, predecessor);  <span class="comment">// 将pred list中的方法instance添加到graph中  </span></div><div class="line">      &#125;  </div><div class="line">    &#125;  </div><div class="line">    result.topologicalSort();    <span class="comment">//调用Graph的TS方法  </span></div><div class="line">    sequentialList.addAll(result.getStrictlySortedNodes());    <span class="comment">//对于存在依赖关系的方法需要顺序运行  </span></div><div class="line">    parallelList.addAll(result.getIndependentNodes());    <span class="comment">//对于不存在任何依赖的方法可以并发运行  </span></div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>以上代码的几个关键步骤：</p>
-<ul>
-<li>对于每个ITestNGMethod对象的操作：<ul>
-<li>添加到Graph中，通过addNode方法</li>
-<li>创建一个list，用来维护该方法依赖的方法</li>
-<li>获得该方法依赖的所有方法，添加到上一步创建的list中<ul>
-<li>根据dependsOnMethod找到依赖方法</li>
-<li>根据dependsOnGroup找到依赖方法</li>
-</ul>
-</li>
-<li>将上一步修改后的list添加到graph中，通过addPredecessor方法</li>
-</ul>
-</li>
-<li>待所有的ITestNGMethod对象都被处理完毕后，调用Graph对象的拓扑排序方法</li>
-<li>如果拓扑排序没有出现错误，获取结果，分别添加到Sequential和Parallel list中</li>
-</ul>
-<p>在上面的分析中，出现了SequentialList以及Parallel List这两个集合，它们分别用于顺序执行和并发执行。并发执行是TestNG中一个很重要，同时也十分新颖的功能。我们总是希望最大限度的提高程序的并发度，对于测试用例的运行，也不例外。由于硬件的发展，并发/并行计算是未来的趋势之一。TestNG中对于并发运行功能的实现，以后会有介绍。</p>
-<p>在上一篇文章中，介绍了Graph类的工作原理，但是对于其中数据的来源和准备，当时我们暂时忽略了，那么现在我们可以详细探究一下，Graph中的数据是如何准备的：</p>
-<p>主要通过两个方法：</p>
-<p><code>addNode</code>以及<code>addPredecessor</code></p>
-<p>由于Graph是一个泛型类，这里的参数都用T来表示类型，为了方便理解，不妨把这个T就当成TestNG中的用来表示方法的<code>ITestNGMethod</code>接口类型。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addNode</span><span class="params">(T tm)</span> </span>&#123;  </div><div class="line">  ppp(<span class="string">"ADDING NODE "</span> + tm + <span class="string">""</span> + tm.hashCode());  </div><div class="line">  m_nodes.put(tm, <span class="keyword">new</span> Node&lt;T&gt;(tm)); <span class="comment">// Initially, all the nodes are put in theindependent list as well  </span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>该方法的实现十分简单，就是向m_nodes集合中添加一个entry，注意这个entry的类型是<method，node<method>&gt;:</method，node<method></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addPredecessor</span><span class="params">(T tm, T predecessor)</span> </span>&#123;  </div><div class="line">  Node&lt;T&gt; node = findNode(tm);  <span class="comment">// 首先看看是否能够得到tm对象对应的Node  </span></div><div class="line">  <span class="keyword">if</span> (<span class="keyword">null</span> == node) &#123;  </div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> TestNGException(<span class="string">"Non-existing node: "</span> + tm); <span class="comment">//如果没有找到，明显是发生了错误，代表这个tm在m_nodes中根本就不存在  </span></div><div class="line">  &#125;  </div><div class="line">  <span class="keyword">else</span> &#123;  </div><div class="line">    node.addPredecessor(predecessor);  <span class="comment">// 这里在node上调用了addPredecessor方法  </span></div><div class="line">    addNeighbor(tm, predecessor);   <span class="comment">//这个方法的作用暂时还没有看到，搜索了整个workspace都没有找到相应的用途，估计是作者为了扩展什么功能而预留的  </span></div><div class="line">    <span class="comment">// Remove these two nodes from theindependent list  </span></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> == m_independentNodes) &#123;  <span class="comment">// 如果独立节点集合还没有初始化  </span></div><div class="line">      m_independentNodes = Maps.newHashMap();  </div><div class="line">      <span class="keyword">for</span> (T k : m_nodes.keySet()) &#123; <span class="comment">// 将现有的所有方法instance以及对应的Node对象添加到独立map  </span></div><div class="line">        m_independentNodes.put(k,m_nodes.get(k));    </div><div class="line">      &#125;  </div><div class="line">    &#125;  <span class="comment">// 移除非独立的节点，包括tm对象本身以及它依赖的节点，因此该集合中最后剩下的就是完全独立的节点了  </span></div><div class="line">    m_independentNodes.remove(predecessor);             </div><div class="line">    m_independentNodes.remove(tm);     </div><div class="line">    ppp(<span class="string">"  REMOVED "</span> + predecessor + <span class="string">" FROMINDEPENDENT OBJECTS"</span>);  </div><div class="line">  &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>然后我们再看看上面方法的调用者：</p>
-<h3 id="MethodHelper-sortMethods方法"><a href="#MethodHelper-sortMethods方法" class="headerlink" title="MethodHelper.sortMethods方法"></a>MethodHelper.sortMethods方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> List&lt;ITestNGMethod&gt; <span class="title">sortMethods</span><span class="params">(<span class="keyword">boolean</span> forTests,  </span></span></div><div class="line">    List&lt;ITestNGMethod&gt;allMethods, IAnnotationFinder finder) &#123;  </div><div class="line">  List&lt;ITestNGMethod&gt;sl = Lists.newArrayList();  <span class="comment">// 用来保存只能顺序执行的methods  </span></div><div class="line">  List&lt;ITestNGMethod&gt;pl = Lists.newArrayList(); <span class="comment">// 用来保存可以并行执行的methods  </span></div><div class="line">  ITestNGMethod[] allMethodsArray =allMethods.toArray(<span class="keyword">new</span> ITestNGMethod[allMethods.size()]);  </div><div class="line">  </div><div class="line">   <span class="comment">// 下面这个if块的功能在于：对属于beforeXXX系列的configuration方法，在调用顺序上进行修正  </span></div><div class="line">  <span class="keyword">if</span> (!forTests &amp;&amp; allMethodsArray.length &gt; <span class="number">0</span>) &#123;   </div><div class="line">    ITestNGMethod m = allMethodsArray[<span class="number">0</span>];  </div><div class="line">    <span class="keyword">boolean</span> before = m.isBeforeClassConfiguration()  </div><div class="line">        || m.isBeforeMethodConfiguration() || m.isBeforeSuiteConfiguration()  </div><div class="line">        || m.isBeforeTestConfiguration();    <span class="comment">//查看该config方法是不是beforeXXX方法  </span></div><div class="line">    MethodInheritance.fixMethodInheritance(allMethodsArray, before);  </div><div class="line">  &#125;  <span class="comment">// 调用之前的topologicalSort方法进行拓扑排序，将sequential list和parallel list构造好  </span></div><div class="line">  topologicalSort(allMethodsArray, sl, pl);   </div><div class="line">  List&lt;ITestNGMethod&gt; result = Lists.newArrayList();  </div><div class="line">  result.addAll(sl);  </div><div class="line">  result.addAll(pl);  <span class="comment">// 将sl和pl中的ref全部添加到result中，该result集合也就表示了所有需要执行的方法  </span></div><div class="line">  <span class="keyword">return</span> result;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>因此，在TestNG对于依赖关系检测的拓扑排序中，主要有两个功能：</p>
-<ul>
-<li>检测依赖关系的正确性，即不存在任何形式的循环依赖</li>
-<li>在保证正确性的前提下，将方法分类，分成只能顺序运行的方法以及可以并发运行的方法</li>
-</ul>
-<p>以上，就是对TestNG中依赖关系相关核心代码的分析。其核心思想还是使用拓扑排序来建立依赖关系。在以后的系列文章中，还会介绍TestNG是如何实现并发运行测试方法，以及一些其他内容，比如，TestNG的几个常用的扩展点，Method Selector机制，各种Listener等等。</p>
+          在上一篇文章中，留下了一些的问题：
 
-          
+Graph对象中的一些字段是怎么被初始化的？在使用Graph对象的topologicalSort方法的时候，需要用到这些字段，比如m_nodes以及m_independentNodes这两个集合，它们分别存放的是所有的节点的引用以及所有独立节点的引用。
+Grap
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/06/07/TestNG源代码分析-依赖管理的实现（二）/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -524,6 +520,39 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/TestNG/" itemprop="url" rel="index">
+                    <span itemprop="name">TestNG</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -551,64 +580,16 @@
       
         
           
-            <p>最近看了一些TestNG的源代码，觉得这个测试框架的功能其实满强大的，里面的功能点很多，以后有机会慢慢分析一下它们的实现方法，今天主要介绍一下它如何实现方法之间的依赖关系。</p>
-<h2 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h2><p>想必大家都知道拓扑排序吧，拓扑排序最经典的应用场景就是对于Jobs/Tasks的规划，即对于存在前后依赖关系的任务如何安排一个计划来执行它们。<br>相关的资料，可以参考<a href="http://en.wikipedia.org/wiki/Topological_sorting" target="_blank" rel="external">维基百科</a>，里面介绍的比较详细。</p>
-<p>那么反映到我们的测试场景中，有一些测试方法之间是存在依赖关系的，比如在对一个Serverside的class进行测试的时候：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span>  </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">serverStartedOk</span><span class="params">()</span></span>&#123;&#125;  </div><div class="line"></div><div class="line"><span class="meta">@Test</span>(dependsOnMethods=&#123; <span class="string">"serverStartedOk"</span> &#125;)  </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;&#125;</div></pre></td></tr></table></figure>
-<p>显然，method1是依赖于serverStartedOK这个方法的，即在被依赖的方法成功执行之后，method1才会执行。</p>
-<p>当然以上的代码存在一个小问题：</p>
-<p>它的可维护性不太好，在method1的@Test注解的dependsOnMethods属性中，直接将依赖方法的名字以字符串的形式传入，这显然是不太合适的。所以，除了这种dependsOnMethods的依赖方式，TestNG还支持了另外一种对于依赖的声明方式，即dependsOnGroups：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">@Test(groups = &#123; "init" &#125;)  </div><div class="line">public void serverStartedOk()&#123;&#125;  </div><div class="line"></div><div class="line">@Test(groups = &#123; "init" &#125;)  </div><div class="line">public void initEnvironment()&#123;&#125;  </div><div class="line"></div><div class="line">@Test(dependsOnGroups = &#123; "init.*&#125;)  </div><div class="line">public void method1() &#123;&#125;</div></pre></td></tr></table></figure>
-<p>以上代码来自：<a href="http://testng.org/doc/documentation-main.html#dependent-methods" target="_blank" rel="external">官方文档</a></p>
-<p>首先将初始化方法声明属于init组，然后在method1的@Test的dependsOnGroups属性中将该组的名字传入，如代码中所示，这里指定依赖的groups还能够使用正则表达式，注意这里是正则表达式而不是通配符，因此任意字符串序列使用 .<em> 而不是 </em>来进行匹配。</p>
-<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>言归正传，如何在成堆成堆的代码中快速定位到对所有待测试方法进行拓扑排序的实现位置呢？</p>
-<p>一开始我也是大海捞针式的进行查找，虽然最后找到了，但是也是花了很多时间，绕了不少弯路。后来在进行试验的时候发现了一个更加快速的方法，即故意制造一个循环依赖，然后看stacktrace：</p>
-<p><img src="http://my.csdn.net/uploads/201206/05/1338894227_6905.png" alt=""></p>
-<p>很明显的，Graph类中的topologicalSort方法就是负责拓扑排序的实现了！<strong>(以下的ppp方法是在开启verbose模式后的输出)</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">topologicalSort</span><span class="params">()</span> </span>&#123;  </div><div class="line">   ppp(<span class="string">"================ SORTING"</span>);  </div><div class="line">   m_strictlySortedNodes=Lists.newArrayList();  <span class="comment">// 最后的结果放到这个集合中  </span></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> ==m_independentNodes) &#123;  </div><div class="line">     m_independentNodes =Maps.newHashMap();  </div><div class="line">    &#125;  </div><div class="line">    <span class="comment">//Clone the listof nodes but only keep those that are  </span></div><div class="line">    <span class="comment">// notindependent.   向nodes2集合中添加非独立的节点，即添加存在依赖关系的节点  </span></div><div class="line">    <span class="comment">//  </span></div><div class="line">    List&lt;Node&lt;T&gt;&gt;nodes2 =Lists.newArrayList();  </div><div class="line">    <span class="keyword">for</span> (Node&lt;T&gt; n :getNodes()) &#123;  </div><div class="line">      <span class="keyword">if</span> (!isIndependent(n.getObject()))&#123;    <span class="comment">// 判断该节点是否独立，如果不独立的话，添加到nodes2中  </span></div><div class="line">       ppp(<span class="string">"ADDING FOR SORT: "</span> +n.getObject());  </div><div class="line">        nodes2.add(n.clone()); <span class="comment">//使用的是clone方法来进行对象的复制，一般不推荐使用clone方法，参见Effective Java Item 11  </span></div><div class="line">      &#125;  </div><div class="line">      <span class="keyword">else</span> &#123;  </div><div class="line">       ppp(<span class="string">"SKIPPING INDEPENDENT NODE"</span> + n);  </div><div class="line">      &#125;  </div><div class="line">    &#125;  </div><div class="line">    <span class="comment">// Sort thenodesalphabetically to make sure that methods of the same class  </span></div><div class="line">    <span class="comment">// get run close to eachother as much aspossible  </span></div><div class="line">    <span class="comment">// 将非独立的节点集合排序，为了让属于同类中的方法在集合中的位置近一些，从而在调用的顺序上能够相邻一些  </span></div><div class="line">    Collections.sort(nodes2);  </div><div class="line">    <span class="comment">// Sort  </span></div><div class="line">    <span class="keyword">while</span> (!nodes2.isEmpty()) &#123;  </div><div class="line">      <span class="comment">// Find all the nodes that don't have anypredecessors, add  </span></div><div class="line">      <span class="comment">// them to the result and mark them forremoval  </span></div><div class="line">      <span class="comment">//  从nodes2集合中找到没有前驱节点的节点  </span></div><div class="line">      Node&lt;T&gt; node =findNodeWithNoPredecessors(nodes2);  </div><div class="line">      <span class="keyword">if</span> (<span class="keyword">null</span> == node) &#123;   <span class="comment">// 如果没有找到节点，那么创建一个Tarjan对象来得到一个cycle  </span></div><div class="line">        List&lt;T&gt; cycle =newTarjan&lt;T&gt;(<span class="keyword">this</span>,nodes2.get(<span class="number">0</span>).getObject()).getCycle(); <span class="comment">// 这里实现了Tarjan算法，用来得到环的路径信息  </span></div><div class="line">        StringBuffer sb = <span class="keyword">new</span> StringBuffer();  <span class="comment">//在非并发环境中应该尽量使用StringBuilder  </span></div><div class="line">       sb.append(<span class="string">"The following methodshave cyclic dependencies:\n"</span>);  </div><div class="line">       <span class="keyword">for</span> (T m : cycle) &#123;  </div><div class="line">          sb.append(m).append(<span class="string">"\n"</span>);  </div><div class="line">        &#125;  </div><div class="line">       <span class="keyword">throw</span> newTestNGException(sb.toString());  </div><div class="line">      &#125;  </div><div class="line">      <span class="keyword">else</span> &#123;   <span class="comment">//如果找到了，将这个没有任何前驱节点的节点放到结果结合中，然后从nodes2集合中删除该节点  </span></div><div class="line">       m_strictlySortedNodes.add(node.getObject());  </div><div class="line">       removeFromNodes(nodes2, node);  </div><div class="line">      &#125;  </div><div class="line">    &#125;  </div><div class="line">    ppp(<span class="string">"===============DONESORTING"</span>);  </div><div class="line">    <span class="keyword">if</span> (m_verbose) &#123;  </div><div class="line">     dumpSortedNodes();  </div><div class="line">    &#125;  </div><div class="line">  &#125;</div></pre></td></tr></table></figure>
-<p>上面的代码中有几个关键地方：</p>
-<ol>
-<li>创建非独立节点集合，即存在依赖关系的方法的集合，用于后续的拓扑排序</li>
-<li>预排序上一步得到的集合，使用Collections工具类中的sort方法</li>
-<li>进行拓扑排序，如果发现有循环依赖，马上抛出异常</li>
-</ol>
-<h3 id="第一步："><a href="#第一步：" class="headerlink" title="第一步："></a>第一步：</h3><p>关键方法：<code>isIndependent</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">booleanisIndependent</span><span class="params">(Tobject)</span> </span>&#123;  </div><div class="line">  <span class="keyword">return</span> m_independentNodes.containsKey(object);   </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>该集合中显然只存放了独立节点的refs。</p>
-<p>集合的创建过程和上层调用相关，这里暂时略过，只用将它想成是存放独立节点，即不存在任何依赖关系的节点就行了。</p>
-<h3 id="第二步："><a href="#第二步：" class="headerlink" title="第二步："></a>第二步：</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Sort the nodesalphabetically to makesure that methods of the same class  </span></div><div class="line"><span class="comment">// get run close to eachother as much aspossible  </span></div><div class="line">Collections.sort(nodes2);</div></pre></td></tr></table></figure>
-<p>使用了工具类中的排序方法，而且是对一个集合排序，没有指定任何的Comparator对象，那么显然的，每个node定义了自己的compareTo方法，该方法定义在：</p>
-<p><code>public static class Node&lt;T&gt; implements Comparable&lt;Node&lt;T&gt;&gt;</code> 中：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span>  </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">intcompareTo</span><span class="params">(Node&lt;T&gt; o)</span> </span>&#123;  </div><div class="line">  <span class="keyword">return</span> getObject().toString().compareTo(o.getObject().toString());  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>相应的toString方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span>  </div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span></span>&#123;  </div><div class="line">  StringBuffer sb = newStringBuffer(<span class="string">"[Node:"</span> +m_object); <span class="comment">// 这里首先打印了类型T  </span></div><div class="line"> sb.append(<span class="string">" pred:"</span>);  </div><div class="line">  <span class="keyword">for</span> (T o :m_predecessors.values()) &#123;  </div><div class="line">    sb.append(<span class="string">""</span> +o.toString());  <span class="comment">// 然后加上所有的前驱结点T  </span></div><div class="line">  &#125;  </div><div class="line"> sb.append(<span class="string">"]"</span>);  </div><div class="line">  String result= sb.toString();  </div><div class="line">  <span class="keyword">return</span> result;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>所以根据上面的toString方法，在m_object相同的成分更多时，排序的结果也就越靠近<br>这里的m_object的实际类型肯定是方法对象了，那么放在字符串的连接操作符后面，即连接的是toString的返回值。</p>
-<h3 id="第三步："><a href="#第三步：" class="headerlink" title="第三步："></a>第三步：</h3><p><code>Node&lt;T&gt;node =findNodeWithNoPredecessors(nodes2);</code></p>
-<p>相应的方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Node&lt;T&gt; <span class="title">findNodeWithNoPredecessors</span><span class="params">(List&lt;Node&lt;T&gt;&gt; nodes)</span> </span>&#123;  </div><div class="line">  <span class="keyword">for</span> (Node&lt;T&gt; n :nodes) &#123;  </div><div class="line">    <span class="keyword">if</span> (!n.hasPredecessors()) &#123;  </div><div class="line">     <span class="keyword">return</span> n;  </div><div class="line">    &#125;  </div><div class="line">  &#125;  </div><div class="line">  <span class="keyword">return</span> <span class="keyword">null</span>;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>直接在预排序之后的非独立节点上进行操作：</p>
-<p>找到第一个没有前驱结点的node并返回！</p>
-<p>Node类中：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasPredecessors</span><span class="params">()</span> </span>&#123;  </div><div class="line">  <span class="keyword">return</span> m_predecessors.size() &gt; <span class="number">0</span>;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>如果对照拓扑排序实现的伪代码，可能看的更清楚(文字部分是TestNG中对应的实现方式)：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">L ← Empty list that will contain the sorted elements</div></pre></td></tr></table></figure>
-<p>在方法的开头创建的m_strictlySortedNodeslist就是存放结果的集合</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">S ← Set of all nodes with no incoming edges</div></pre></td></tr></table></figure>
-<p>实现中并没有独立的创建这么一个入度为0的节点的集合，而是动态的从所有的存在有依赖关系的节点中按需取出一个，也就是说，和后面的while循环一起实现了</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">while S is non-empty do</div><div class="line">    remove a node n from S</div><div class="line">    insert n into L</div><div class="line">    foreach node m with an edge e from nto m do</div><div class="line">       remove edge e from thegraph</div><div class="line">        ifm has no other incoming edges then</div><div class="line">            insert m into S</div></pre></td></tr></table></figure>
-<p>从S集合中remove node通过findNodeWithNoPredecessors方法实现<br>而remove edge的操作，则是通过removeFromNodes方法实现</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">if graph has edges then</div><div class="line">    return error (graph hasat least onecycle)</div></pre></td></tr></table></figure>
-<p>这一步也被实现到了上面的while循环中，这样的好处是，如果发现了有cycle存在，马上就会抛出异常，而不会像这里的伪代码一样，直到while退出了才会发现问题</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">else </div><div class="line">    return L (a topologicallysortedorder)</div></pre></td></tr></table></figure>
-<p>最后的m_strictlySortedNodes即是拓扑排序的结果。</p>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>以上就是Graph类的大致功能了，当然，这是在假设了很多前提的条件下分析的结果。留下了一些可以继续深究的问题：</p>
-<ul>
-<li>Graph对象中的一些字段是怎么被初始化的？在使用Graph对象的topologicalSort方法的时候，需要用到这些字段，比如m_nodes以及m_independentNodes这两个集合，它们分别存放的是所有的节点的引用以及所有独立节点的引用。</li>
-<li>Graph对象是如何使用的，即方法调用栈的上层是如何调用Graph中的topologicalSort方法的。<br>关于环路检测算法的实现，用于在发现循环依赖的时候，检测出具体的循环依赖路径。</li>
-</ul>
-<p>这些问题在下篇文章中会进行介绍！</p>
-
-          
+          最近看了一些TestNG的源代码，觉得这个测试框架的功能其实满强大的，里面的功能点很多，以后有机会慢慢分析一下它们的实现方法，今天主要介绍一下它如何实现方法之间的依赖关系。
+背景知识想必大家都知道拓扑排序吧，拓扑排序最经典的应用场景就是对于Jobs/Tasks的规划，即对于存在前后依赖关系的任务如何
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/06/04/TestNG源代码分析-依赖管理的实现（一）/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -685,6 +666,13 @@
             </div>
           
 
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
           
 
           
