@@ -1,0 +1,1138 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,Performance,JIT编译器," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="使用JIT(Just-In-Time)编译器JIT编译器概览
+JIT编译器是JVM的核心。它对于程序性能的影响最大。
+CPU只能执行汇编代码或者二进制代码，所有程序都需要被翻译成它们，然后才能被CPU执行。
+C++以及Fortran这类编译型语言都会通过一个静态的编译器将程序编译成CPU相关的二进制代码。
+PHP以及Perl这列语言则是解释型语言，只需要安装正确的解释器，它们就能运行在任何CPU之">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Java Performance] JIT编译器简介">
+<meta property="og:url" content="http://rxjiang.com/2014/09/24/Java-Performance-JIT编译器简介/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="使用JIT(Just-In-Time)编译器JIT编译器概览
+JIT编译器是JVM的核心。它对于程序性能的影响最大。
+CPU只能执行汇编代码或者二进制代码，所有程序都需要被翻译成它们，然后才能被CPU执行。
+C++以及Fortran这类编译型语言都会通过一个静态的编译器将程序编译成CPU相关的二进制代码。
+PHP以及Perl这列语言则是解释型语言，只需要安装正确的解释器，它们就能运行在任何CPU之">
+<meta property="og:updated_time" content="2017-02-19T09:06:40.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Java Performance] JIT编译器简介">
+<meta name="twitter:description" content="使用JIT(Just-In-Time)编译器JIT编译器概览
+JIT编译器是JVM的核心。它对于程序性能的影响最大。
+CPU只能执行汇编代码或者二进制代码，所有程序都需要被翻译成它们，然后才能被CPU执行。
+C++以及Fortran这类编译型语言都会通过一个静态的编译器将程序编译成CPU相关的二进制代码。
+PHP以及Perl这列语言则是解释型语言，只需要安装正确的解释器，它们就能运行在任何CPU之">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/09/24/Java-Performance-JIT编译器简介/"/>
+
+
+
+
+
+  <title> [Java Performance] JIT编译器简介 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/09/24/Java-Performance-JIT编译器简介/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Java Performance] JIT编译器简介
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-09-24T22:07:00+08:00">
+                2014-09-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="使用JIT-Just-In-Time-编译器"><a href="#使用JIT-Just-In-Time-编译器" class="headerlink" title="使用JIT(Just-In-Time)编译器"></a>使用JIT(Just-In-Time)编译器</h2><h3 id="JIT编译器概览"><a href="#JIT编译器概览" class="headerlink" title="JIT编译器概览"></a>JIT编译器概览</h3><ol>
+<li>JIT编译器是JVM的核心。它对于程序性能的影响最大。</li>
+<li>CPU只能执行汇编代码或者二进制代码，所有程序都需要被翻译成它们，然后才能被CPU执行。</li>
+<li>C++以及Fortran这类编译型语言都会通过一个静态的编译器将程序编译成CPU相关的二进制代码。</li>
+<li>PHP以及Perl这列语言则是解释型语言，只需要安装正确的解释器，它们就能运行在任何CPU之上。当程序被执行的时候，程序代码会被逐行解释并执行。</li>
+<li>编译型语言的优缺点：<ul>
+<li>速度快：因为在编译的时候它们能够获取到更多的有关程序结构的信息，从而有机会对它们进行优化。</li>
+<li>适用性差：它们编译得到的二进制代码往往是CPU相关的，在需要适配多种CPU时，可能需要编译多次。</li>
+</ul>
+</li>
+<li>解释型语言的优缺点：<ul>
+<li>适应性强：只需要安装正确的解释器，程序在任何CPU上都能够被运行</li>
+<li>速度慢：因为程序需要被逐行翻译，导致速度变慢。同时因为缺乏编译这一过程，执行代码不能通过编译器进行优化。</li>
+</ul>
+</li>
+<li>Java的做法是找到编译型语言和解释性语言的一个中间点：<ul>
+<li>Java代码会被编译：被编译成Java字节码，而不是针对某种CPU的二进制代码。</li>
+<li>Java代码会被解释：Java字节码需要被java程序解释执行，此时，Java字节码被翻译成CPU相关的二进制代码。</li>
+<li>JIT编译器的作用：在程序运行期间，将Java字节码编译成平台相关的二进制代码。正因为此编译行为发生在程序运行期间，所以该编译器被称为Just-In-Time编译器。</li>
+</ul>
+</li>
+</ol>
+<a id="more"></a>
+<h3 id="HotSpot-编译"><a href="#HotSpot-编译" class="headerlink" title="HotSpot 编译"></a>HotSpot 编译</h3><ul>
+<li>HotSpot VM名字也体现了JIT编译器的工作方式。在VM开始运行一段代码时，并不会立即对它们进行编译。在程序中，总有那么一些“热点”区域，该区域的代码会被反复的执行。而JIT编译器只会编译这些“热点”区域的代码。这么做的原因在于：<ul>
+<li>编译那些只会被运行一次的代码性价比太低，直接解释执行Java字节码反而更快。</li>
+<li>JVM在执行这些代码的时候，能获取到这些代码的信息，一段代码被执行的次数越多，JVM也对它们愈加熟悉，因此能够在对它们进行编译的时候做出一些优化。<ul>
+<li>一个例子是：当在解释执行b = obj.equals(otherObj)的时候，需要查询该equals方法定义在哪个类型上，因为equals方法可能存在于继承树上的任意一个类。如果这段代码被会执行很多次，那么查询操作会耗费很多时间。而在JVM运行这段代码的时候，也许会发现equals方法定义在String类型上，那么当JIT编译器编译这段代码的时候，就会直接调用String类型上的equals方法(当然，在JIT编译得到的代码中，也会考虑到当obj的引用发生变化的时候，需要再次进行查询)。此时，这段代码会在两个方面被优化：<ul>
+<li>由解释执行转换为编译执行</li>
+<li>跳过了方法查询阶段(直接调用String的equals方法)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Java综合了编译型语言和解释性语言的优势。</li>
+<li>Java会将类文件编译成为Java字节码，然后Java字节码会被JIT编译器选择性地编译成为CPU能够直接运行的二进制代码。</li>
+<li>将Java字节码编译成二进制代码后，性能会被大幅度提升。</li>
+</ol>
+<hr>
+<h2 id="调优基础：客户端版或服务器版"><a href="#调优基础：客户端版或服务器版" class="headerlink" title="调优基础：客户端版或服务器版"></a>调优基础：客户端版或服务器版</h2><ol>
+<li>一般只需要选择是使用客户端版或者服务器版的JIT编译器即可。</li>
+<li>客户端版的JIT编译器使用：-client指定，服务器版的使用：-server。</li>
+<li>选择哪种类型一般和硬件的配置相关，当然随着硬件的发展，也没有一个确定的标准哪种硬件适合哪种配置。</li>
+<li>两种JIT编译器的区别：<ul>
+<li>Client版对于代码的编译早于Server版，也意味着代码的执行速度在程序执行早期Client版更快。</li>
+<li>Server版对代码的编译会稍晚一些，这是为了获取到程序本身的更多信息，以便编译得到优化程度更高的代码。因为运行在Server上的程序通常都会持续很久。</li>
+</ul>
+</li>
+<li>Tiered编译的原理：<ul>
+<li>JVM启动之初使用Client版JIT编译器</li>
+<li>当HotSpot形成之后使用Server版JIT编译器再次编译</li>
+</ul>
+</li>
+<li>在Java 8中，默认使用Tiered编译方式。</li>
+</ol>
+<h3 id="启动优化"><a href="#启动优化" class="headerlink" title="启动优化"></a>启动优化</h3><p>一组数据：</p>
+<table>
+<thead>
+<tr>
+<th>Application</th>
+<th>-client</th>
+<th>-server</th>
+<th>-XX:+TieredCompilation</th>
+<th>类数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HelloWorld</td>
+<td>0.08s</td>
+<td>0.08s</td>
+<td>0.08s</td>
+<td>Few</td>
+</tr>
+<tr>
+<td>NetBeans</td>
+<td>2.83s</td>
+<td>3.92s</td>
+<td>3.07s</td>
+<td>~10000</td>
+</tr>
+<tr>
+<td>HelloWorld</td>
+<td>51.5s</td>
+<td>54.0s</td>
+<td>52.0s</td>
+<td>~20000</td>
+</tr>
+</tbody>
+</table>
+<h4 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h4><ol>
+<li>当程序的启动速度越快越好时，使用Client版的JIT编译器更好。</li>
+<li>就启动速度而言，Tiered编译方式的性能和只使用Client的方式十分接近，因为Tiered编译本质上也会在启动是使用Client JIT编译器。</li>
+</ol>
+<h3 id="批处理优化"><a href="#批处理优化" class="headerlink" title="批处理优化"></a>批处理优化</h3><p>对于批处理任务，任务量的大小是决定运行时间和使用哪种编译策略的最重要因素：</p>
+<table>
+<thead>
+<tr>
+<th>Number of Tasks</th>
+<th>-client</th>
+<th>-server</th>
+<th>-XX:+TieredCompilation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0.142s</td>
+<td>0.176s</td>
+<td>0.165s</td>
+</tr>
+<tr>
+<td>10</td>
+<td>0.211s</td>
+<td>0.348s</td>
+<td>0.226s</td>
+</tr>
+<tr>
+<td>100</td>
+<td>0.454s</td>
+<td>0.674s</td>
+<td>0.472s</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>2.556s</td>
+<td>2.158s</td>
+<td>1.910s</td>
+</tr>
+<tr>
+<td>10000</td>
+<td>23.78s</td>
+<td>14.03s</td>
+<td>13.56s</td>
+</tr>
+</tbody>
+</table>
+<p>可以发现几个结论：</p>
+<ul>
+<li>当任务数量小的时候，使用Client或者Tiered方式的性能类似，而当任务数量大的时候，使用Tiered会获得最好的性能，因为它综合使用了Client和Server两种编译器，在程序运行之初，使用Client JIT编译器得到一部分编译过的代码，在程序“热点”逐渐形成之后，使用Server JIT编译器得到高度优化的编译后代码。</li>
+<li>Tiered编译方式的性能总是好于单独使用Server JIT编译器。</li>
+<li>Tiered编译方式在任务量不大的时候，和单独使用Client JIT编译器的性能相当。</li>
+</ul>
+<h4 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h4><ol>
+<li>当一段批处理程序需要被执行时，使用不同的策略进行测试，使用速度最快的那一种。</li>
+<li>对于批处理程序，考虑使用Tiered编译方式作为默认选项。</li>
+</ol>
+<h3 id="长时间运行应用的优化"><a href="#长时间运行应用的优化" class="headerlink" title="长时间运行应用的优化"></a>长时间运行应用的优化</h3><p>对于长时间运行的应用，比如Servlet程序等，一般会使用吞吐量来测试它们的性能。 以下的一组数据表示了一个典型的数据获取程序在使用不同“热身时间”以及不同编译策略时，对吞吐量(OPS)的影响(执行时间为60s)：</p>
+<table>
+<thead>
+<tr>
+<th>Warm-up Period</th>
+<th>-client</th>
+<th>-server</th>
+<th>-XX:+TieredCompilation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0s</td>
+<td>15.87</td>
+<td>23.72</td>
+<td>24.23</td>
+</tr>
+<tr>
+<td>60s</td>
+<td>16.00</td>
+<td>23.73</td>
+<td>24.26</td>
+</tr>
+<tr>
+<td>300s</td>
+<td>16.85</td>
+<td>24.42</td>
+<td>24.43</td>
+</tr>
+</tbody>
+</table>
+<p>即使当“热身时间”为0秒，因为执行时间为60秒，所以编译器也有机会在次期间做出优化。</p>
+<p>从上面的数据可以发现的几个结论：</p>
+<ul>
+<li>对于典型的数据获取程序，编译器对代码编译和优化发生的十分迅速，当“热身时间”显著增加时，如从60秒增加到300秒，最后得到的OPS差异并不明显。</li>
+<li>-server JIT编译器和Tiered编译的性能显著优于-client JIT编译器。</li>
+</ul>
+<h4 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a>总结</h4><ol>
+<li>对于长时间运行的应用，总是使用-server JIT编译器或者Tiered编译策略。</li>
+</ol>
+<hr>
+<h2 id="Java和JIT编译器版本"><a href="#Java和JIT编译器版本" class="headerlink" title="Java和JIT编译器版本"></a>Java和JIT编译器版本</h2><p>以上讨论了JIT编译器的Client以及Server版本，但实际上，JIT编译器有三种：</p>
+<ul>
+<li>32-bit Client (-client)</li>
+<li>32-bit Server (-server)</li>
+<li>64-bit Server (-d64)</li>
+</ul>
+<p>在32-bit的JVM中，最多可以使用两种JIT编译器。 在64-bit的JVM中，只能使用一种，即-d64。(虽然实际上也含有两种，因为在Tiered编译模式下，Client和Server JIT都会被使用到)</p>
+<h3 id="关于32位或者64为JVM的选择"><a href="#关于32位或者64为JVM的选择" class="headerlink" title="关于32位或者64为JVM的选择"></a>关于32位或者64为JVM的选择</h3><ul>
+<li>如果你的OS是32位的，那么必须选择32位的JVM；如果你的OS是64位的，那么你可以选择32位或者64为的JVM。</li>
+<li>如果你的计算机的内存小于3GB，那么使用32位的JVM性能更优。因为此时JVM中对于内存的引用也是32位的(也就是声明一个指向内存的变量会占用32位的空间)，所以操作这些引用的速度也会更快。</li>
+<li>使用32位版本的缺点如下：<ul>
+<li>可用的内存小于4GB，在某些Windows OS中是小于3GB，在某些旧版本的Linux中是小于3.5GB。</li>
+<li>对于double和long变量类型的操作速度会慢于64位版本，因为它们不能使用CPU的64位寄存器。</li>
+</ul>
+</li>
+<li>在通常情况下，如果你的程序对于内存的容量要求不那么高，且并不含有很多对于long和double类型的操作，那么选择32位往往更快，和64位相比，性能往往会提高5%-20%不等。</li>
+</ul>
+<h3 id="OS和编译器参数之间的关系"><a href="#OS和编译器参数之间的关系" class="headerlink" title="OS和编译器参数之间的关系"></a>OS和编译器参数之间的关系</h3><table>
+<thead>
+<tr>
+<th>JVM版本</th>
+<th>-client</th>
+<th>-server</th>
+<th>-d64</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux 32-bit</td>
+<td>32-bit client compiler</td>
+<td>32-bit server compiler</td>
+<td>Error</td>
+</tr>
+</tbody>
+</table>
+<p>Linux 64-bit|    64-bit server compiler|    64-bit server compiler|    64-bit server compiler|<br>Mac OS X    |64-bit server compiler    |64-bit server compiler|    64-bit server compiler|<br>Solaris 32-bit|    32-bit client compiler    |32-bit server compiler|    Error|<br>Solaris 64-bit    |32-bit client compiler|32-bit server compiler|    64-bit server compiler|<br>Windows 32-bit    |32-bit client compiler|    32-bit server compiler    |Error|<br>Windows 64-bit    |64-bit server compiler|    64-bit server compiler    |64-bit server compiler|</p>
+<h3 id="OS和默认编译器的关系"><a href="#OS和默认编译器的关系" class="headerlink" title="OS和默认编译器的关系"></a>OS和默认编译器的关系</h3><table>
+<thead>
+<tr>
+<th>OS</th>
+<th>默认JIT编译器</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows, 32-bit, any number of CPUs</td>
+<td>-client</td>
+</tr>
+<tr>
+<td>Windows, 64-bit, any number of CPUs</td>
+<td>-server</td>
+</tr>
+<tr>
+<td>Mac OS X, any number of CPUs</td>
+<td>-server</td>
+</tr>
+<tr>
+<td>Linux/Solaris, 32-bit, 1 CPU</td>
+<td>-client</td>
+</tr>
+<tr>
+<td>Linux/Solaris, 32-bit, 2 or more CPUs</td>
+<td>-server</td>
+</tr>
+<tr>
+<td>Linux, 64-bit, any number of CPUs</td>
+<td>-server</td>
+</tr>
+<tr>
+<td>Solaris, 32-bit/64-bit overlay, 1 CPU</td>
+<td>-client</td>
+</tr>
+<tr>
+<td>Solaris, 32-bit/64-bit overlay, 2 or more CPUs</td>
+<td>-server (32-bit mode)</td>
+</tr>
+</tbody>
+</table>
+<p>OS和默认JIT的关系是建立在以下两个事实之上：</p>
+<ul>
+<li>当Java程序运行在Windows 32位的计算机上时，程序的启动速度往往是最重要的，因为它面向的往往是最终用户。</li>
+<li>当Java程序运行在Unix/Linux系统上时，程序往往是长时间运行的服务端程序，所以Server JIT编译器的优势更明显。</li>
+</ul>
+<h4 id="总结-4"><a href="#总结-4" class="headerlink" title="总结"></a>总结</h4><ol>
+<li>32位和64位的JVM支持的JIT编译器是不一样的。</li>
+<li>在不同的OS和架构(32bit/64bit)对于JIT编译器的支持是不一样的。</li>
+<li>即使声明了要使用某种JIT编译器，根据运行时平台的不同，实际使用的也不一定是指定的编译器。</li>
+</ol>
+<hr>
+<h2 id="JIT编译器调优进阶"><a href="#JIT编译器调优进阶" class="headerlink" title="JIT编译器调优进阶"></a>JIT编译器调优进阶</h2><p>对于绝大部分的场景，只设置使用哪种JIT编译器就足够了：-client, -server或者-XX:+TieredCompilation。 对长时间运行的应用，使用Tiered编译方式更好，即使在短时间运行的引用上使用它，性能也和使用Client编译器类似。</p>
+<p>但是在另外一些场合下，还是需要进行另外一些调优。</p>
+<h3 id="代码缓存调优-Tuning-the-Code-Cache"><a href="#代码缓存调优-Tuning-the-Code-Cache" class="headerlink" title="代码缓存调优(Tuning the Code Cache)"></a>代码缓存调优(Tuning the Code Cache)</h3><p>当JVM对代码进行编译后，被编译的代码以汇编指令的形式存在于代码缓存中(Code Cache)，显然这个缓存区域也是有大小限制的，当此区域被填满了之后，编译器就不能够再编译其他Java字节码了。</p>
+<p>所以当此区域设置的太小时，会对程序性能造成影响，因为编译器不会对Java字节码进行编译来得到运行速度更快的汇编指令/二进制代码了。</p>
+<p>当使用Tiered编译策略，这种影响会更常见。因为该策略在运行之处，编译器的行为类似Client编译器，此时大量的Java字节码会被编译，如果Code Cache设置的太小，那么性能就得不到充分地提升。</p>
+<p>当Code Cache区域被填满时，JVM会给出警告：</p>
+<blockquote>
+<p>Java HotSpot(TM) 64-Bit Server VM warning: CodeCache is full. Compiler has been disabled. Java HotSpot(TM) 64-Bit Server VM warning: Try increasing the code cache size using -XX:ReservedCodeCacheSize=</p>
+</blockquote>
+<p>当然通过查看编译日志也能够知道Code Cache的使用情况。</p>
+<h3 id="Java平台和默认Code-Cache空间的关系"><a href="#Java平台和默认Code-Cache空间的关系" class="headerlink" title="Java平台和默认Code Cache空间的关系"></a>Java平台和默认Code Cache空间的关系</h3><table>
+<thead>
+<tr>
+<th>Java平台</th>
+<th>默认空间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>32-bit client, Java 8</td>
+<td>32 MB</td>
+</tr>
+<tr>
+<td>32-bit server with tiered compilation, Java 8</td>
+<td>240 MB</td>
+</tr>
+<tr>
+<td>64-bit server with tiered compilation, Java 8</td>
+<td>240 MB</td>
+</tr>
+<tr>
+<td>32-bit client, Java 7</td>
+<td>32 MB</td>
+</tr>
+<tr>
+<td>32-bit server, Java 7</td>
+<td>32 MB</td>
+</tr>
+<tr>
+<td>64-bit server, Java 7</td>
+<td>48 MB</td>
+</tr>
+<tr>
+<td>64-bit server with tiered compilation, Java 7</td>
+<td>96 MB</td>
+</tr>
+</tbody>
+</table>
+<p>在Java 7中，这个区域的默认空间经常不够，所以在必要的场景下需要增加它的空间。然而，并没有一个非常好的方法来给出一个应用到底在Code Cache区域的空间为多少时才能够达到最好的性能。你所能做的就是不断地进行尝试，来得到一个最好的结果。</p>
+<p>Code Cache的最大空间可以通过：-XX:ReservedCodeCacheSize=N来进行设置。在默认情况下，N就是上表中的默认空间大小。关于Code Cache的空间管理，和JVM中对于其他内存空间的管理方法类似，也提供了一个设置初始值的方法：-XX:InitialCodeCacheSize=N。初始值和选择编译器的类型以及处理器的架构相关，但是一般需要设置的只是最大空间。</p>
+<h3 id="代码缓存空间的大小"><a href="#代码缓存空间的大小" class="headerlink" title="代码缓存空间的大小"></a>代码缓存空间的大小</h3><p>那么是不是把Code Cache空间设置的越大越好呢？也不尽然。因为设置之后，哪怕实际上没有用到，这块空间也被JVM给“预定”了，不能用作他途。</p>
+<p>前文中提到过，如果JVM使用的是32位的，那么内存空间最大为4GB，这个4GB包括了Java堆，JVM自身的代码(包括用到的各种Native库和线程栈)，应用程序可分配的内存空间，当然也会包括Code Cache。所以从这个角度出发，也不是把它设置的越大越好。</p>
+<p>在程序运行时，可以通过jconsole工具来进行监测。</p>
+<h3 id="预定内存和分配内存-Reserved-Memory-and-Allocation-Memory"><a href="#预定内存和分配内存-Reserved-Memory-and-Allocation-Memory" class="headerlink" title="预定内存和分配内存(Reserved Memory and Allocation Memory)"></a>预定内存和分配内存(Reserved Memory and Allocation Memory)</h3><p>它们是JVM中两个很比较重要的概念，在Code Cache，Java堆以及各种JVM使用的内存区域中都会出现。</p>
+<h4 id="总结-5"><a href="#总结-5" class="headerlink" title="总结"></a>总结</h4><ol>
+<li>代码缓存会影响到JVM能够编译的Java字节码数量，它会被设置一个最大的可用空间，当空间完全被占用后，JIT编译器就会停止编译。</li>
+<li>使用Tiered编译策略时，代码缓存会很快就被用尽(尤其是Java 7)，此时可以通过设置预留空间(也就是最大的可用空间)来进行调整。</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Performance/" rel="tag"># Performance</a>
+          
+            <a href="/tags/JIT编译器/" rel="tag"># JIT编译器</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/09/24/Effective-JavaScript-Item-27-使用闭包而不是字符串来封装代码/" rel="next" title="[Effective JavaScript] Item 27 使用闭包而不是字符串来封装代码">
+                <i class="fa fa-chevron-left"></i> [Effective JavaScript] Item 27 使用闭包而不是字符串来封装代码
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/09/25/Effective-JavaScript-Item-28-不要依赖函数的toString方法/" rel="prev" title="[Effective JavaScript] Item 28 不要依赖函数的toString方法">
+                [Effective JavaScript] Item 28 不要依赖函数的toString方法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用JIT-Just-In-Time-编译器"><span class="nav-number">1.</span> <span class="nav-text">使用JIT(Just-In-Time)编译器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JIT编译器概览"><span class="nav-number">1.1.</span> <span class="nav-text">JIT编译器概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HotSpot-编译"><span class="nav-number">1.2.</span> <span class="nav-text">HotSpot 编译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调优基础：客户端版或服务器版"><span class="nav-number">2.</span> <span class="nav-text">调优基础：客户端版或服务器版</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#启动优化"><span class="nav-number">2.1.</span> <span class="nav-text">启动优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#总结-1"><span class="nav-number">2.1.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#批处理优化"><span class="nav-number">2.2.</span> <span class="nav-text">批处理优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#总结-2"><span class="nav-number">2.2.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#长时间运行应用的优化"><span class="nav-number">2.3.</span> <span class="nav-text">长时间运行应用的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#总结-3"><span class="nav-number">2.3.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java和JIT编译器版本"><span class="nav-number">3.</span> <span class="nav-text">Java和JIT编译器版本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#关于32位或者64为JVM的选择"><span class="nav-number">3.1.</span> <span class="nav-text">关于32位或者64为JVM的选择</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OS和编译器参数之间的关系"><span class="nav-number">3.2.</span> <span class="nav-text">OS和编译器参数之间的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OS和默认编译器的关系"><span class="nav-number">3.3.</span> <span class="nav-text">OS和默认编译器的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#总结-4"><span class="nav-number">3.3.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JIT编译器调优进阶"><span class="nav-number">4.</span> <span class="nav-text">JIT编译器调优进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#代码缓存调优-Tuning-the-Code-Cache"><span class="nav-number">4.1.</span> <span class="nav-text">代码缓存调优(Tuning the Code Cache)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java平台和默认Code-Cache空间的关系"><span class="nav-number">4.2.</span> <span class="nav-text">Java平台和默认Code Cache空间的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码缓存空间的大小"><span class="nav-number">4.3.</span> <span class="nav-text">代码缓存空间的大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#预定内存和分配内存-Reserved-Memory-and-Allocation-Memory"><span class="nav-number">4.4.</span> <span class="nav-text">预定内存和分配内存(Reserved Memory and Allocation Memory)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#总结-5"><span class="nav-number">4.4.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
