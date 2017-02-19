@@ -1,0 +1,811 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,脏检查,原理," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="$apply()和$digest()在AngularJS中是两个核心概念，但是有时候它们又让人困惑。而为了了解AngularJS的工作方式，首先需要了解$apply()和$digest()是如何工作的。这篇文章旨在解释$apply()和$digest()是什么，以及在日常的编码中如何应用它们。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解Angular中的$apply()以及$digest()">
+<meta property="og:url" content="http://rxjiang.com/2014/08/20/理解Angular中的-apply-以及-digest/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="$apply()和$digest()在AngularJS中是两个核心概念，但是有时候它们又让人困惑。而为了了解AngularJS的工作方式，首先需要了解$apply()和$digest()是如何工作的。这篇文章旨在解释$apply()和$digest()是什么，以及在日常的编码中如何应用它们。">
+<meta property="og:updated_time" content="2017-02-19T03:32:51.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="理解Angular中的$apply()以及$digest()">
+<meta name="twitter:description" content="$apply()和$digest()在AngularJS中是两个核心概念，但是有时候它们又让人困惑。而为了了解AngularJS的工作方式，首先需要了解$apply()和$digest()是如何工作的。这篇文章旨在解释$apply()和$digest()是什么，以及在日常的编码中如何应用它们。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/08/20/理解Angular中的-apply-以及-digest/"/>
+
+
+
+
+
+  <title> 理解Angular中的$apply()以及$digest() | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/08/20/理解Angular中的-apply-以及-digest/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                理解Angular中的$apply()以及$digest()
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-08-20T13:49:00+08:00">
+                2014-08-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>$apply()和$digest()在AngularJS中是两个核心概念，但是有时候它们又让人困惑。而为了了解AngularJS的工作方式，首先需要了解$apply()和$digest()是如何工作的。这篇文章旨在解释$apply()和$digest()是什么，以及在日常的编码中如何应用它们。</p>
+<a id="more"></a>
+<h2 id="探索-apply-和-digest"><a href="#探索-apply-和-digest" class="headerlink" title="探索$apply()和$digest()"></a>探索$apply()和$digest()</h2><p>AngularJS提供了一个非常酷的特性叫做双向数据绑定(Two-way Data Binding)，这个特性大大简化了我们的代码编写方式。数据绑定意味着当View中有任何数据发生了变化，那么这个变化也会自动地反馈到scope的数据上，也即意味着scope模型会自动地更新。类似地，当scope模型发生变化时，view中的数据也会更新到最新的值。那么AngularJS是如何做到这一点的呢？当你写下表达式如时，AngularJS在幕后会为你在scope模型上设置一个watcher，它用来在数据发生变化的时候更新view。这里的watcher和你会在AngularJS中设置的watcher是一样的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$scope.$watch(<span class="string">'aModel'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">newValue, oldValue</span>) </span>&#123;  </div><div class="line">  <span class="comment">//update the DOM with newValue  </span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>传入到$watch()中的第二个参数是一个回调函数，该函数在aModel的值发生变化的时候会被调用。当aModel发生变化的时候，这个回调函数会被调用来更新view这一点不难理解，但是，还存在一个很重要的问题！AngularJS是如何知道什么时候要调用这个回调函数呢？换句话说，AngularJS是如何知晓aModel发生了变化，才调用了对应的回调函数呢？它会周期性的运行一个函数来检查scope模型中的数据是否发生了变化吗？好吧，这就是$digest循环的用武之地了。</p>
+<p>在$digest循环中，watchers会被触发。当一个watcher被触发时，AngularJS会检测scope模型，如何它发生了变化那么关联到该watcher的回调函数就会被调用。那么，下一个问题就是$digest循环是在什么时候以各种方式开始的？</p>
+<p>在调用了$scope.$digest()后，$digest循环就开始了。假设你在一个ng-click指令对应的handler函数中更改了scope中的一条数据，此时AngularJS会自动地通过调用$digest()来触发一轮$digest循环。当$digest循环开始后，它会触发每个watcher。这些watchers会检查scope中的当前model值是否和上一次计算得到的model值不同。如果不同，那么对应的回调函数会被执行。调用该函数的结果，就是view中的表达式内容(译注：诸如)会被更新。除了ng-click指令，还有一些其它的built-in指令以及服务来让你更改models(比如ng-model，$timeout等)和自动触发一次$digest循环。</p>
+<p>目前为止还不错！但是，有一个小问题。在上面的例子中，AngularJS并不直接调用$digest()，而是调用$scope.$apply()，后者会调用$rootScope.$digest()。因此，一轮$digest循环在$rootScope开始，随后会访问到所有的children scope中的watchers。</p>
+<p>现在，假设你将ng-click指令关联到了一个button上，并传入了一个function名到ng-click上。当该button被点击时，AngularJS会将此function包装到一个wrapping function中，然后传入到$scope.$apply()。因此，你的function会正常被执行，修改models(如果需要的话)，此时一轮$digest循环也会被触发，用来确保view也会被更新。</p>
+<p>Note: $scope.$apply()会自动地调用$rootScope.$digest()。$apply()方法有两种形式。第一种会接受一个function作为参数，执行该function并且触发一轮$digest循环。第二种会不接受任何参数，只是触发一轮$digest循环。我们马上会看到为什么第一种形式更好。</p>
+<h2 id="什么时候手动调用-apply-方法？"><a href="#什么时候手动调用-apply-方法？" class="headerlink" title="什么时候手动调用$apply()方法？"></a>什么时候手动调用$apply()方法？</h2><p>如果AngularJS总是将我们的代码wrap到一个function中并传入$apply()，以此来开始一轮$digest循环，那么什么时候才需要我们手动地调用$apply()方法呢？实际上，AngularJS对此有着非常明确的要求，就是它只负责对发生于AngularJS上下文环境中的变更会做出自动地响应(即，在$apply()方法中发生的对于models的更改)。AngularJS的built-in指令就是这样做的，所以任何的model变更都会被反映到view中。但是，如果你在AngularJS上下文之外的任何地方修改了model，那么你就需要通过手动调用$apply()来通知AngularJS。这就像告诉AngularJS，你修改了一些models，希望AngularJS帮你触发watchers来做出正确的响应。</p>
+<p>比如，如果你使用了JavaScript中的setTimeout()来更新一个scope model，那么AngularJS就没有办法知道你更改了什么。这种情况下，调用$apply()就是你的责任了，通过调用它来触发一轮$digest循环。类似地，如果你有一个指令用来设置一个DOM事件listener并且在该listener中修改了一些models，那么你也需要通过手动调用$apply()来确保变更会被正确的反映到view中。</p>
+<p>让我们来看一个例子。加入你有一个页面，一旦该页面加载完毕了，你希望在两秒钟之后显示一条信息。你的实现可能是下面这个样子的：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">body</span> <span class="attr">ng-app</span>=<span class="string">"myApp"</span>&gt;</span>  </div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">ng-controller</span>=<span class="string">"MessageController"</span>&gt;</span>  </div><div class="line">    Delayed Message: &#123;&#123;message&#125;&#125;  </div><div class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span>    </div><div class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/* What happens without an $apply() */</span>  </div><div class="line">      </div><div class="line">angular.module(<span class="string">'myApp'</span>,[]).controller(<span class="string">'MessageController'</span>, 	<span class="function"><span class="keyword">function</span>(<span class="params">$scope</span>) </span>&#123;  </div><div class="line">      </div><div class="line">      $scope.getMessage = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">        setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">          $scope.message = <span class="string">'Fetched after 3 seconds'</span>;  </div><div class="line">          <span class="built_in">console</span>.log(<span class="string">'message:'</span>+$scope.message);  </div><div class="line">        &#125;, <span class="number">2000</span>);  </div><div class="line">      &#125;  </div><div class="line">        </div><div class="line">      $scope.getMessage();  </div><div class="line">      </div><div class="line">    &#125;);</div></pre></td></tr></table></figure>
+<p>通过运行这个例子，你会看到过了两秒钟之后，控制台确实会显示出已经更新的model，然而，view并没有更新。原因也许你已经知道了，就是我们忘了调用$apply()方法。因此，我们需要修改getMessage()，如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/* What happens with $apply */</span>   </div><div class="line">angular.module(<span class="string">'myApp'</span>,[]).controller(<span class="string">'MessageController'</span>, 	<span class="function"><span class="keyword">function</span>(<span class="params">$scope</span>) </span>&#123;  </div><div class="line">      </div><div class="line">      $scope.getMessage = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">        setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">          $scope.$apply(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">            <span class="comment">//wrapped this within $apply  </span></div><div class="line">            $scope.message = <span class="string">'Fetched after 3 seconds'</span>;   </div><div class="line">            <span class="built_in">console</span>.log(<span class="string">'message:'</span> + $scope.message);  </div><div class="line">          &#125;);  </div><div class="line">        &#125;, <span class="number">2000</span>);  </div><div class="line">      &#125;  </div><div class="line">        </div><div class="line">      $scope.getMessage();  </div><div class="line">      </div><div class="line">    &#125;);</div></pre></td></tr></table></figure>
+<p>如果你运行了上面的例子，你会看到view在两秒钟之后也会更新。唯一的变化是我们的代码现在被wrapped到了$scope.$apply()中，它会自动触发$rootScope.$digest()，从而让watchers被触发用以更新view。</p>
+<p>Note:顺便提一下，你应该使用$timeout service来代替setTimeout()，因为前者会帮你调用$apply()，让你不需要手动地调用它。</p>
+<p>而且，注意在以上的代码中你也可以在修改了model之后手动调用没有参数的$apply()，就像下面这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$scope.getMessage = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">  setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">    $scope.message = <span class="string">'Fetched after two seconds'</span>;  </div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'message:'</span> + $scope.message);  </div><div class="line">    $scope.$apply(); <span class="comment">//this triggers a $digest  </span></div><div class="line">  &#125;, <span class="number">2000</span>);  </div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>以上的代码使用了$apply()的第二种形式，也就是没有参数的形式。需要记住的是你总是应该使用接受一个function作为参数的$apply()方法。这是因为当你传入一个function到$apply()中的时候，这个function会被包装到一个try…catch块中，所以一旦有异常发生，该异常会被$exceptionHandler service处理。</p>
+<h2 id="digest循环会运行多少次？"><a href="#digest循环会运行多少次？" class="headerlink" title="$digest循环会运行多少次？"></a>$digest循环会运行多少次？</h2><p>当一个$digest循环运行时，watchers会被执行来检查scope中的models是否发生了变化。如果发生了变化，那么相应的listener函数就会被执行。这涉及到一个重要的问题。如果listener函数本身会修改一个scope model呢？AngularJS会怎么处理这种情况？</p>
+<p>答案是$digest循环不会只运行一次。在当前的一次循环结束后，它会再执行一次循环用来检查是否有models发生了变化。这就是脏检查(Dirty Checking)，它用来处理在listener函数被执行时可能引起的model变化。因此，$digest循环会持续运行直到model不再发生变化，或者$digest循环的次数达到了10次。因此，尽可能地不要在listener函数中修改model。</p>
+<p>Note: $digest循环最少也会运行两次，即使在listener函数中并没有改变任何model。正如上面讨论的那样，它会多运行一次来确保models没有变化。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>我希望这篇文章解释清楚了$apply和$digest。需要记住的最重要的是AngularJS是否能检测到你对于model的修改。如果它不能检测到，那么你就需要手动地调用$apply()。</p>
+<hr>
+<h2 id="原文地址"><a href="#原文地址" class="headerlink" title="原文地址"></a>原文地址</h2><p><a href="http://www.sitepoint.com/understanding-angulars-apply-digest/" target="_blank" rel="external">http://www.sitepoint.com/understanding-angulars-apply-digest/</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/脏检查/" rel="tag"># 脏检查</a>
+          
+            <a href="/tags/原理/" rel="tag"># 原理</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/08/19/Effective-JavaScript-Basics-Item-1-6/" rel="next" title="Effective JavaScript Basics Item 1-6">
+                <i class="fa fa-chevron-left"></i> Effective JavaScript Basics Item 1-6
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#探索-apply-和-digest"><span class="nav-number">1.</span> <span class="nav-text">探索$apply()和$digest()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么时候手动调用-apply-方法？"><span class="nav-number">2.</span> <span class="nav-text">什么时候手动调用$apply()方法？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#digest循环会运行多少次？"><span class="nav-number">3.</span> <span class="nav-text">$digest循环会运行多少次？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结语"><span class="nav-number">4.</span> <span class="nav-text">结语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原文地址"><span class="nav-number">5.</span> <span class="nav-text">原文地址</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
