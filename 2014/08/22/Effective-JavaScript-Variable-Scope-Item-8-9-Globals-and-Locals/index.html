@@ -95,7 +95,7 @@ Item 8：少用全局对象重点
 在browser中，this关键字会指向全局的window对象
 两种用来改变全局对象的方式，">
 <meta property="og:type" content="article">
-<meta property="og:title" content="[Effective JavaScript]Variable Scope Item 8-9 Globals and Locals">
+<meta property="og:title" content="[Effective JavaScript] Variable Scope Item 8-9 Globals and Locals">
 <meta property="og:url" content="http://rxjiang.com/2014/08/22/Effective-JavaScript-Variable-Scope-Item-8-9-Globals-and-Locals/index.html">
 <meta property="og:site_name" content="RXJIANG's Home">
 <meta property="og:description" content="本系列作为Effective JavaScript的读书笔记。
@@ -105,9 +105,9 @@ Item 8：少用全局对象重点
 能使用局部变量的时候，绝不要使用全局变量
 在browser中，this关键字会指向全局的window对象
 两种用来改变全局对象的方式，">
-<meta property="og:updated_time" content="2017-02-19T04:11:39.000Z">
+<meta property="og:updated_time" content="2017-02-19T04:25:02.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="[Effective JavaScript]Variable Scope Item 8-9 Globals and Locals">
+<meta name="twitter:title" content="[Effective JavaScript] Variable Scope Item 8-9 Globals and Locals">
 <meta name="twitter:description" content="本系列作为Effective JavaScript的读书笔记。
 Item 8：少用全局对象重点
 全局对象能够带来便利，但是有经验的程序员都会视图避免它。因为它会带来潜在的命名冲突的风险
@@ -148,7 +148,7 @@ Item 8：少用全局对象重点
 
 
 
-  <title> [Effective JavaScript]Variable Scope Item 8-9 Globals and Locals | RXJIANG's Home </title>
+  <title> [Effective JavaScript] Variable Scope Item 8-9 Globals and Locals | RXJIANG's Home </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -347,7 +347,7 @@ Item 8：少用全局对象重点
             
             
               
-                [Effective JavaScript]Variable Scope Item 8-9 Globals and Locals
+                [Effective JavaScript] Variable Scope Item 8-9 Globals and Locals
               
             
           </h1>
@@ -448,15 +448,10 @@ Item 8：少用全局对象重点
 <li>利用全局变量来进行特性检测</li>
 </ol>
 <hr>
-<h2 id="Item-9：总是声明局部变量"><a href="#Item-9：总是声明局部变量" class="headerlink" title="Item 9：总是声明局部变量"></a>Item 9：总是声明局部变量</h2><h3 id="重点-1"><a href="#重点-1" class="headerlink" title="重点"></a>重点</h3><ol>
-<li><p>隐式声明的全局变量比全局变量更加麻烦。比如：</p>
- <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">swap</span>(<span class="params">a, i, j</span>) </span>&#123;  </div><div class="line">    temp= a[i]; <span class="comment">// global  </span></div><div class="line">    a[i]= a[j];  </div><div class="line">    a[j]= temp;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-</ol>
-<pre><code>上述的temp就会被隐式地声明成一个全局变量。
-</code></pre><ol>
-<li>使用lint工具来检测JavaScript代码中是否有隐式声明的全局变量</li>
-</ol>
+<h2 id="Item-9：总是声明局部变量"><a href="#Item-9：总是声明局部变量" class="headerlink" title="Item 9：总是声明局部变量"></a>Item 9：总是声明局部变量</h2><h3 id="重点-1"><a href="#重点-1" class="headerlink" title="重点"></a>重点</h3><p>1.隐式声明的全局变量比全局变量更加麻烦。比如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">swap</span>(<span class="params">a, i, j</span>) </span>&#123;  </div><div class="line">    temp= a[i]; <span class="comment">// global  </span></div><div class="line">    a[i]= a[j];  </div><div class="line">    a[j]= temp;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述的temp就会被隐式地声明成一个全局变量。</p>
+<p>2.使用lint工具来检测JavaScript代码中是否有隐式声明的全局变量</p>
 <h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
 <li>总是记得通过var关键字来声明局部变量</li>
 <li>使用lint工具来确保没有隐式声明的全局变量</li>
@@ -498,8 +493,8 @@ Item 8：少用全局对象重点
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2014/08/21/Effective-JavaScript-String-Encoding-Item-7/" rel="next" title="[Effective JavaScript]String Encoding Item 7">
-                <i class="fa fa-chevron-left"></i> [Effective JavaScript]String Encoding Item 7
+              <a href="/2014/08/21/Effective-JavaScript-String-Encoding-Item-7/" rel="next" title="[Effective JavaScript] String Encoding Item 7">
+                <i class="fa fa-chevron-left"></i> [Effective JavaScript] String Encoding Item 7
               </a>
             
           </div>
@@ -508,8 +503,8 @@ Item 8：少用全局对象重点
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2014/09/04/Effective-JavaScript-Item-10-避免使用with/" rel="prev" title="[Effective JavaScript]Item 10 避免使用with">
-                [Effective JavaScript]Item 10 避免使用with <i class="fa fa-chevron-right"></i>
+              <a href="/2014/09/04/Effective-JavaScript-Item-10-避免使用with/" rel="prev" title="[Effective JavaScript] Item 10 避免使用with">
+                [Effective JavaScript] Item 10 避免使用with <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>

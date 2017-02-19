@@ -90,22 +90,25 @@
 <meta name="description" content="本系列作为Effective JavaScript的读书笔记。
 重点
 设计with关键字本来是为了让代码变简洁，但是却起到了相反的效果，比如：
- 12345function f(x, y) &amp;#123;    		with (Math) &amp;#123;         return min(round(x), sqrt(y)); // ambiguous references     	&amp;#125;">
+
+12345function f(x, y) &amp;#123;  	with (Math) &amp;#123;      return min(round(x), sqrt(y)); // ambiguous references  	&amp;#125;  &amp;#125;">
 <meta property="og:type" content="article">
-<meta property="og:title" content="[Effective JavaScript]Item 10 避免使用with">
+<meta property="og:title" content="[Effective JavaScript] Item 10 避免使用with">
 <meta property="og:url" content="http://rxjiang.com/2014/09/04/Effective-JavaScript-Item-10-避免使用with/index.html">
 <meta property="og:site_name" content="RXJIANG's Home">
 <meta property="og:description" content="本系列作为Effective JavaScript的读书笔记。
 重点
 设计with关键字本来是为了让代码变简洁，但是却起到了相反的效果，比如：
- 12345function f(x, y) &amp;#123;    		with (Math) &amp;#123;         return min(round(x), sqrt(y)); // ambiguous references     	&amp;#125;">
-<meta property="og:updated_time" content="2017-02-19T04:12:26.000Z">
+
+12345function f(x, y) &amp;#123;  	with (Math) &amp;#123;      return min(round(x), sqrt(y)); // ambiguous references  	&amp;#125;  &amp;#125;">
+<meta property="og:updated_time" content="2017-02-19T04:23:45.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="[Effective JavaScript]Item 10 避免使用with">
+<meta name="twitter:title" content="[Effective JavaScript] Item 10 避免使用with">
 <meta name="twitter:description" content="本系列作为Effective JavaScript的读书笔记。
 重点
 设计with关键字本来是为了让代码变简洁，但是却起到了相反的效果，比如：
- 12345function f(x, y) &amp;#123;    		with (Math) &amp;#123;         return min(round(x), sqrt(y)); // ambiguous references     	&amp;#125;">
+
+12345function f(x, y) &amp;#123;  	with (Math) &amp;#123;      return min(round(x), sqrt(y)); // ambiguous references  	&amp;#125;  &amp;#125;">
 
 
 
@@ -139,7 +142,7 @@
 
 
 
-  <title> [Effective JavaScript]Item 10 避免使用with | RXJIANG's Home </title>
+  <title> [Effective JavaScript] Item 10 避免使用with | RXJIANG's Home </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -338,7 +341,7 @@
             
             
               
-                [Effective JavaScript]Item 10 避免使用with
+                [Effective JavaScript] Item 10 避免使用with
               
             
           </h1>
@@ -423,27 +426,21 @@
 
       
         <p>本系列作为Effective JavaScript的读书笔记。</p>
-<h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><ol>
-<li><p>设计with关键字本来是为了让代码变简洁，但是却起到了相反的效果，比如：</p>
- <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params">x, y</span>) </span>&#123;  </div><div class="line">  		<span class="keyword">with</span> (<span class="built_in">Math</span>) &#123;  </div><div class="line">       <span class="keyword">return</span> min(round(x), sqrt(y)); <span class="comment">// ambiguous references  </span></div><div class="line">   	&#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-</ol>
-<pre><code>以上的代码中，调用的min，round以及sqrt都是Math上的方法。
-
-如果Math对象上没有以上指定的方法，那么会在with以外的范围去寻找该方法。
-
-那么如果Math对象上有两个字段分别是x和y：
-
+<h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><ul>
+<li>设计with关键字本来是为了让代码变简洁，但是却起到了相反的效果，比如：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params">x, y</span>) </span>&#123;  </div><div class="line">	<span class="keyword">with</span> (<span class="built_in">Math</span>) &#123;  </div><div class="line">    <span class="keyword">return</span> min(round(x), sqrt(y)); <span class="comment">// ambiguous references  </span></div><div class="line">	&#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>以上的代码中，调用的min，round以及sqrt都是Math上的方法。</p>
+<p>如果Math对象上没有以上指定的方法，那么会在with以外的范围去寻找该方法。</p>
+<p>那么如果Math对象上有两个字段分别是x和y：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Math</span>.x = <span class="number">0</span>;  </div><div class="line"><span class="built_in">Math</span>.y = <span class="number">0</span>;  </div><div class="line">f(<span class="number">2</span>, <span class="number">9</span>); <span class="comment">// 0</span></div></pre></td></tr></table></figure>
-
-
-可以发现，最后的调用结果是0。
-</code></pre><ol>
+<p>可以发现，最后的调用结果是0。</p>
+<ul>
 <li>编译器也无法对代码做出优化，会降低对property的查找速度</li>
-<li><p>一个with的替代方案是给变量尽可能短的名字，然后还是使用常规地方式进行操作，比如：</p>
- <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params">x, y</span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> min = <span class="built_in">Math</span>.min, round = <span class="built_in">Math</span>.round, sqrt = <span class="built_in">Math</span>.sqrt;  </div><div class="line">    <span class="keyword">return</span> min(round(x), sqrt(y));  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-</ol>
+<li>一个with的替代方案是给变量尽可能短的名字，然后还是使用常规地方式进行操作，比如：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params">x, y</span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> min = <span class="built_in">Math</span>.min, round = <span class="built_in">Math</span>.round, sqrt = <span class="built_in">Math</span>.sqrt;  </div><div class="line">    <span class="keyword">return</span> min(round(x), sqrt(y));  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
 <li>避免使用with关键字</li>
 <li>对于频繁使用的对象，使用尽可能简短的变量名</li>
@@ -486,8 +483,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2014/08/22/Effective-JavaScript-Variable-Scope-Item-8-9-Globals-and-Locals/" rel="next" title="[Effective JavaScript]Variable Scope Item 8-9 Globals and Locals">
-                <i class="fa fa-chevron-left"></i> [Effective JavaScript]Variable Scope Item 8-9 Globals and Locals
+              <a href="/2014/08/22/Effective-JavaScript-Variable-Scope-Item-8-9-Globals-and-Locals/" rel="next" title="[Effective JavaScript] Variable Scope Item 8-9 Globals and Locals">
+                <i class="fa fa-chevron-left"></i> [Effective JavaScript] Variable Scope Item 8-9 Globals and Locals
               </a>
             
           </div>
@@ -496,8 +493,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2014/09/05/Effective-JavaScript-Item-11-掌握闭包/" rel="prev" title="[Effective JavaScript]Item 11 掌握闭包">
-                [Effective JavaScript]Item 11 掌握闭包 <i class="fa fa-chevron-right"></i>
+              <a href="/2014/09/05/Effective-JavaScript-Item-11-掌握闭包/" rel="prev" title="[Effective JavaScript] Item 11 掌握闭包">
+                [Effective JavaScript] Item 11 掌握闭包 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
