@@ -91,7 +91,8 @@
 重点掌握闭包，需要知道以下几个关键点：
 
 JavaScript允许在当前的function中访问该function外部的变量。
- 12345678function makeSandwich() &amp;#123;    		var magicIngredient = &quot;peanut butter&quot;;     	function make(f">
+
+12345678function makeSandwich() &amp;#123;  	var magicIngredient = &quot;peanut butter&quot;;  	function make(filling">
 <meta property="og:type" content="article">
 <meta property="og:title" content="[Effective JavaScript]Item 11 掌握闭包">
 <meta property="og:url" content="http://rxjiang.com/2014/09/05/Effective-JavaScript-Item-11-掌握闭包/index.html">
@@ -100,15 +101,17 @@ JavaScript允许在当前的function中访问该function外部的变量。
 重点掌握闭包，需要知道以下几个关键点：
 
 JavaScript允许在当前的function中访问该function外部的变量。
- 12345678function makeSandwich() &amp;#123;    		var magicIngredient = &quot;peanut butter&quot;;     	function make(f">
-<meta property="og:updated_time" content="2017-02-19T04:12:22.000Z">
+
+12345678function makeSandwich() &amp;#123;  	var magicIngredient = &quot;peanut butter&quot;;  	function make(filling">
+<meta property="og:updated_time" content="2017-02-19T04:21:58.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[Effective JavaScript]Item 11 掌握闭包">
 <meta name="twitter:description" content="本系列作为Effective JavaScript的读书笔记。
 重点掌握闭包，需要知道以下几个关键点：
 
 JavaScript允许在当前的function中访问该function外部的变量。
- 12345678function makeSandwich() &amp;#123;    		var magicIngredient = &quot;peanut butter&quot;;     	function make(f">
+
+12345678function makeSandwich() &amp;#123;  	var magicIngredient = &quot;peanut butter&quot;;  	function make(filling">
 
 
 
@@ -427,41 +430,29 @@ JavaScript允许在当前的function中访问该function外部的变量。
       
         <p>本系列作为Effective JavaScript的读书笔记。</p>
 <h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>掌握闭包，需要知道以下几个关键点：</p>
-<ol>
-<li><p>JavaScript允许在当前的function中访问该function外部的变量。</p>
- <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeSandwich</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">  		<span class="keyword">var</span> magicIngredient = <span class="string">"peanut butter"</span>;  </div><div class="line">   	<span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">      	<span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">   &#125;  </div><div class="line">   	<span class="keyword">return</span> make(<span class="string">"jelly"</span>);  </div><div class="line">&#125;  </div><div class="line">makeSandwich(); <span class="comment">// "peanut butter and jelly"</span></div></pre></td></tr></table></figure>
-</li>
-</ol>
-<pre><code>以上的make function访问了外部的magicIngredient变量。
-</code></pre><a id="more"></a>
-<ol>
-<li><p>一个function能够访问该function外部的变量，即使该外部的function已经返回了。听起来有些不可思议，但是别忘了在JavaScript中，function是first-class object（参见Item 19)。</p>
- <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sandwichMaker</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">   	<span class="keyword">var</span> magicIngredient = <span class="string">"peanut butter"</span>;  </div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">        <span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> make;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> f = sandwichMaker();  </div><div class="line">f(<span class="string">"jelly"</span>); <span class="comment">// "peanut butter and jelly"</span></div></pre></td></tr></table></figure>
-</li>
-</ol>
-<pre><code>以上的代码是如何工作的：
-
-实际上，JavaScript中的function不仅仅只记录了需要执行的代码的信息，还保存了所有它引用到的变量的信息，这实际上就是闭包的概念。
-
-那么以上的makefunction就是一个闭包，它保存了magicIngredient以及filling这两个变量的信息。
-
-因此，可以利用这一点来声明更加general-purpose的function：
-
+<ul>
+<li>JavaScript允许在当前的function中访问该function外部的变量。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeSandwich</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">	<span class="keyword">var</span> magicIngredient = <span class="string">"peanut butter"</span>;  </div><div class="line">	<span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">   	<span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">   &#125;  </div><div class="line">	<span class="keyword">return</span> make(<span class="string">"jelly"</span>);  </div><div class="line">&#125;  </div><div class="line">makeSandwich(); <span class="comment">// "peanut butter and jelly"</span></div></pre></td></tr></table></figure>
+<p>以上的make function访问了外部的magicIngredient变量。</p>
+<a id="more"></a>
+<ul>
+<li>一个function能够访问该function外部的变量，即使该外部的function已经返回了。听起来有些不可思议，但是别忘了在JavaScript中，function是first-class object（参见Item 19)。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sandwichMaker</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">	<span class="keyword">var</span> magicIngredient = <span class="string">"peanut butter"</span>;  </div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">        <span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> make;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> f = sandwichMaker();  </div><div class="line">f(<span class="string">"jelly"</span>); <span class="comment">// "peanut butter and jelly"</span></div></pre></td></tr></table></figure>
+<p>以上的代码是如何工作的：</p>
+<p>实际上，JavaScript中的function不仅仅只记录了需要执行的代码的信息，还保存了所有它引用到的变量的信息，这实际上就是闭包的概念。</p>
+<p>那么以上的makefunction就是一个闭包，它保存了magicIngredient以及filling这两个变量的信息。</p>
+<p>因此，可以利用这一点来声明更加general-purpose的function：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sandwichMaker</span>(<span class="params">magicIngredient</span>) </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">        <span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> make;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> hamAnd = sandwichMaker(<span class="string">"ham"</span>);  </div><div class="line">hamAnd(<span class="string">"cheese"</span>); <span class="comment">// "ham and cheese"  </span></div><div class="line">hamAnd(<span class="string">"mustard"</span>); <span class="comment">// "ham and mustard"</span></div></pre></td></tr></table></figure>
-
-
-闭包是JavaScript中最显著和优雅的特性，JavaScript甚至提供了一个更简洁的方式来创建闭包，叫做Function Expression：
-
+<p>闭包是JavaScript中最显著和优雅的特性，JavaScript甚至提供了一个更简洁的方式来创建闭包，叫做Function Expression：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sandwichMaker</span>(<span class="params">magicIngredient</span>) </span>&#123;  </div><div class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">        <span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">    &#125;;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-
-
-注意到以上的functionexpression是匿名的，因为这里需要的只是返回一个function(也就是闭包)，用来引用一些信息。当然，function expression是可以有名字的，在Item 14中会进行介绍。
-</code></pre><ol>
-<li><p>闭包能够更新外部值。实际上闭包只是保存了外部值的一个引用，而不是拷贝了它们的值。</p>
- <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">box</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> val = <span class="literal">undefined</span>;  </div><div class="line">    <span class="keyword">return</span> &#123;  </div><div class="line">        <span class="attr">set</span>: <span class="function"><span class="keyword">function</span>(<span class="params">newVal</span>) </span>&#123; val = newVal; &#125;,  </div><div class="line">        <span class="attr">get</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> val; &#125;,  </div><div class="line">        <span class="attr">type</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> <span class="keyword">typeof</span> val; &#125;  </div><div class="line">    &#125;;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> b = box();  </div><div class="line">b.type(); <span class="comment">// "undefined"  </span></div><div class="line">b.set(<span class="number">98.6</span>);  </div><div class="line">b.get(); <span class="comment">// 98.6  </span></div><div class="line">b.type(); <span class="comment">// "number"</span></div></pre></td></tr></table></figure>
-<p> 以上的box函数返回了一个对象，其中含有三个闭包，每个闭包都引用到了其外部的val变量，其中set闭包也能够对val变量进行修改。</p>
-</li>
-</ol>
+<p>注意到以上的functionexpression是匿名的，因为这里需要的只是返回一个function(也就是闭包)，用来引用一些信息。当然，function expression是可以有名字的，在Item 14中会进行介绍。</p>
+<ul>
+<li>闭包能够更新外部值。实际上闭包只是保存了外部值的一个引用，而不是拷贝了它们的值。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">box</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> val = <span class="literal">undefined</span>;  </div><div class="line">    <span class="keyword">return</span> &#123;  </div><div class="line">        <span class="attr">set</span>: <span class="function"><span class="keyword">function</span>(<span class="params">newVal</span>) </span>&#123; val = newVal; &#125;,  </div><div class="line">        <span class="attr">get</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> val; &#125;,  </div><div class="line">        <span class="attr">type</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> <span class="keyword">typeof</span> val; &#125;  </div><div class="line">    &#125;;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> b = box();  </div><div class="line">b.type(); <span class="comment">// "undefined"  </span></div><div class="line">b.set(<span class="number">98.6</span>);  </div><div class="line">b.get(); <span class="comment">// 98.6  </span></div><div class="line">b.type(); <span class="comment">// "number"</span></div></pre></td></tr></table></figure>
+<p>以上的box函数返回了一个对象，其中含有三个闭包，每个闭包都引用到了其外部的val变量，其中set闭包也能够对val变量进行修改。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
 <li>函数能够访问到其外部的变量。</li>
 <li>闭包在创建它们的函数返回之后，还能够被访问到。（Closures can outlive the function that creates them.）</li>

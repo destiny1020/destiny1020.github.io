@@ -737,13 +737,11 @@
         
           <p>本系列作为Effective JavaScript的读书笔记。</p>
 <h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>掌握闭包，需要知道以下几个关键点：</p>
-<ol>
-<li><p>JavaScript允许在当前的function中访问该function外部的变量。</p>
- <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeSandwich</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">  		<span class="keyword">var</span> magicIngredient = <span class="string">"peanut butter"</span>;  </div><div class="line">   	<span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">      	<span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">   &#125;  </div><div class="line">   	<span class="keyword">return</span> make(<span class="string">"jelly"</span>);  </div><div class="line">&#125;  </div><div class="line">makeSandwich(); <span class="comment">// "peanut butter and jelly"</span></div></pre></td></tr></table></figure>
-</li>
-</ol>
-<pre><code>以上的make function访问了外部的magicIngredient变量。
-</code></pre>
+<ul>
+<li>JavaScript允许在当前的function中访问该function外部的变量。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeSandwich</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">	<span class="keyword">var</span> magicIngredient = <span class="string">"peanut butter"</span>;  </div><div class="line">	<span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">   	<span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">   &#125;  </div><div class="line">	<span class="keyword">return</span> make(<span class="string">"jelly"</span>);  </div><div class="line">&#125;  </div><div class="line">makeSandwich(); <span class="comment">// "peanut butter and jelly"</span></div></pre></td></tr></table></figure>
+<p>以上的make function访问了外部的magicIngredient变量。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2014/09/05/Effective-JavaScript-Item-11-掌握闭包/#more" rel="contents">
