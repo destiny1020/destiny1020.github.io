@@ -1,0 +1,843 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="设计模式,最佳实践,JavaScript,Effective JavaScript," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本系列作为Effective JavaScript的读书笔记。
+重点掌握闭包，需要知道以下几个关键点：
+
+JavaScript允许在当前的function中访问该function外部的变量。
+ 12345678function makeSandwich() &amp;#123;    		var magicIngredient = &quot;peanut butter&quot;;     	function make(f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Effective JavaScript]Item 11 掌握闭包">
+<meta property="og:url" content="http://rxjiang.com/2014/09/05/Effective-JavaScript-Item-11-掌握闭包/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="本系列作为Effective JavaScript的读书笔记。
+重点掌握闭包，需要知道以下几个关键点：
+
+JavaScript允许在当前的function中访问该function外部的变量。
+ 12345678function makeSandwich() &amp;#123;    		var magicIngredient = &quot;peanut butter&quot;;     	function make(f">
+<meta property="og:updated_time" content="2017-02-19T04:12:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Effective JavaScript]Item 11 掌握闭包">
+<meta name="twitter:description" content="本系列作为Effective JavaScript的读书笔记。
+重点掌握闭包，需要知道以下几个关键点：
+
+JavaScript允许在当前的function中访问该function外部的变量。
+ 12345678function makeSandwich() &amp;#123;    		var magicIngredient = &quot;peanut butter&quot;;     	function make(f">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/09/05/Effective-JavaScript-Item-11-掌握闭包/"/>
+
+
+
+
+
+  <title> [Effective JavaScript]Item 11 掌握闭包 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/09/05/Effective-JavaScript-Item-11-掌握闭包/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Effective JavaScript]Item 11 掌握闭包
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-09-05T12:49:00+08:00">
+                2014-09-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本系列作为Effective JavaScript的读书笔记。</p>
+<h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>掌握闭包，需要知道以下几个关键点：</p>
+<ol>
+<li><p>JavaScript允许在当前的function中访问该function外部的变量。</p>
+ <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeSandwich</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">  		<span class="keyword">var</span> magicIngredient = <span class="string">"peanut butter"</span>;  </div><div class="line">   	<span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">      	<span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">   &#125;  </div><div class="line">   	<span class="keyword">return</span> make(<span class="string">"jelly"</span>);  </div><div class="line">&#125;  </div><div class="line">makeSandwich(); <span class="comment">// "peanut butter and jelly"</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<pre><code>以上的make function访问了外部的magicIngredient变量。
+</code></pre><a id="more"></a>
+<ol>
+<li><p>一个function能够访问该function外部的变量，即使该外部的function已经返回了。听起来有些不可思议，但是别忘了在JavaScript中，function是first-class object（参见Item 19)。</p>
+ <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sandwichMaker</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">   	<span class="keyword">var</span> magicIngredient = <span class="string">"peanut butter"</span>;  </div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">        <span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> make;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> f = sandwichMaker();  </div><div class="line">f(<span class="string">"jelly"</span>); <span class="comment">// "peanut butter and jelly"</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<pre><code>以上的代码是如何工作的：
+
+实际上，JavaScript中的function不仅仅只记录了需要执行的代码的信息，还保存了所有它引用到的变量的信息，这实际上就是闭包的概念。
+
+那么以上的makefunction就是一个闭包，它保存了magicIngredient以及filling这两个变量的信息。
+
+因此，可以利用这一点来声明更加general-purpose的function：
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sandwichMaker</span>(<span class="params">magicIngredient</span>) </span>&#123;  </div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">make</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">        <span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> make;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> hamAnd = sandwichMaker(<span class="string">"ham"</span>);  </div><div class="line">hamAnd(<span class="string">"cheese"</span>); <span class="comment">// "ham and cheese"  </span></div><div class="line">hamAnd(<span class="string">"mustard"</span>); <span class="comment">// "ham and mustard"</span></div></pre></td></tr></table></figure>
+
+
+闭包是JavaScript中最显著和优雅的特性，JavaScript甚至提供了一个更简洁的方式来创建闭包，叫做Function Expression：
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sandwichMaker</span>(<span class="params">magicIngredient</span>) </span>&#123;  </div><div class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">filling</span>) </span>&#123;  </div><div class="line">        <span class="keyword">return</span> magicIngredient + <span class="string">" and "</span> + filling;  </div><div class="line">    &#125;;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+
+注意到以上的functionexpression是匿名的，因为这里需要的只是返回一个function(也就是闭包)，用来引用一些信息。当然，function expression是可以有名字的，在Item 14中会进行介绍。
+</code></pre><ol>
+<li><p>闭包能够更新外部值。实际上闭包只是保存了外部值的一个引用，而不是拷贝了它们的值。</p>
+ <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">box</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> val = <span class="literal">undefined</span>;  </div><div class="line">    <span class="keyword">return</span> &#123;  </div><div class="line">        <span class="attr">set</span>: <span class="function"><span class="keyword">function</span>(<span class="params">newVal</span>) </span>&#123; val = newVal; &#125;,  </div><div class="line">        <span class="attr">get</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> val; &#125;,  </div><div class="line">        <span class="attr">type</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> <span class="keyword">typeof</span> val; &#125;  </div><div class="line">    &#125;;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> b = box();  </div><div class="line">b.type(); <span class="comment">// "undefined"  </span></div><div class="line">b.set(<span class="number">98.6</span>);  </div><div class="line">b.get(); <span class="comment">// 98.6  </span></div><div class="line">b.type(); <span class="comment">// "number"</span></div></pre></td></tr></table></figure>
+<p> 以上的box函数返回了一个对象，其中含有三个闭包，每个闭包都引用到了其外部的val变量，其中set闭包也能够对val变量进行修改。</p>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>函数能够访问到其外部的变量。</li>
+<li>闭包在创建它们的函数返回之后，还能够被访问到。（Closures can outlive the function that creates them.）</li>
+<li>闭包内部会存储所使用的外部变量的引用，并且能够获取和修改它们的值。</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+            <a href="/tags/最佳实践/" rel="tag"># 最佳实践</a>
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/Effective-JavaScript/" rel="tag"># Effective JavaScript</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/09/04/Effective-JavaScript-Item-10-避免使用with/" rel="next" title="[Effective JavaScript]Item 10 避免使用with">
+                <i class="fa fa-chevron-left"></i> [Effective JavaScript]Item 10 避免使用with
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/09/09/Effective-JavaScript-Item-12-理解Variable-Hoisting/" rel="prev" title="[Effective JavaScript]Item 12 理解Variable Hoisting">
+                [Effective JavaScript]Item 12 理解Variable Hoisting <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#重点"><span class="nav-number">1.</span> <span class="nav-text">重点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
