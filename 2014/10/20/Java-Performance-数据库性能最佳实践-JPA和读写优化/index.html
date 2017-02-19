@@ -1,0 +1,934 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,最佳实践,Performance,数据库,JPA," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="数据库性能最佳实践当应用需要连接数据库时，那么应用的性能就可能收到数据库性能的影响。比如当数据库的I/O能力存在限制，或者因缺失了索引而导致执行的SQL语句需要对整张表进行遍历。对于这些问题，仅仅对应用代码进行优化可能是不够，还需要了解数据库的知识和特点。
+示例数据库该数据库表示了128只股票在1年内(261个工作日)的股价信息。
+其中有两张表：STOCKPRICE和STOCKOPTIONPRIC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Java Performance] 数据库性能最佳实践 - JPA和读写优化">
+<meta property="og:url" content="http://rxjiang.com/2014/10/20/Java-Performance-数据库性能最佳实践-JPA和读写优化/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="数据库性能最佳实践当应用需要连接数据库时，那么应用的性能就可能收到数据库性能的影响。比如当数据库的I/O能力存在限制，或者因缺失了索引而导致执行的SQL语句需要对整张表进行遍历。对于这些问题，仅仅对应用代码进行优化可能是不够，还需要了解数据库的知识和特点。
+示例数据库该数据库表示了128只股票在1年内(261个工作日)的股价信息。
+其中有两张表：STOCKPRICE和STOCKOPTIONPRIC">
+<meta property="og:updated_time" content="2017-02-19T10:08:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Java Performance] 数据库性能最佳实践 - JPA和读写优化">
+<meta name="twitter:description" content="数据库性能最佳实践当应用需要连接数据库时，那么应用的性能就可能收到数据库性能的影响。比如当数据库的I/O能力存在限制，或者因缺失了索引而导致执行的SQL语句需要对整张表进行遍历。对于这些问题，仅仅对应用代码进行优化可能是不够，还需要了解数据库的知识和特点。
+示例数据库该数据库表示了128只股票在1年内(261个工作日)的股价信息。
+其中有两张表：STOCKPRICE和STOCKOPTIONPRIC">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/10/20/Java-Performance-数据库性能最佳实践-JPA和读写优化/"/>
+
+
+
+
+
+  <title> [Java Performance] 数据库性能最佳实践 - JPA和读写优化 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/20/Java-Performance-数据库性能最佳实践-JPA和读写优化/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Java Performance] 数据库性能最佳实践 - JPA和读写优化
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-20T10:06:00+08:00">
+                2014-10-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="数据库性能最佳实践"><a href="#数据库性能最佳实践" class="headerlink" title="数据库性能最佳实践"></a>数据库性能最佳实践</h2><p>当应用需要连接数据库时，那么应用的性能就可能收到数据库性能的影响。比如当数据库的I/O能力存在限制，或者因缺失了索引而导致执行的SQL语句需要对整张表进行遍历。对于这些问题，仅仅对应用代码进行优化可能是不够，还需要了解数据库的知识和特点。</p>
+<h3 id="示例数据库"><a href="#示例数据库" class="headerlink" title="示例数据库"></a>示例数据库</h3><p>该数据库表示了128只股票在1年内(261个工作日)的股价信息。</p>
+<p>其中有两张表：STOCKPRICE和STOCKOPTIONPRICE。 STOCKPRICE中使用股票代码作为主键，另外还有日期字段。它有33408条记录(128 <em> 261)。 STOCKOPTIONPRICE中存放了每只股票在每天的5个Options，主键是股票代码，另外还有日期字段和表示Option号码的一个整型字段。它有167040条记录(128 </em> 261 * 5)。</p>
+<a id="more"></a>
+<h2 id="JPA"><a href="#JPA" class="headerlink" title="JPA"></a>JPA</h2><p>对JPA的性能影响最大的是它使用的JDBC Driver。除此之外，还有一些其他因素也会影响JPA的性能。</p>
+<p>JPA是通过对实体类型的字节码进行增强来提高JPA的性能的，这一点在Java EE环境中对用户是透明的。但是在Java SE环境中需要确保这些字节码操作的正确性。否则，会出现各种各样的问题影响JPA的性能，比如：</p>
+<ul>
+<li>需要懒加载(Lazy Load)的字段被立即加载(Eager Load)了</li>
+<li>保存到数据库中的字段出现了不必要的冗余</li>
+<li>应当保存到JPA缓存中的数据没有保存，导致本不必要的重取(Refetch)操作</li>
+</ul>
+<p>JPA对于字节码的增强一般作为编译阶段的一部分。在实体类型被编译成为字节码后，它们会被后置处理程序(它们是实现相关的，也就是EclipseLink和Hibernate使用的后置处理程序是不同的)进行处理来增强这些字节码，得到经过优化了的字节码文件。</p>
+<p>在有的JPA实现中，还提供了当类被加载到JVM中时，动态增强字节码的方法。需要为JVM指定一个agent，通过启动参数的形式提供。比如当希望使用EclipseLink的这一功能时，可以传入：-javaagent:path_to/eclipselink.jar</p>
+<h3 id="事务处理-Transaction-Handling"><a href="#事务处理-Transaction-Handling" class="headerlink" title="事务处理(Transaction Handling)"></a>事务处理(Transaction Handling)</h3><p>JPA可以使用在Java SE和Java EE应用中。区别在于事务的处理方式。</p>
+<p>在Java EE中，JPA事务只是应用服务器的Java事务API(JTA)实现的一部分。它提供了两种方式用来处理事务的边界：</p>
+<ul>
+<li>容器管理事务(Container-Managed Transaction，CMT)</li>
+<li>用户管理事务(User-Managed Transaction, UMT)</li>
+</ul>
+<p>顾名思义，CMT会将事务的边界处理委托给容器，而UMT则需要用户在应用中指定边界的处理方式。在合理使用的情况下，CMT和UMT并没有显著的区别。但是，在使用不当的情况下，性能就会出现差异了，尤其是在使用UMT时，事务的范围可能会定义的过大或者过小，这样会对性能造成较大的影响。可以这样理解：CMT提供了一种通用的和折中的事务边界处理方式，使用它通常会更安全，而UMT则提供了一种更加灵活的处理方式，但是灵活是建立在用户必须十分了解它的基础上的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Stateless</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Calculator</span> </span>&#123;</div><div class="line">    <span class="meta">@PersistenceContext</span>(unitName=<span class="string">"Calc"</span>)</div><div class="line">    EntityManager em;</div><div class="line">    <span class="meta">@TransactionAttribute</span>(REQUIRED)</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">calculate</span><span class="params">()</span> </span>&#123;</div><div class="line">        Parameters p = em.find(...);</div><div class="line">        <span class="comment">// ...perform expensive calculation...</span></div><div class="line">        em.persist(...answer...);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码使用了CMT(使用了@TransactionAttribute注解)，事务的作用域是整个方法。当隔离等级是可重复读(Repeatable Read)时，意味着在进行计算(以上的Expensive Calculation注释行)时，需要的数据会一直被锁定，从而对性能造成了影响。</p>
+<p>在使用UMT时，会更灵活一点：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Stateless</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Calculator</span> </span>&#123;</div><div class="line">    <span class="meta">@PersistenceContext</span>(unitName=<span class="string">"Calc"</span>)</div><div class="line">    EntityManager em;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">calculate</span><span class="params">()</span> </span>&#123;</div><div class="line">        UserTransaction ut = ... lookup UT in application server...;</div><div class="line">        ut.begin();</div><div class="line">        Parameters p = em.find(...);</div><div class="line">        ut.commit();</div><div class="line"></div><div class="line">        <span class="comment">// ...perform expensive calculation...</span></div><div class="line"></div><div class="line">        ut.begin();</div><div class="line">        em.persist(...answer...);</div><div class="line">        ut.commit();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码的calculate方法没有使用@TransactionAttribute注解。而是在方法中声明了两段Transaction，将昂贵的计算过程放在了事务外。当然，也可以使用CMT结合3个方法来完成上面的逻辑，但是显然UMT更加方便和灵活。</p>
+<p>在Java SE环境中，EntityManager被用来提供事务对象，但是事务的边界仍然需要在程序中进行设划分(Demarcating)。比如在下面的例子中：</p>
+<p>在使用UMT时，会更灵活一点：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Stateless</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Calculator</span> </span>&#123;</div><div class="line">    <span class="meta">@PersistenceContext</span>(unitName=<span class="string">"Calc"</span>)</div><div class="line">    EntityManager em;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">calculate</span><span class="params">()</span> </span>&#123;</div><div class="line">        UserTransaction ut = ... lookup UT in application server...;</div><div class="line">        ut.begin();</div><div class="line">        Parameters p = em.find(...);</div><div class="line">        ut.commit();</div><div class="line"></div><div class="line">        <span class="comment">// ...perform expensive calculation...</span></div><div class="line"></div><div class="line">        ut.begin();</div><div class="line">        em.persist(...answer...);</div><div class="line">        ut.commit();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码的calculate方法没有使用@TransactionAttribute注解。而是在方法中声明了两段Transaction，将昂贵的计算过程放在了事务外。当然，也可以使用CMT结合3个方法来完成上面的逻辑，但是显然UMT更加方便和灵活。</p>
+<p>在Java SE环境中，EntityManager被用来提供事务对象，但是事务的边界仍然需要在程序中进行设划分(Demarcating)。比如在下面的例子中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = startStock; i &lt; numStocks; i++) &#123;</div><div class="line">        EntityManager em = emf.createEntityManager();</div><div class="line">        EntityTransaction txn = em.getTransaction();</div><div class="line">        txn.begin();</div><div class="line">        <span class="keyword">while</span> (!curDate.after(endDate)) &#123;</div><div class="line">            StockPrice sp = createRandomStock(curDate);</div><div class="line">            <span class="keyword">if</span> (sp != <span class="keyword">null</span>) &#123;</div><div class="line">                em.persist(sp);</div><div class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">5</span>; j++) &#123;</div><div class="line">                    StockOptionPriceImpl sop = createRandomOption(sp.getSymbol, sp.getDate());</div><div class="line">                    em.persist(sop);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            curDate.setTime(curDate.getTime() + msPerDay);</div><div class="line">        &#125;</div><div class="line">        txn.commit();</div><div class="line">        em.close();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码中，整个while循环被包含在了事务中。和在JDBC中使用事务时一样，在事务的范围和事务的提交频度上总会做出一些权衡，在下一节中会给出一些数据作为参考。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ol>
+<li>在了解UMT的前提下，使用UMT进行事务的显式管理会有更好的性能。</li>
+<li>希望使用CMT进行事务管理时，可以通过将方法划分为多个方法从而将事务的范围变小。</li>
+</ol>
+<h3 id="JPA写优化"><a href="#JPA写优化" class="headerlink" title="JPA写优化"></a>JPA写优化</h3><p>在JDBC中，有两个关键的性能优化方法：</p>
+<ul>
+<li>重用PreparedStatement对象</li>
+<li>使用批量更新操作</li>
+</ul>
+<p>JPA也能够完成这两种优化，但是这些优化不是通过直接调用JPA的API来完成的，在不同的JPA实现中启用它们的方式也不尽相同。对于Java SE应用，想启用这些优化通常需要在persistence.xml文件中设置一些特定的属性。</p>
+<p>比如，在JPA的参考实现(Reference Implementation)EclipseLink中，重用PreparedStatement需要向persistence.xml中添加一个属性：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"eclipselink.jdbc.cache-statements"</span> <span class="attr">value</span>=<span class="string">"true"</span> /&gt;</span></div></pre></td></tr></table></figure>
+<p>当然，如果JDBC Driver能够提供一个Statement Pool，那么启用该特性比启用JPA的以上特性更好。毕竟JPA也是建立在JDBC Driver之上的。</p>
+<p>如果需要使用批量更新这一优化，可以向persistence.xml中添加属性：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"eclipselink.jdbc.batch-writing"</span> <span class="attr">value</span>=<span class="string">"JDBC"</span> /&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"eclipselink.jdbc.batch-writing.size"</span> <span class="attr">value</span>=<span class="string">"10000"</span> /&gt;</span></div></pre></td></tr></table></figure>
+<p>批量更新的Size不仅可以通过上面的eclipselink.jdbc.batch-writing.size进行设置，还可以通过调用EntityManager上的flush方法来让当前所有的Statements立即被执行。</p>
+<p>下表显示了在使用不同的优化选项时，执行时间的不同：</p>
+<table>
+<thead>
+<tr>
+<th>优化选项</th>
+<th>时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无批量更新, 无Statement缓存</td>
+<td>240s</td>
+</tr>
+<tr>
+<td>无批量更新, 有Statement缓存</td>
+<td>200s</td>
+</tr>
+<tr>
+<td>有批量更新, 无Statement缓存</td>
+<td>23.37s</td>
+</tr>
+<tr>
+<td>有批量更新, 有Statement缓存</td>
+<td>21.08s</td>
+</tr>
+</tbody>
+</table>
+<h4 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h4><ol>
+<li>JPA应用和JDBC应用类似，限制对数据库写操作的次数能够提高性能。</li>
+<li>Statement缓存能够在JPA或者JDBC层实现，如果JDBC Driver提供了这个功能，优先在JDBC层实现。</li>
+<li>JPA更新操作有两种方式实现，一是通过声明式(即向persistence.xml添加属性)，二是通过调用flush方法。</li>
+</ol>
+<h3 id="JPA读优化"><a href="#JPA读优化" class="headerlink" title="JPA读优化"></a>JPA读优化</h3><p>因为JPA缓存的参与，使得JPA的读操作比想象中的要复杂一点。同时也因为JPA会将缓存的因素考虑进来，JPA生成的SQL也并不是最优的。</p>
+<p>JPA的读操作会在三个场合下发生：</p>
+<ul>
+<li>调用EntityManager的find方法</li>
+<li>执行JPA查询语句</li>
+<li>需要使用某个实体对象关联的其它实体对象</li>
+</ul>
+<p>对于前两种情况，能够控制的是读取实体对象对应表的部分列还是整行，是否读取该实体对象关联的其它对象。</p>
+<p>尽量少地读取数据</p>
+<p>可以将某个域设置为懒加载来避免在读该对象时就将此域同时读取。当读取一个实体对象时，被声明为懒加载的域将会从被生成的SQL语句中排除。此后只要在调用该域的getter方法时，才会促使JPA进行一次读取操作。对于基本类型，很少使用这个懒加载，因为它们的数据量较小。但是对于BLOB或者CLOB类型的对象，就有必要了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Lob</span></div><div class="line"><span class="meta">@Column</span>(name = <span class="string">"IMAGEDATA"</span>)</div><div class="line"><span class="meta">@Basic</span>(fetch = FetchType.LAZY)</div><div class="line"><span class="keyword">private</span> <span class="keyword">byte</span>[] imageData</div></pre></td></tr></table></figure>
+<p>以上的IMAGEDATA字段因为太大且不会经常被使用，所以被设置成懒加载。这样做的好处是：</p>
+<ul>
+<li>让SQL执行的更快</li>
+<li>节省了内存，减小了GC的压力</li>
+</ul>
+<p>另外需要注意的是，懒加载的注解(fetch = FetchType.LAZY)对于JPA的实现只是一个提示(Hint)。真正在执行读取操作的时候，JPA也许会忽略它。</p>
+<p>与懒加载相反，还可以指定某些字段为立即加载(Eager Load)字段。比如当一个实体被读取时，该实体的相关实体也会被读取，像下面这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@OneToMany</span>(mappedBy=<span class="string">"stock"</span>, fetch=FetchType.EAGER)</div><div class="line"><span class="keyword">private</span> Collection&lt;StockOptionPriceImpl&gt; optionsPrices;</div></pre></td></tr></table></figure>
+<p>对于@OneToOne和@ManyToOne类型的域，它们默认的加载方式就是立即加载。所以在需要改变这一行为时，使用fetch = FetchType.LAZY。同样的，立即加载对于JPA也是一个提示(Hint)。</p>
+<p>当JPA读取对象的时候，如果该对象含有需要被立即加载的关联对象。在很多JPA的实现中，并不会使用JOIN语句在一条SQL中完成所有对象的读取。它们会执行一条SQL命令首先获取到主要对象，然后生成一条或者多条语句来完成其它关联对象的读取。当使用find方法时，无法改变这一默认行为。而在使用JPQL时，是能够使用JOIN语句的。</p>
+<p>使用JPQL时，并不能指定需要选择一个对象的哪些域，比如下面的查询：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Query q = em.createQuery(<span class="string">"SELECT s FROM StockPriceImpl s"</span>);</div></pre></td></tr></table></figure>
+<p>生成的SQL是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SELECT &lt;enumerated list of non-LAZY fields&gt; FROM StockPriceTable</div></pre></td></tr></table></figure>
+<p>这也意味着当你不需要某些域时，只能将它们声明为懒加载的域。</p>
+<p>使用JPQL的JOIN语句能够通过一条SQL来得到一个对象和它的关联对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Query q = em.createQuery(<span class="string">"SELECT s FROM StockOptionImpl s "</span> + <span class="string">"JOIN FETCH s.optionsPrices"</span>);</div></pre></td></tr></table></figure>
+<p>以上的JPQL会生成如下的SQL：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> t1.&lt;<span class="keyword">fields</span>&gt;, t0.&lt;<span class="keyword">fields</span>&gt; <span class="keyword">FROM</span> StockOptionPrice t0, StockPrice t1 <span class="keyword">WHERE</span> ((t0.SYMBOL = t1.SYMBOL) <span class="keyword">AND</span> (t0.PRICEDATE = t1.PRICEDATE))</div></pre></td></tr></table></figure>
+<p>JOIN FETCH和域是懒加载还是立即加载没有直接的关系。当JOIN FETCH了懒加载的域，那么这些域也会读取，然后在程序需要使用这些懒加载的域时，不会再去从数据库中读取。</p>
+<p>当使用JOIN FETCH得到的所有数据都会被程序所使用时，它就能帮助提高程序的性能。因为它减少了SQL的执行次数和数据库的访问次数，这通常是一个使用了数据库的应用的瓶颈所在。</p>
+<p>但是JOIN FETCH和JPA缓存的关系会有些微妙，在后面介绍JPA缓存时会讲述。</p>
+<h4 id="JOIN-FETCH的其它实现方式"><a href="#JOIN-FETCH的其它实现方式" class="headerlink" title="JOIN FETCH的其它实现方式"></a>JOIN FETCH的其它实现方式</h4><p>除了直接在JPQL中使用JOIN FETCH，还可以通过设置提示来实现。这种方式在很多JPA实现中被支持，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Query q = em.createQuery(<span class="string">"SELECT s FROM StockOptionImpl s"</span>);</div><div class="line">q.setQueryHint(<span class="string">"eclipselink.join-fetch"</span>, <span class="string">"s.optionsPrices"</span>);</div></pre></td></tr></table></figure>
+<p>在有些JPA实现中，还提供了一个@JoinFetch注解来提供JOIN FETCH的功能。</p>
+<h4 id="获取组-Fetch-Group"><a href="#获取组-Fetch-Group" class="headerlink" title="获取组(Fetch Group)"></a>获取组(Fetch Group)</h4><p>当一个实体对象有多个懒加载的域，那么在它们同时被需要时，JPA通常会为每个别需要的域生成并执行一条SQL语句。显而易见的是，在这种场景下，生成并执行一条SQL语句会更好。</p>
+<p>然而，JPA标准中并没有定义这种行为。但是大多数JPA实现都定义了一个获取组来完成这一行为。即将多个懒加载域定义成一个获取组，每次加载它们中的任意一个时，整个组都会被加载。所以，当需要这种行为时，可以参考具体JPA实现的文档。</p>
+<h4 id="批量处理和查询-Batching-and-Queries"><a href="#批量处理和查询-Batching-and-Queries" class="headerlink" title="批量处理和查询(Batching and Queries)"></a>批量处理和查询(Batching and Queries)</h4><p>JPA也能像JDBC处理ResultSet那样处理查询的结果：</p>
+<ul>
+<li>一次性返回所有结果集中的所有记录</li>
+<li>每次获取结果集中的一条记录</li>
+<li>一次获取结果集中的N条记录(和JDBC的Fetch Size类似)</li>
+</ul>
+<p>同样，这个Fetch Size也是和具体的JPA实现相关的，比如在EclipseLink和Hibernate中按如下的方式进行设置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// EclipseLink</span></div><div class="line">q.setHint(<span class="string">"eclipselink.JDBC_FETCH_SIZE"</span>, <span class="string">"100000"</span>);</div><div class="line"></div><div class="line"><span class="comment">// Hibernate</span></div><div class="line"><span class="meta">@BatchSize</span></div><div class="line"><span class="comment">// Query here...</span></div></pre></td></tr></table></figure>
+<p>同时，可以对Query设置分页相关的设置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Query q = em.createNamedQuery(<span class="string">"selectAll"</span>);</div><div class="line">query.setFirstResult(<span class="number">101</span>);</div><div class="line">query.setMaxResults(<span class="number">100</span>);</div><div class="line">List&lt;? implements StockPrice&gt; = q.getResultList();</div></pre></td></tr></table></figure>
+<p>这样就能够仅仅获取第101条到第200条这个区间的数据了。</p>
+<p>同时，以上使用了命名查询(Named Query，createNamedQuery())而不是临时查询(Ad-hoc Query，createQuery())，在很多JPA实现中命名查询的速度要更快，因为一个命名查询会对应Statement Cache Pool中的一个PreparedStatement，剩下需要做的就只是给该对象绑定参数。虽然对于临时查询，也可以使用同样的实现方式，只不过此时的JPQL只有在运行时才能够知晓，所以实现起来比较困难，在很多JPA实现中会为临时查询新建一个Statement对象。</p>
+<h4 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h4><ol>
+<li>JPA有一些优化选项能够限制(增加)单次数据库访问的读取数据量。</li>
+<li>对于BLOB和CLOB类型的字段，将它们的加载方式设置为懒加载。</li>
+<li>JPA实体的关联实体可以被设置为懒加载或者立即加载，选择取决于应用的具体需求。</li>
+<li>当需要立即加载实体的关联实体时，可以结合命名查询和JOIN语句。注意它对于JPA缓存的影响。</li>
+<li>使用命名查询比临时查询更快。</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/最佳实践/" rel="tag"># 最佳实践</a>
+          
+            <a href="/tags/Performance/" rel="tag"># Performance</a>
+          
+            <a href="/tags/数据库/" rel="tag"># 数据库</a>
+          
+            <a href="/tags/JPA/" rel="tag"># JPA</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/10/17/Java-8-1-函数式编程简介/" rel="next" title="[Java 8] (1) 函数式编程简介">
+                <i class="fa fa-chevron-left"></i> [Java 8] (1) 函数式编程简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/10/21/Java-8-2-Lambda在集合中的使用/" rel="prev" title="[Java 8] (2) Lambda在集合中的使用">
+                [Java 8] (2) Lambda在集合中的使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">58</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库性能最佳实践"><span class="nav-number">1.</span> <span class="nav-text">数据库性能最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#示例数据库"><span class="nav-number">1.1.</span> <span class="nav-text">示例数据库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JPA"><span class="nav-number">2.</span> <span class="nav-text">JPA</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#事务处理-Transaction-Handling"><span class="nav-number">2.1.</span> <span class="nav-text">事务处理(Transaction Handling)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">2.1.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JPA写优化"><span class="nav-number">2.2.</span> <span class="nav-text">JPA写优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#总结-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JPA读优化"><span class="nav-number">2.3.</span> <span class="nav-text">JPA读优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#JOIN-FETCH的其它实现方式"><span class="nav-number">2.3.1.</span> <span class="nav-text">JOIN FETCH的其它实现方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#获取组-Fetch-Group"><span class="nav-number">2.3.2.</span> <span class="nav-text">获取组(Fetch Group)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#批量处理和查询-Batching-and-Queries"><span class="nav-number">2.3.3.</span> <span class="nav-text">批量处理和查询(Batching and Queries)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结-2"><span class="nav-number">2.3.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,841 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,Java 8,函数式编程,Lambda," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="思维方式的转变以从一个城市集合中寻找是否存在Chicago为例：
+习惯的方式12345678boolean found = false;for(String city : cities) &amp;#123;    if(city.equals(&quot;Chicago&quot;)) &amp;#123;        found = true;        break;    &amp;#125;&amp;#125;System.out.p">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Java 8] (1) 函数式编程简介">
+<meta property="og:url" content="http://rxjiang.com/2014/10/17/Java-8-1-函数式编程简介/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="思维方式的转变以从一个城市集合中寻找是否存在Chicago为例：
+习惯的方式12345678boolean found = false;for(String city : cities) &amp;#123;    if(city.equals(&quot;Chicago&quot;)) &amp;#123;        found = true;        break;    &amp;#125;&amp;#125;System.out.p">
+<meta property="og:updated_time" content="2017-02-19T09:59:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Java 8] (1) 函数式编程简介">
+<meta name="twitter:description" content="思维方式的转变以从一个城市集合中寻找是否存在Chicago为例：
+习惯的方式12345678boolean found = false;for(String city : cities) &amp;#123;    if(city.equals(&quot;Chicago&quot;)) &amp;#123;        found = true;        break;    &amp;#125;&amp;#125;System.out.p">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/10/17/Java-8-1-函数式编程简介/"/>
+
+
+
+
+
+  <title> [Java 8] (1) 函数式编程简介 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/17/Java-8-1-函数式编程简介/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Java 8] (1) 函数式编程简介
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-17T13:49:00+08:00">
+                2014-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="思维方式的转变"><a href="#思维方式的转变" class="headerlink" title="思维方式的转变"></a>思维方式的转变</h2><p>以从一个城市集合中寻找是否存在Chicago为例：</p>
+<h3 id="习惯的方式"><a href="#习惯的方式" class="headerlink" title="习惯的方式"></a>习惯的方式</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">boolean</span> found = <span class="keyword">false</span>;</div><div class="line"><span class="keyword">for</span>(String city : cities) &#123;</div><div class="line">    <span class="keyword">if</span>(city.equals(<span class="string">"Chicago"</span>)) &#123;</div><div class="line">        found = <span class="keyword">true</span>;</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">System.out.println(<span class="string">"Found chicago?:"</span> + found);</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>以上代码就是绝大多数开发人员在面对这个问题时的第一反应。它通过命令式风格(Imperative Style)的代码来完成需要的逻辑，但是看起来会比较复杂，因为代码量较多。</p>
+<p>稍有经验的开发人员则会利用现有的API来实现，使代码更简洁同时也更具有可读性，因为它将代码风格由命令式转变为声明式(Declarative Style)。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">System.out.println(<span class="string">"Found chicago?:"</span> + cities.contains(<span class="string">"Chicago"</span>));</div></pre></td></tr></table></figure>
+<p>简单的一行代码，就能够将程序的意图显示出来。</p>
+<h3 id="另一个例子"><a href="#另一个例子" class="headerlink" title="另一个例子"></a>另一个例子</h3><p>假设对于20元以上的商品，进行9折处理，最后得到这些商品的折后价格。如下解决方案立即会映入脑海：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> List&lt;BigDecimal&gt; prices = Arrays.asList(</div><div class="line">    <span class="keyword">new</span> BigDecimal(<span class="string">"10"</span>), <span class="keyword">new</span> BigDecimal(<span class="string">"30"</span>), <span class="keyword">new</span> BigDecimal(<span class="string">"17"</span>),</div><div class="line">    <span class="keyword">new</span> BigDecimal(<span class="string">"20"</span>), <span class="keyword">new</span> BigDecimal(<span class="string">"15"</span>), <span class="keyword">new</span> BigDecimal(<span class="string">"18"</span>),</div><div class="line">    <span class="keyword">new</span> BigDecimal(<span class="string">"45"</span>), <span class="keyword">new</span> BigDecimal(<span class="string">"12"</span>));</div><div class="line"></div><div class="line">BigDecimal totalOfDiscountedPrices = BigDecimal.ZERO;</div><div class="line"><span class="keyword">for</span>(BigDecimal price : prices) &#123;</div><div class="line">    <span class="keyword">if</span>(price.compareTo(BigDecimal.valueOf(<span class="number">20</span>)) &gt; <span class="number">0</span>)</div><div class="line">        totalOfDiscountedPrices = totalOfDiscountedPrices.add(price.multiply(BigDecimal.valueOf(<span class="number">0.9</span>)));</div><div class="line">&#125;</div><div class="line">System.out.println(<span class="string">"Total of discounted prices: "</span> + totalOfDiscountedPrices);</div></pre></td></tr></table></figure>
+<p>当你经常性的写这种类型的代码时，不知道是否会产生一种无聊或者不安的情绪。因为这段代码已经普通到有点乏味了，虽然它能够正常工作，但是总会感觉到它并不是那么优雅。</p>
+<p>更优雅的方式，是使用声明式的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> BigDecimal totalOfDiscountedPrices = prices.stream()</div><div class="line">    .filter(price -&gt; price.compareTo(BigDecimal.valueOf(<span class="number">20</span>)) &gt; <span class="number">0</span>)</div><div class="line">    .map(price -&gt; price.multiply(BigDecimal.valueOf(<span class="number">0.9</span>)))</div><div class="line">    .reduce(BigDecimal.ZERO, BigDecimal::add);</div><div class="line"></div><div class="line">System.out.println(<span class="string">"Total of discounted prices: "</span> + totalOfDiscountedPrices);</div></pre></td></tr></table></figure>
+<p>没有声明任何的临时变量，没有各种if判断，逻辑一气呵成。同时也更具有可读性： 首先将价格集合根据条件进行过滤（filter)，然后对过滤后的集合进行折扣处理(map)，最后将折扣后的价格进行相加(reduce)。</p>
+<p>它利用了Java 8的新特性，Lambda表达式以及相关的方法如stream()，reduce()等将代码转变成函数式的风格(Functional Style)。Lambda表达式和其相关内容会在后文中进行详细介绍。</p>
+<h2 id="使用函数式代码的好处"><a href="#使用函数式代码的好处" class="headerlink" title="使用函数式代码的好处"></a>使用函数式代码的好处</h2><ul>
+<li>减少了可变量(Immutable Variable)的声明</li>
+<li>能够更好的利用并行(Parallelism)</li>
+<li>代码更加简洁和可读</li>
+</ul>
+<p>当然，Java 8中对于函数式编程风格的引入，并不是为了要颠覆已经根深蒂固面向对象编程风格。而是让它们和谐共处，取长补短。比如，使用面向对象对实体进行建模，对实体之间的关系进行表述；而使用函数式编码来实现实体中的各种状态改变，业务流程以及数据处理。</p>
+<h2 id="函数式编程的核心"><a href="#函数式编程的核心" class="headerlink" title="函数式编程的核心"></a>函数式编程的核心</h2><ul>
+<li><p>声明式的代码风格(Declarative Style) : 这需要提高代码的抽象层次，比如在前面的例子中，将从集合中搜索一个元素的操作封装到contains方法中。</p>
+</li>
+<li><p>更多的不变性(Promote Immutability) : 能不声明变量就不要声明，需要变量时尽量使用final来修饰。因为变量越多，就意味着程序越难以并行。实现了不变性的方法意味着它不再有副作用，不会因为调用而改变程序的状态。</p>
+</li>
+<li><p>使用表达式来代替语句(Prefer Expression to Statement) : 使用语句也就意味着不变性的破坏和程序状态的改变，比如赋值语句的使用。</p>
+</li>
+<li><p>使用高阶函数(High-Order Function) : 在Java 8以前，重用是建立在对象和类型系统之上。而Java 8中则将重用的概念更进一步，使用函数也能够实现代码的重用。所谓高阶函数，不要被其名字唬住了，实际上很简单：</p>
+<ul>
+<li>将函数作为参数传入到另外一个函数中</li>
+<li>函数的返回值可以是函数类型</li>
+<li>在函数中创建另一个函数</li>
+</ul>
+</li>
+</ul>
+<p>在前文中，已经见过函数作为参数传入到另一个函数的例子了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">prices.stream()</div><div class="line">    .filter(price -&gt; price.compareTo(BigDecimal.valueOf(<span class="number">20</span>)) &gt; <span class="number">0</span>)</div><div class="line">    .map(price -&gt; price.multiply(BigDecimal.valueOf(<span class="number">0.9</span>)))</div><div class="line">    .reduce(BigDecimal.ZERO, BigDecimal::add);</div></pre></td></tr></table></figure>
+<p>price -&gt; price.multiply(BigDecimal.valueOf(0.9))实际上就是一个函数。只不过它的写法使用了Lambda表达式，当代码被执行时，该表达式会被转换为一个函数。</p>
+<h2 id="函数式接口-Functional-Interface"><a href="#函数式接口-Functional-Interface" class="headerlink" title="函数式接口(Functional Interface)"></a>函数式接口(Functional Interface)</h2><p>为了在Java中引入函数式编程，Java 8中引入了函数式接口这一概念。</p>
+<p>函数式接口就是仅声明了一个方法的接口，比如我们熟悉的Runnable，Callable，Comparable等都可以作为函数式接口。当然，在Java 8中，新添加了一类函数式接口，如Function，Predicate，Consumer，Supplier等。</p>
+<p>在函数式接口中，可以声明0个或者多个default方法，这些方法在接口内就已经被实现了。因此，接口的default方法也是Java 8中引入的一个新概念。</p>
+<p>函数式接口使用@FunctionalInterface注解进行标注。虽然这个注解的使用不是强制性的，但是使用它的好处是让此接口的目的更加明确，同时编译器也会对代码进行检查，来确保被该注解标注的接口的使用没有语法错误。</p>
+<p>如果一个方法接受一个函数式接口作为参数，那么我们可以传入以下类型作为参数：</p>
+<ul>
+<li>匿名内部类(Anonymous Inner Class)</li>
+<li>Lambda表达式</li>
+<li>方法或者构造器的引用(Method or Constructor Reference)</li>
+</ul>
+<p>第一种方式是Java的以前版本中经常使用的方式，在Java 8中不再被推荐。 第二种方式中，Lambda表达式会被编译器转换成相应函数式接口的一个实例。 第三种方式会在后文中详细介绍。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Java-8/" rel="tag"># Java 8</a>
+          
+            <a href="/tags/函数式编程/" rel="tag"># 函数式编程</a>
+          
+            <a href="/tags/Lambda/" rel="tag"># Lambda</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/10/15/Effective-JavaScript-Item-40-避免继承标准类型/" rel="next" title="[Effective JavaScript] Item 40 避免继承标准类型">
+                <i class="fa fa-chevron-left"></i> [Effective JavaScript] Item 40 避免继承标准类型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/10/20/Java-Performance-数据库性能最佳实践-JPA和读写优化/" rel="prev" title="[Java Performance] 数据库性能最佳实践 - JPA和读写优化">
+                [Java Performance] 数据库性能最佳实践 - JPA和读写优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">58</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#思维方式的转变"><span class="nav-number">1.</span> <span class="nav-text">思维方式的转变</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#习惯的方式"><span class="nav-number">1.1.</span> <span class="nav-text">习惯的方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#另一个例子"><span class="nav-number">1.2.</span> <span class="nav-text">另一个例子</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用函数式代码的好处"><span class="nav-number">2.</span> <span class="nav-text">使用函数式代码的好处</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数式编程的核心"><span class="nav-number">3.</span> <span class="nav-text">函数式编程的核心</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数式接口-Functional-Interface"><span class="nav-number">4.</span> <span class="nav-text">函数式接口(Functional Interface)</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
