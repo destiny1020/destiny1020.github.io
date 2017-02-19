@@ -1,0 +1,859 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hibernate Search,Hibernate,Lucene,全文搜索," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="实体类型映射在上一篇文章中，简要介绍了如何使用Hibernate Search来对一个实体进行全文搜索。
+然而，在真实的应用中，实体与实体之间的关系也许更为复杂。为了对复杂实体进行搜索，就需要让底层的Lucene查询也能够理解这些关系。
+下图反映了Database，Hibernate，Hibernate Search和Lucene之间的关系：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Hibernate Search] (2) 实体类型的映射">
+<meta property="og:url" content="http://rxjiang.com/2014/11/01/Hibernate-Search-2-实体类型的映射/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="实体类型映射在上一篇文章中，简要介绍了如何使用Hibernate Search来对一个实体进行全文搜索。
+然而，在真实的应用中，实体与实体之间的关系也许更为复杂。为了对复杂实体进行搜索，就需要让底层的Lucene查询也能够理解这些关系。
+下图反映了Database，Hibernate，Hibernate Search和Lucene之间的关系：">
+<meta property="og:image" content="http://img.blog.csdn.net/20141101092918727?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2017-02-19T14:52:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Hibernate Search] (2) 实体类型的映射">
+<meta name="twitter:description" content="实体类型映射在上一篇文章中，简要介绍了如何使用Hibernate Search来对一个实体进行全文搜索。
+然而，在真实的应用中，实体与实体之间的关系也许更为复杂。为了对复杂实体进行搜索，就需要让底层的Lucene查询也能够理解这些关系。
+下图反映了Database，Hibernate，Hibernate Search和Lucene之间的关系：">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20141101092918727?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/11/01/Hibernate-Search-2-实体类型的映射/"/>
+
+
+
+
+
+  <title> [Hibernate Search] (2) 实体类型的映射 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/01/Hibernate-Search-2-实体类型的映射/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Hibernate Search] (2) 实体类型的映射
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-01T09:31:00+08:00">
+                2014-11-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/Hibernate-Search/" itemprop="url" rel="index">
+                    <span itemprop="name">Hibernate Search</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="实体类型映射"><a href="#实体类型映射" class="headerlink" title="实体类型映射"></a>实体类型映射</h2><p>在上一篇文章中，简要介绍了如何使用Hibernate Search来对一个实体进行全文搜索。</p>
+<p>然而，在真实的应用中，实体与实体之间的关系也许更为复杂。为了对复杂实体进行搜索，就需要让底层的Lucene查询也能够理解这些关系。</p>
+<p>下图反映了Database，Hibernate，Hibernate Search和Lucene之间的关系：</p>
+<p><img src="http://img.blog.csdn.net/20141101092918727?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<a id="more"></a>
+<h3 id="域映射选项-Field-Mapping-Options"><a href="#域映射选项-Field-Mapping-Options" class="headerlink" title="域映射选项(Field Mapping Options)"></a>域映射选项(Field Mapping Options)</h3><p>我们已经知道@Field注解用来让某个域可以被全文搜索到。 实际上，在添加该注解后，Hibernate Search会将一些有意义的默认设置添加到相应的Lucene索引中。</p>
+<p>这些被添加的默认设置通常都可以通过@Field的属性进行设置，下面对这些属性进行简要介绍：</p>
+<ul>
+<li>analyze：告诉Lucene是否直接保存该域的数据或者将该域进行某种处理(Analysis, Parsing, Processing, etc)后再进行保存。可以设置成Analyze.NO或者Analyze.YES。在后面的“执行查询”一文中会对它们进行更详细的说明。</li>
+<li>index：告诉Lucene当前域是否需要被索引，默认值是Index.YES。也许这个属性会显得有些奇怪，既然已经被@Field标注了，那为什么要设置是否需要被索引呢？其实，在一些高级查询中这种情况是存在的，在后面的“高级查询”一文中会进行说明。</li>
+<li>indexNullAs：声明如何处理域值为null的情况。默认情况下，null值会被忽略并且也不会被添加到索引中。但是，我们也可以将null值索引成某些特殊的值。在“高级映射”中会进行介绍。</li>
+<li>name：用来给该域在Lucene索引中赋予一个名字，默认使用的就是该域的名字进行设置。</li>
+<li>norms：用来决定是否存储用在索引时提升(Index-time Boosting)的信息。默认设置为Norms.YES。在“高级映射”中会进行说明。</li>
+<li>store：通常情况下，域会以一种优化后的形式被保存到索引中。这样做虽然可以提升搜索性能，但是在取得搜索结果时，该域的原始数据可能也会被丢失。默认设置是Store.NO，也就意味着原始数据也许会被丢失。当设置成Store.YES或者Store.COMPRESS后，在获取搜索结果时可以直接从Lucene索引中取得，而不需要再访问一次数据库。在“高级查询”中会进行说明。</li>
+</ul>
+<h3 id="一域多映射"><a href="#一域多映射" class="headerlink" title="一域多映射"></a>一域多映射</h3><p>比如，当一个域需要同时被设置成“能搜索”和“能排序”时，就需要设置多个映射：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Column</span></div><div class="line"><span class="meta">@Fields</span>(&#123;</div><div class="line">    <span class="meta">@Field</span>,</div><div class="line">    <span class="meta">@Field</span>(name=<span class="string">"sorting_name"</span>, analyze=Analyze.NO)</div><div class="line">&#125;)</div><div class="line"><span class="keyword">private</span> String name;</div></pre></td></tr></table></figure>
+<p>目前，只需要了解一个域可以被设置多个@Field就够了，而且每个@Field的name属性必须不同。因此上面代码中的一个@Field的name被设置成了sorting_name，另一个@Field使用的是默认的name。</p>
+<h3 id="映射数值类型的域"><a href="#映射数值类型的域" class="headerlink" title="映射数值类型的域"></a>映射数值类型的域</h3><p>前面使用@Field的例子都是针对字符串类型的，显然数值类型在某些情况下也需要被索引。但是在默认情况下，数值类型也会当做字符类型被索引，因此在对数值类型的域进行排序等操作时的效率十分低下。</p>
+<p>为了提高这种情况下的性能，Hibernate Search提供了一个注解@NumericField用来处理Integer，Long，Float和Double等数值类型：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Column</span></div><div class="line"><span class="meta">@Field</span></div><div class="line"><span class="meta">@NumericField</span></div><div class="line"><span class="keyword">private</span> <span class="keyword">float</span> price;</div></pre></td></tr></table></figure>
+<p>当一个域存在多个@Field时，如果需要对某个@Field使用@NumericField，那么还需要设置@NumericField的forField属性为对应的name来完成关联。</p>
+<h3 id="实体间的关系"><a href="#实体间的关系" class="headerlink" title="实体间的关系"></a>实体间的关系</h3><p>一旦一个实体类型被标注为@Indexed，那么Hibernate Search仅仅会为该实体创建一个Lucene索引。因此，我们可以为每个需要被搜索的实体创建单独的Lucene索引，然而这种做法是十分低效的。</p>
+<p>当我们使用Hibernate ORM对实体进行建模时，实体间的关系通常已经被诸如@ManyToMany，@ManyToOne等注解表示了。因此，我们可以利用这一点来建立更加高效的Lucene索引。</p>
+<h4 id="关联的实体"><a href="#关联的实体" class="headerlink" title="关联的实体"></a>关联的实体</h4><p>为了表示某个App能够运行的平台，我们可以建立Device实体类型并让它和App实体建立联系：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Entity</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Device</span> </span>&#123;</div><div class="line">    <span class="meta">@Id</span></div><div class="line">    <span class="meta">@GeneratedValue</span></div><div class="line">    <span class="keyword">private</span> Long id;</div><div class="line"></div><div class="line">    <span class="meta">@Column</span></div><div class="line">    <span class="meta">@Field</span></div><div class="line">    <span class="keyword">private</span> String manufacturer;</div><div class="line"></div><div class="line">    <span class="meta">@Column</span></div><div class="line">    <span class="meta">@Field</span></div><div class="line">    <span class="keyword">private</span> String name;</div><div class="line"></div><div class="line">    <span class="meta">@ManyToMany</span>(mappedBy=<span class="string">"supportedDevices"</span>,</div><div class="line">        fetch=FetchType.EAGER,</div><div class="line">        cascade = &#123; CascadeType.ALL &#125;)</div><div class="line">    <span class="meta">@ContainedIn</span></div><div class="line">    <span class="keyword">private</span> Set&lt;App&gt; supportedApps;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Device</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Device</span><span class="params">(String manufacturer, String name, Set&lt;App&gt;supportedApps)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.manufacturer = manufacturer;</div><div class="line">        <span class="keyword">this</span>.name = name;</div><div class="line">        <span class="keyword">this</span>.supportedApps = supportedApps;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// Getters and setters for all fields...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>将supportedApps这一域的@ManyToMany中的cascade属性设置为CascadeType.ALL的作用是为了让Device或者App中任一实体发生改变时，索引都会被自动更新。除了保证cascade的属性外，还需要将以上多对多的关系设置成双向的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 在App实体类中</span></div><div class="line"><span class="meta">@ManyToMany</span>(fetch=FetchType.EAGER, cascade = &#123; CascadeType.ALL &#125;)</div><div class="line"><span class="meta">@IndexedEmbedded</span>(depth=<span class="number">1</span>)</div><div class="line"><span class="keyword">private</span> Set&lt;Device&gt;supportedDevices;</div></pre></td></tr></table></figure>
+<p>另外，在Device实体类的supportedApps域上我们还使用了另外一个注解@ContainedIn。这个注解的作用是告诉Lucene，在App实体类型的索引中需要同时包含对应Device的数据。</p>
+<p>同时，在App实体类中我们也使用了新的注解叫做@IndexedEmbedded。这个注解和@ContainedIn正好是一对，需要同时使用。它的目的是为了防止循环依赖，在Device中我们声明了在App的索引中需要包含Device信息，而在这里我们限制了包含的信息层次，即depth=1的意义。它表示App中包含了Device信息，但是该Device信息不会再包含其对应的App信息，从而防止了循环引用。</p>
+<p><strong>查询关联的实体</strong></p>
+<p>一旦实体之间建立了联系，那么在查询中的声明就十分简单了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">QueryBuilder queryBuilder = fullTextSession.getSearchFactory().buildQueryBuilder()</div><div class="line">    .forEntity(App.class ).get();</div><div class="line">org.apache.lucene.search.Query luceneQuery = queryBuilder</div><div class="line">    .keyword()</div><div class="line">    .onFields(<span class="string">"name"</span>, <span class="string">"description"</span>, <span class="string">"supportedDevices.name"</span>)</div><div class="line">    .matching(searchString)</div><div class="line">    .createQuery();</div><div class="line">org.hibernate.Query hibernateQuery = fullTextSession.createFullTextQuery(luceneQuery, App.class);</div></pre></td></tr></table></figure>
+<p>在onFields方法中，我们不仅声明了App实体上的name和description域，还声明了关联的Device实体的name域。此时，如果我们使用某种设备的名称作为关键字进行App实体的搜索，就能够获取到支持该种设备的所有App实例了。</p>
+<h4 id="嵌入对象-Embedded-Objects"><a href="#嵌入对象-Embedded-Objects" class="headerlink" title="嵌入对象(Embedded Objects)"></a>嵌入对象(Embedded Objects)</h4><p>关联的实体本身是独立的，它们拥有独立的数据库表结构和Lucene索引。这意味着当我们删除某一个App实体的时候，与其关联的Device实体并不会被同时删除。</p>
+<p>而与之相反，嵌入对象并不是独立的，它们没有独立的数据库表结构和Lucene索引。顾客对于某个App实体的评价信息就可以被建模为嵌入对象。当某个App实体被删除之后，相关联的评价信息也应该同时被删除。可以建模如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Embeddable</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomerReview</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Field</span></div><div class="line">    <span class="keyword">private</span> String username;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> stars;</div><div class="line"></div><div class="line">    <span class="meta">@Field</span></div><div class="line">    <span class="keyword">private</span> String comments;</div><div class="line"></div><div class="line">    publicCustomerReview() &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomerReview</span><span class="params">(String username, <span class="keyword">int</span> stars, String comments)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.username = username;</div><div class="line">        <span class="keyword">this</span>.stars = stars;</div><div class="line">        <span class="keyword">this</span>.comments = comments;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// Getter and setter methods...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这类实体使用@Embeddable进行标注，而不是使用@Entity。它表示CustomerReview对象的生命周期是由包含它的实体类型所决定的。</p>
+<p>而@Field注解的使用方式和之前并无二致。但是，对于@Embeddable类型的实体，Hibernate Search并不会为它创建单独的Lucene索引。因此@Field此时只会向包含它的实体的索引中添加必要的信息。</p>
+<p>在App实体类型中，是这样于CustomerReview建立关联的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@ElementCollection</span>(fetch=FetchType.EAGER)</div><div class="line"><span class="meta">@Fetch</span>(FetchMode.SELECT)</div><div class="line"><span class="meta">@IndexedEmbedded</span>(depth=<span class="number">1</span>)</div><div class="line"><span class="keyword">private</span> Set&lt;CustomerReview&gt; customerReviews;</div></pre></td></tr></table></figure>
+<p>和之前使用的@ManyToMany这一类表示实体间关系的注解不同，以上代码中使用的是@ElementCollection来表示实体和嵌入对象的关系。如果关联的嵌入对象只有一个，那么@ElementCollection也是不需要的。</p>
+<p>紧接着的@Fetch注解是Hibernate特有的一个注解，它用来保证多个CustomerReview实例是通过多个SELECT语句而不是一个OUTER JOIN进行获取的。这避免了Hibernate在读取嵌入对象时可能存在的重复记录，具体细节可以参考这里。然而在嵌入对象的数量十分巨大时，使用这种Eager的方式并不好，考虑到这里的应用场景，每个App实体的评论对象不会太多，所以使用Eager读取方式是合理的。</p>
+<p>在查询中对嵌入对象进行查询的方式和对关联对象的查询是一致的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">QueryBuilder queryBuilder = fullTextSession.getSearchFactory().buildQueryBuilder()</div><div class="line">    .forEntity(App.class ).get();</div><div class="line">org.apache.lucene.search.Query luceneQuery = queryBuilder</div><div class="line">    .keyword()</div><div class="line">    .onFields(<span class="string">"name"</span>, <span class="string">"description"</span>, <span class="string">"supportedDevices.name"</span>, <span class="string">"customerReviews.comments"</span>)</div><div class="line">    .matching(searchString)</div><div class="line">    .createQuery();</div><div class="line">org.hibernate.Query hibernateQuery = fullTextSession.createFullTextQuery(</div><div class="line">    luceneQuery, App.class);</div></pre></td></tr></table></figure>
+<p>在onFields方法中使用了customerReviews.comments。 现在我们的应用不仅能够搜索App实体，还能够搜索其关联的Device实体和CustomerReview嵌入对象了。</p>
+<h3 id="部分索引-Partial-Indexing"><a href="#部分索引-Partial-Indexing" class="headerlink" title="部分索引(Partial Indexing)"></a>部分索引(Partial Indexing)</h3><p>重申一遍：对于关联实体，它们会拥有自己的索引。对于嵌入对象，它们的信息只会存在于包含它的实体的索引中。</p>
+<p>但是，需要注意的是嵌入对象可能被嵌入到不止一个实体中。比如嵌入对象Address就可以用在和地址相关的任何实体类型中。</p>
+<p>通常而言，@Field注解用来告诉Hibernate Search那些域是需要被索引和搜索的。但是我们能不能根据使用的场合不同，而进一步进行区分呢？我们举一个例子来说明这个应用场景：</p>
+<p>在App中，含有其对应的CustomerReview嵌入对象，而这个对象中有两个字段username和comments被@Field注解标注了。显然，在对App进行全文搜索时，评论信息来自于哪个用户是不需要被搜索到的。所以我们想在App的索引信息中只包含CustomerReview的comments域，而不包含username域。</p>
+<p>我们可以通过@IndexedEmbedded注解的includePath属性来进行声明：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@ElementCollection</span>(fetch=FetchType.EAGER)</div><div class="line"><span class="meta">@Fetch</span>(FetchMode.SELECT)</div><div class="line"><span class="meta">@IndexedEmbedded</span>(depth=<span class="number">1</span>, includePaths = &#123; <span class="string">"comments"</span> &#125;)</div><div class="line"><span class="keyword">private</span> Set&lt;CustomerReview&gt; customerReviews;</div></pre></td></tr></table></figure>
+<p>此时CustomerReview的username信息就不会被添加到App的索引中。这样做满足我们的需求，同时也节省了空间，提高了性能。而在具体的查询中，我们也需要注意不能够再使用customerReviews.username。</p>
+<h3 id="映射API"><a href="#映射API" class="headerlink" title="映射API"></a>映射API</h3><p>前面我们介绍了如何使用Hibernate Search提供的注解来完成从Hibernate到Lucene的映射。当然，完全不使用那些注解，仅仅使用映射API也是能够完成映射的。</p>
+<p>使用映射API在映射信息不固定时是非常有效的，比如运行时的映射信息会根据运行环境的不同而发生改变等等。同时，使用映射API也是在你无法对实体类型进行修改时，建立映射的唯一方法。</p>
+<p>映射API的核心是SearchMapping类，它保存了Hibernate Search的配置信息，而这些配置信息通常是来源于散步在各个实体类中的注解。该类提供的方法都非常直观，比如entity方法对应的就是@Entity注解，indexed方法对应的就是@Indexed注解。</p>
+<p>如果你需要查阅更多关于映射API的信息和用法，可以参考<a href="http://hibernate.org/search/documentation/" target="_blank" rel="external">这里</a>。</p>
+<p>以下的映射代码能够完成以上使用注解完成映射工作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SearchMappingFactory</span> </span>&#123;</div><div class="line">    <span class="meta">@Factory</span></div><div class="line">    <span class="function"><span class="keyword">public</span> SearchMapping <span class="title">getSearchMapping</span><span class="params">()</span> </span>&#123;</div><div class="line">        SearchMapping searchMapping = <span class="keyword">new</span> SearchMapping();</div><div class="line">        searchMapping</div><div class="line">            .entity(App.class)</div><div class="line">                .indexed()</div><div class="line">                .interceptor(IndexWhenActiveInterceptor.class)</div><div class="line">                .property(<span class="string">"id"</span>, ElementType.METHOD).documentId()</div><div class="line">                .property(<span class="string">"name"</span>, ElementType.METHOD).field()</div><div class="line">                .property(<span class="string">"description"</span>, ElementType.METHOD).field()</div><div class="line">                .property(<span class="string">"supportedDevices"</span>,</div><div class="line">                    ElementType.METHOD).indexEmbedded().depth(<span class="number">1</span>)</div><div class="line">                .property(<span class="string">"customerReviews"</span>,</div><div class="line">                    ElementType.METHOD).indexEmbedded().depth(<span class="number">1</span>)</div><div class="line"></div><div class="line">            .entity(Device.class)</div><div class="line">                .property(<span class="string">"manufacturer"</span>, ElementType.METHOD).field()</div><div class="line">                .property(<span class="string">"name"</span>, ElementType.METHOD).field()</div><div class="line">                .property(<span class="string">"supportedApps"</span>,</div><div class="line">                    ElementType.METHOD).containedIn()</div><div class="line"></div><div class="line">            .entity(CustomerReview.class)</div><div class="line">                .property(<span class="string">"stars"</span>, ElementType.METHOD).field()</div><div class="line">                .property(<span class="string">"comments"</span>, ElementType.METHOD).field();</div><div class="line"></div><div class="line">        <span class="keyword">return</span> searchMapping;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>使用的类名和方法名都不重要，重要的是方法需要被@org.hibernate.search.annotations.Factory注解标注。然而，在hibernate.cfg.xml配置文件中添加一个属性来使用该方法：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"hibernate.search.model_mapping"</span>&gt;</span></div><div class="line">    a.b.c.SearchMappingFactory</div><div class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>此时，当Hibernate ORM打开一个session时，Hibernate Search就会委托Luecene为相应实体建立索引和其它相关信息了。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hibernate-Search/" rel="tag"># Hibernate Search</a>
+          
+            <a href="/tags/Hibernate/" rel="tag"># Hibernate</a>
+          
+            <a href="/tags/Lucene/" rel="tag"># Lucene</a>
+          
+            <a href="/tags/全文搜索/" rel="tag"># 全文搜索</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/10/31/Hibernate-Search-1-初识Hibernate-Search/" rel="next" title="[Hibernate Search] (1) 初识Hibernate Search">
+                <i class="fa fa-chevron-left"></i> [Hibernate Search] (1) 初识Hibernate Search
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/11/02/Hibernate-Search-3-基础查询/" rel="prev" title="[Hibernate Search] (3) 基础查询">
+                [Hibernate Search] (3) 基础查询 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">73</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">55</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实体类型映射"><span class="nav-number">1.</span> <span class="nav-text">实体类型映射</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#域映射选项-Field-Mapping-Options"><span class="nav-number">1.1.</span> <span class="nav-text">域映射选项(Field Mapping Options)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一域多映射"><span class="nav-number">1.2.</span> <span class="nav-text">一域多映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#映射数值类型的域"><span class="nav-number">1.3.</span> <span class="nav-text">映射数值类型的域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实体间的关系"><span class="nav-number">1.4.</span> <span class="nav-text">实体间的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#关联的实体"><span class="nav-number">1.4.1.</span> <span class="nav-text">关联的实体</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#嵌入对象-Embedded-Objects"><span class="nav-number">1.4.2.</span> <span class="nav-text">嵌入对象(Embedded Objects)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部分索引-Partial-Indexing"><span class="nav-number">1.5.</span> <span class="nav-text">部分索引(Partial Indexing)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#映射API"><span class="nav-number">1.6.</span> <span class="nav-text">映射API</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

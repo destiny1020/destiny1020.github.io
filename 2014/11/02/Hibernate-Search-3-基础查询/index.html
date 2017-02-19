@@ -1,0 +1,865 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hibernate Search,Hibernate,Lucene,全文搜索," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="基础查询目前我们只用到了基于关键字的查询，实际上Hibenrate Search DSL还提供了其它的查询方式，下面我们就来一探究竟。
+映射API和查询API对于映射API，我们可以通过使用Hibernate提供的注解来完成映射工作，同时我们也可以使用JPA提供的注解来完成。类似的，对于查询API，我们也可以从Hibernate和JPA提供的查询API中进行选择。每种方式都有它的优点和缺点，比如当">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Hibernate Search] (3) 基础查询">
+<meta property="og:url" content="http://rxjiang.com/2014/11/02/Hibernate-Search-3-基础查询/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="基础查询目前我们只用到了基于关键字的查询，实际上Hibenrate Search DSL还提供了其它的查询方式，下面我们就来一探究竟。
+映射API和查询API对于映射API，我们可以通过使用Hibernate提供的注解来完成映射工作，同时我们也可以使用JPA提供的注解来完成。类似的，对于查询API，我们也可以从Hibernate和JPA提供的查询API中进行选择。每种方式都有它的优点和缺点，比如当">
+<meta property="og:image" content="http://img.blog.csdn.net/20141102112619987?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20141102112642341?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20141102112907671?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20141102112934171?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20141102112931555?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20141102113013000?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2017-02-19T14:58:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Hibernate Search] (3) 基础查询">
+<meta name="twitter:description" content="基础查询目前我们只用到了基于关键字的查询，实际上Hibenrate Search DSL还提供了其它的查询方式，下面我们就来一探究竟。
+映射API和查询API对于映射API，我们可以通过使用Hibernate提供的注解来完成映射工作，同时我们也可以使用JPA提供的注解来完成。类似的，对于查询API，我们也可以从Hibernate和JPA提供的查询API中进行选择。每种方式都有它的优点和缺点，比如当">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20141102112619987?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/11/02/Hibernate-Search-3-基础查询/"/>
+
+
+
+
+
+  <title> [Hibernate Search] (3) 基础查询 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/02/Hibernate-Search-3-基础查询/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Hibernate Search] (3) 基础查询
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-02T11:30:00+08:00">
+                2014-11-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/Hibernate-Search/" itemprop="url" rel="index">
+                    <span itemprop="name">Hibernate Search</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="基础查询"><a href="#基础查询" class="headerlink" title="基础查询"></a>基础查询</h1><p>目前我们只用到了基于关键字的查询，实际上Hibenrate Search DSL还提供了其它的查询方式，下面我们就来一探究竟。</p>
+<h2 id="映射API和查询API"><a href="#映射API和查询API" class="headerlink" title="映射API和查询API"></a>映射API和查询API</h2><p>对于映射API，我们可以通过使用Hibernate提供的注解来完成映射工作，同时我们也可以使用JPA提供的注解来完成。类似的，对于查询API，我们也可以从Hibernate和JPA提供的查询API中进行选择。每种方式都有它的优点和缺点，比如当我们使用Hibernate提供的查询API时，意味着可以使用更多的特性，毕竟Hibernate Search就是建立在Hibernate之上的。而当我们选择JPA的查询API时，意味着应用可以更方便的切换ORM的实现，比如我们想将Hibernate替换成EclipseLink。</p>
+<a id="more"></a>
+<h2 id="Hibernate-Search-DSL"><a href="#Hibernate-Search-DSL" class="headerlink" title="Hibernate Search DSL"></a>Hibernate Search DSL</h2><p>所谓的Hibernate Search DSL，实际上就是用于编写查询代码的一些列API：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> org.hibernate.search.query.dsl.QueryBuilder;</div><div class="line"></div><div class="line"><span class="comment">// ...</span></div><div class="line"></div><div class="line">String searchString = request.getParameter(<span class="string">"searchString"</span>);</div><div class="line">QueryBuilder queryBuilder = fullTextSession.getSearchFactory()</div><div class="line">    .buildQueryBuilder().forEntity( App.class ).get();</div><div class="line">org.apache.lucene.search.Query luceneQuery = queryBuilder</div><div class="line">    .keyword()</div><div class="line">    .onFields(<span class="string">"name"</span>, <span class="string">"description"</span>)</div><div class="line">    .matching(searchString)</div><div class="line">    .createQuery();</div></pre></td></tr></table></figure>
+<p>它采用链式编程的方式将查询中关键的部分封装成一个个方法进行连续调用。当下，很多API都被设计成这样。比如jQuery的API，以及Java 8中最新的Stream类型的API等。同时，一些设计模式如建造者模式也大量地使用了这种技术。</p>
+<h3 id="关键字查询-Keyword-Query"><a href="#关键字查询-Keyword-Query" class="headerlink" title="关键字查询(Keyword Query)"></a>关键字查询(Keyword Query)</h3><p>基于关键字的查询，是最为基本的一种查询方式。目前见到的例子都是基于关键字查询的。 为了执行这种查询，第一步是得到一个QueryBuilder对象，并且说明需要查询的目标实体：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">QueryBuilder queryBuilder = fullTextSession.getSearchFactory().buildQueryBuilder()</div><div class="line">    .forEntity(App.class).get();</div></pre></td></tr></table></figure>
+<p>下图反映了在创建关键字查询时可能的流程：</p>
+<p><img src="http://img.blog.csdn.net/20141102112619987?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>反映到代码中是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">org.apache.lucene.search.Query luceneQuery = queryBuilder</div><div class="line">    .keyword()</div><div class="line">    .onFields(<span class="string">"name"</span>, <span class="string">"description"</span>, <span class="string">"supportedDevices.name"</span>, <span class="string">"customerReviews.comments"</span>)</div><div class="line">    .matching(searchString)</div><div class="line">    .createQuery();</div></pre></td></tr></table></figure>
+<p>onFields方法可以看做是多个onField方法的组合，为了方便一次性地声明所有查询域。 如果onFields中接受的某个域在对应实体的索引中不存在相关信息，那么查询会报错。所以，需要确保传入到onFields方法中的域确实是存在于实体的索引中的。</p>
+<p>对于matching方法，通常而言它需要接受的是一个字符串对象，表示查询的关键字。但是实际上借助FieldBridge，传入到该方法的参数可以是任意类型。在“高级映射”一文中会对FieldBridge进行介绍。</p>
+<p>对于传入的关键字字符串，它也许包含了多个关键字(使用空白字符分隔，就像我们使用搜索引擎时)。Hibernate Search会默认地将它们分割成一个个的关键字，然后逐个进行搜索。</p>
+<p>最终，createQuery方法会结束DSL的定义并返回一个Lucene查询对象。最后，我们可以通过FullTextSession(Hibernate)或者FullTextEntityManager(JPA)来得到最终的Hibernate Search查询对象(FullTextQuery)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">FullTextQuery hibernateQuery =</div><div class="line">    fullTextSession.createFullTextQuery(luceneQuery, App.class);</div></pre></td></tr></table></figure>
+<h4 id="模糊查询-Fuzzy-Query"><a href="#模糊查询-Fuzzy-Query" class="headerlink" title="模糊查询(Fuzzy Query)"></a>模糊查询(Fuzzy Query)</h4><p>当我们使用搜索引擎时，它都能够很“聪明”地对一些输入错误进行更正。而在Hibernate Search中，我们也可以通过模糊查询来让查询更加智能。</p>
+<p>当使用了模糊查询后，当关键字和目标字串之间的匹配程度低于设置的某个阈值时，Hibernate Search也会认为匹配成功而返回结果。这个阈值的范围在0和1之间：0代表任何字串都算匹配，而1则代表只有完全符合才算匹配。所以当这个阈值取了0和1之间的某个值时，就代表查询能够支持某种程度的模糊。</p>
+<p>当使用Hibernate Search DSL来定义模糊查询时，可能的流程如下：</p>
+<p><img src="http://img.blog.csdn.net/20141102112642341?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>它一开始使用的也是keyword方法来定义一个基于关键字的查询，毕竟模糊查询也只是关键字查询的一种。 它在最后也会使用onField/onFields来指定查询的目标字段。</p>
+<p>只不过在keyword和onField/onFields方法中间会定义模糊查询的相关参数。</p>
+<p>fuzzy方法会使用0.5作为模糊程度的默认值，越接近0就越模糊，越接近1就越精确。因此，这个值是一个折中的值，在多种环境中都能够通用。</p>
+<p>如果不想使用该默认值，还可以通过调用withThreshold方法来指定一个阈值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">luceneQuery = queryBuilder</div><div class="line">    .keyword()</div><div class="line">    .fuzzy()</div><div class="line">    .withThreshold(<span class="number">0.7f</span>)</div><div class="line">    .onFields(<span class="string">"name"</span>, <span class="string">"description"</span>, <span class="string">"supportedDevices.name"</span>, <span class="string">"customerReviews.comments"</span>)</div><div class="line">    .matching(searchString)</div><div class="line">    .createQuery();</div></pre></td></tr></table></figure>
+<p>除了withThreshold方法外，还可以使用withPrefixLength方法来指定每个词语中，前多少个字符需要被排除在模糊计算中。</p>
+<h4 id="通配符查询-Wildcard-Query"><a href="#通配符查询-Wildcard-Query" class="headerlink" title="通配符查询(Wildcard Query)"></a>通配符查询(Wildcard Query)</h4><p>在通配符查询中，问号(?)会被当做一个任意字符。而星号(*)则会被当做零个或者多个字符。</p>
+<p>在Hibernate Search DSL中使用通配符搜索的流程如下：</p>
+<p><img src="http://img.blog.csdn.net/20141102112907671?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>需要使用wildcard方法来指定它是一个支持通配符的查询。</p>
+<h3 id="精确短语查询-Exact-Phrase-Query"><a href="#精确短语查询-Exact-Phrase-Query" class="headerlink" title="精确短语查询(Exact Phrase Query)"></a>精确短语查询(Exact Phrase Query)</h3><p>前面提到过，Hibernate Search会在执行查询前将关键字使用空白字符进行分割，然后对得到的词语逐个查询。然而，有时候我们需要查询的就是一个完整的短语，不需要Hibernate Search多此一举。在搜索引擎中，我们通过使用双引号来表示这种情况。</p>
+<p>在Hibernate Search DSL中，可以通过短语查询来完成，一下是流程图：</p>
+<p><img src="http://img.blog.csdn.net/20141102112934171?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>sentence方法接受的参数必须是一个String类型，这一点和matching有所不同。 withSlop方法接受一个整型变量作为参数，它提供了一种原始的模糊查询方式：短语中额外可以出现的词语数量。比如我们要查询的是“Hello World”，那么在使用withSlop(1)后，“Hello Big World”也会被匹配。</p>
+<p>那么在具体的代码中，我们可以首先进行判断，如果搜索字符串被引号包含了，那么就使用短语查询：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span>(isQuoted(searchString)) &#123;</div><div class="line">    luceneQuery = queryBuilder</div><div class="line">        .phrase()</div><div class="line">        .onField(<span class="string">"name"</span>)</div><div class="line">        .andField(<span class="string">"description"</span>)</div><div class="line">        .andField(<span class="string">"supportedDevices.name"</span>)</div><div class="line">        .andField(<span class="string">"customerReviews.comments"</span>)</div><div class="line">        .sentence(searchStringWithQuotesRemoved)</div><div class="line">        .createQuery();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="范围查询-Range-Query"><a href="#范围查询-Range-Query" class="headerlink" title="范围查询(Range Query)"></a>范围查询(Range Query)</h3><p>范围查询的流程：</p>
+<p><img src="http://img.blog.csdn.net/20141102112931555?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>顾名思义，范围查询通过给定上限值和下限值来对某些域进行的查询。 因此，日期类型和数值类型通常会作为此类查询的目标域。</p>
+<p>above，below方法用来单独指定下限值和上限值。而from和to方法必须成对使用。 它们可以结合excludeLimit来将区间从闭区间转换为开区间：</p>
+<p>比如from(5).to(10).excludeLimit()所代表的区间就是：5 &lt;= x &lt; 10。</p>
+<p>下面是一个查询拥有4星及以上评价的App实体：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">luceneQuery = queryBuilder</div><div class="line">    .range()</div><div class="line">    .onField(<span class="string">"customerReviews.stars"</span>)</div><div class="line">    .above(<span class="number">3</span>).excludeLimit()</div><div class="line">    .createQuery();</div></pre></td></tr></table></figure>
+<h3 id="布尔-组合-查询-Boolean-Combination-Query"><a href="#布尔-组合-查询-Boolean-Combination-Query" class="headerlink" title="布尔(组合)查询(Boolean(Combination) Query)"></a>布尔(组合)查询(Boolean(Combination) Query)</h3><p>如果一个查询满足不了你的需求，那么你可以使用布尔查询将若干个查询结合起来。下面是它的流程：</p>
+<p><img src="http://img.blog.csdn.net/20141102113013000?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>使用bool方法来表明这个查询是一个组合查询，会组合多个子查询。它至少需要包含一个must子查询或者一个should查询。must和should分别表示的是逻辑与(Logical-AND)和逻辑或(Logical-OR)的语义。</p>
+<p>一般，不要同时使用must和should，因为这会让should中的查询毫无意义。只有在需要根据相关度对结果的排序进行调整时，才会将must和should联合使用。</p>
+<p>比如，下述代码用来查询支持设备xPhone并且拥有5星评价的App实体：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">luceneQuery = queryBuilder</div><div class="line">    .bool()</div><div class="line">    .must(</div><div class="line">        queryBuilder</div><div class="line">            .keyword()</div><div class="line">            .onField(<span class="string">"supportedDevices.name"</span>)</div><div class="line">            .matching(<span class="string">"xphone"</span>)</div><div class="line">            .createQuery()</div><div class="line">    )</div><div class="line">    .must(</div><div class="line">        queryBuilder</div><div class="line">            .range()</div><div class="line">            .onField(<span class="string">"customerReviews.stars"</span>)</div><div class="line">            .above(<span class="number">5</span>)</div><div class="line">            .createQuery()</div><div class="line">    )</div><div class="line">    .createQuery();</div></pre></td></tr></table></figure>
+<h2 id="排序-Sorting"><a href="#排序-Sorting" class="headerlink" title="排序(Sorting)"></a>排序(Sorting)</h2><p>默认情况下，查询结果应该按照其和查询条件间的相关度进行排序。关于相关度排序，会在后续的文章中介绍。</p>
+<p>但是我们也能够不再使用相关度作为排序的依据，转而我们可以使用日期，数值类型甚至字符串的顺序作为排序依据。比如，对App的搜索结果，我们可以使用其名字在字母表中的顺序进行排序。</p>
+<p>为了支持对于某个域的排序，我们需要向索引中添加一些必要的信息。在对字符串类型的域进行索引时，默认的分析器会将该域的值进行分词，所以对于某个值“Hello World”，在索引中会有两个入口对“Hello”和“World”进行单独保存。这样做能够让查询更具效率，但是当我们需要对该域进行排序时，分词器是不需要的。</p>
+<p>因此，我们可以对该域设置两个@Field注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Column</span></div><div class="line"><span class="meta">@Fields</span>(&#123;</div><div class="line">    <span class="meta">@Field</span>,</div><div class="line">    <span class="meta">@Field</span>(name=<span class="string">"sorting_name"</span>, analyze=Analyze.NO)</div><div class="line">&#125;)</div><div class="line"><span class="keyword">private</span> String name;</div></pre></td></tr></table></figure>
+<p>一个用来建立标准的索引，一个用来建立用于排序的索引，其中指定了analyze=Analyze.NO，默认情况下分词器是被使用的。</p>
+<p>这个域就可以被用来创建Lucene的SortField对象，并集合FullTextQuery使用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> org.apache.lucene.search.Sort;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.search.SortField;</div><div class="line"></div><div class="line"><span class="comment">// ...</span></div><div class="line"></div><div class="line">Sort sort = <span class="keyword">new</span> Sort(<span class="keyword">new</span> SortField(<span class="string">"sorting_name"</span>, SortField.STRING));</div><div class="line">hibernateQuery.setSort(sort); <span class="comment">// a FullTextQuery object</span></div></pre></td></tr></table></figure>
+<p>执行此查询后，得到的结果会按照App名字，从A-Z进行排序。 实际上，SortField还能够接受第三个boolean类型的参数，当传入true时，排序结果会被颠倒即从Z-A。</p>
+<h2 id="分页-Pagination"><a href="#分页-Pagination" class="headerlink" title="分页(Pagination)"></a>分页(Pagination)</h2><p>当搜索会返回大量结果时，通常都不可能将它们一次性返回，而是使用分页技术一次只返回并显示一部分数据。</p>
+<p>对于Hibernate Search的FullTextQuery对象，可以使用如下代码完成分页：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">hibernateQuery.setFirstResult(<span class="number">10</span>);</div><div class="line">hibernateQuery.setMaxResults(<span class="number">5</span>);</div><div class="line">List&lt;App&gt; apps = hibernateQuery.list();</div></pre></td></tr></table></figure>
+<p>setFirstResult指定的是偏移量，它通常是通过 页码(从0开始) <em> 一页中的记录数 计算得到。比如以上代码中的10实际上就是 2 </em> 5，因此它透露出来的信息是：显示第3页的5条数据。</p>
+<p>而为了得到查询的结果数量，可以通过getResultSize方法获得：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> resultSize = hibernateQuery.getResultSize();</div></pre></td></tr></table></figure>
+<p>在使用getResultSize方法时，不涉及到任何的数据库操作，它仅仅通过Lucene索引来得到结果。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hibernate-Search/" rel="tag"># Hibernate Search</a>
+          
+            <a href="/tags/Hibernate/" rel="tag"># Hibernate</a>
+          
+            <a href="/tags/Lucene/" rel="tag"># Lucene</a>
+          
+            <a href="/tags/全文搜索/" rel="tag"># 全文搜索</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/01/Hibernate-Search-2-实体类型的映射/" rel="next" title="[Hibernate Search] (2) 实体类型的映射">
+                <i class="fa fa-chevron-left"></i> [Hibernate Search] (2) 实体类型的映射
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/11/03/Hibernate-Search-4-实体类型的高级映射功能/" rel="prev" title="[Hibernate Search] (4) 实体类型的高级映射功能">
+                [Hibernate Search] (4) 实体类型的高级映射功能 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">73</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">55</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基础查询"><span class="nav-number">1.</span> <span class="nav-text">基础查询</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#映射API和查询API"><span class="nav-number">1.1.</span> <span class="nav-text">映射API和查询API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hibernate-Search-DSL"><span class="nav-number">1.2.</span> <span class="nav-text">Hibernate Search DSL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#关键字查询-Keyword-Query"><span class="nav-number">1.2.1.</span> <span class="nav-text">关键字查询(Keyword Query)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#模糊查询-Fuzzy-Query"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">模糊查询(Fuzzy Query)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通配符查询-Wildcard-Query"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">通配符查询(Wildcard Query)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#精确短语查询-Exact-Phrase-Query"><span class="nav-number">1.2.2.</span> <span class="nav-text">精确短语查询(Exact Phrase Query)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#范围查询-Range-Query"><span class="nav-number">1.2.3.</span> <span class="nav-text">范围查询(Range Query)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#布尔-组合-查询-Boolean-Combination-Query"><span class="nav-number">1.2.4.</span> <span class="nav-text">布尔(组合)查询(Boolean(Combination) Query)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排序-Sorting"><span class="nav-number">1.3.</span> <span class="nav-text">排序(Sorting)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分页-Pagination"><span class="nav-number">1.4.</span> <span class="nav-text">分页(Pagination)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
