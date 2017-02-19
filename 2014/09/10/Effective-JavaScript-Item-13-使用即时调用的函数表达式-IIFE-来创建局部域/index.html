@@ -87,28 +87,25 @@
 
 
 
-<meta name="description" content="Item 1: 了解你正在使用的JavaScript重点
-如果使用了strict mode，那么需要将你的代码在ES5环境中进行测试
-use strict只在script或者function的最开始处才能被识别，所以在进行script拼接的时候需要注意
-永远不要将non strict和strict的scripts进行拼接
-如果确实需要将non strict和strict的scripts进行拼接，可">
+<meta name="description" content="本系列作为Effective JavaScript的读书笔记。
+重点所谓的即时调用的函数表达式，这个翻译也许不太准确，它对应的英文原文是Immediately Invoked Function Expression (IIFE)。下文也使用IIFE来表达这一概念。
+首先看一个程序：
+12345678910function wrapElements(a) &amp;#123;      var result">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Effective JavaScript Basics Item 1-6">
-<meta property="og:url" content="http://rxjiang.com/2014/08/19/Effective-JavaScript-Basics-Item-1-6/index.html">
+<meta property="og:title" content="Effective JavaScript Item 13 使用即时调用的函数表达式(IIFE)来创建局部域">
+<meta property="og:url" content="http://rxjiang.com/2014/09/10/Effective-JavaScript-Item-13-使用即时调用的函数表达式-IIFE-来创建局部域/index.html">
 <meta property="og:site_name" content="RXJIANG's Home">
-<meta property="og:description" content="Item 1: 了解你正在使用的JavaScript重点
-如果使用了strict mode，那么需要将你的代码在ES5环境中进行测试
-use strict只在script或者function的最开始处才能被识别，所以在进行script拼接的时候需要注意
-永远不要将non strict和strict的scripts进行拼接
-如果确实需要将non strict和strict的scripts进行拼接，可">
-<meta property="og:updated_time" content="2017-02-19T03:26:08.000Z">
+<meta property="og:description" content="本系列作为Effective JavaScript的读书笔记。
+重点所谓的即时调用的函数表达式，这个翻译也许不太准确，它对应的英文原文是Immediately Invoked Function Expression (IIFE)。下文也使用IIFE来表达这一概念。
+首先看一个程序：
+12345678910function wrapElements(a) &amp;#123;      var result">
+<meta property="og:updated_time" content="2017-02-19T04:09:07.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Effective JavaScript Basics Item 1-6">
-<meta name="twitter:description" content="Item 1: 了解你正在使用的JavaScript重点
-如果使用了strict mode，那么需要将你的代码在ES5环境中进行测试
-use strict只在script或者function的最开始处才能被识别，所以在进行script拼接的时候需要注意
-永远不要将non strict和strict的scripts进行拼接
-如果确实需要将non strict和strict的scripts进行拼接，可">
+<meta name="twitter:title" content="Effective JavaScript Item 13 使用即时调用的函数表达式(IIFE)来创建局部域">
+<meta name="twitter:description" content="本系列作为Effective JavaScript的读书笔记。
+重点所谓的即时调用的函数表达式，这个翻译也许不太准确，它对应的英文原文是Immediately Invoked Function Expression (IIFE)。下文也使用IIFE来表达这一概念。
+首先看一个程序：
+12345678910function wrapElements(a) &amp;#123;      var result">
 
 
 
@@ -136,13 +133,13 @@ use strict只在script或者function的最开始处才能被识别，所以在�
 
 
 
-  <link rel="canonical" href="http://rxjiang.com/2014/08/19/Effective-JavaScript-Basics-Item-1-6/"/>
+  <link rel="canonical" href="http://rxjiang.com/2014/09/10/Effective-JavaScript-Item-13-使用即时调用的函数表达式-IIFE-来创建局部域/"/>
 
 
 
 
 
-  <title> Effective JavaScript Basics Item 1-6 | RXJIANG's Home </title>
+  <title> Effective JavaScript Item 13 使用即时调用的函数表达式(IIFE)来创建局部域 | RXJIANG's Home </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -317,7 +314,7 @@ use strict只在script或者function的最开始处才能被识别，所以在�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/08/19/Effective-JavaScript-Basics-Item-1-6/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/09/10/Effective-JavaScript-Item-13-使用即时调用的函数表达式-IIFE-来创建局部域/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -341,7 +338,7 @@ use strict只在script或者function的最开始处才能被识别，所以在�
             
             
               
-                Effective JavaScript Basics Item 1-6
+                Effective JavaScript Item 13 使用即时调用的函数表达式(IIFE)来创建局部域
               
             
           </h1>
@@ -356,8 +353,8 @@ use strict只在script或者function的最开始处才能被识别，所以在�
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-08-19T19:56:00+08:00">
-                2014-08-19
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-09-10T19:26:00+08:00">
+                2014-09-10
               </time>
             
 
@@ -425,93 +422,35 @@ use strict只在script或者function的最开始处才能被识别，所以在�
       
 
       
-        <h2 id="Item-1-了解你正在使用的JavaScript"><a href="#Item-1-了解你正在使用的JavaScript" class="headerlink" title="Item 1: 了解你正在使用的JavaScript"></a>Item 1: 了解你正在使用的JavaScript</h2><h3 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h3><ol>
-<li>如果使用了strict mode，那么需要将你的代码在ES5环境中进行测试</li>
-<li>use strict只在script或者function的最开始处才能被识别，所以在进行script拼接的时候需要注意</li>
-<li>永远不要将non strict和strict的scripts进行拼接</li>
-<li>如果确实需要将non strict和strict的scripts进行拼接，可以考虑使用Immediately Invoked Function Expression(IIFE)</li>
-</ol>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
-<li>确定你的应用需要支持什么版本的JavaScript</li>
-<li>确保所有环境都能支持你使用的JavaScript特性</li>
-<li>确保在检查strict模式的环境中测试你的代码</li>
-<li>在拼接scripts的时候注意它们是non strict还是strict模式</li>
-</ol>
+        <p>本系列作为Effective JavaScript的读书笔记。</p>
+<h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>所谓的即时调用的函数表达式，这个翻译也许不太准确，它对应的英文原文是Immediately Invoked Function Expression (IIFE)。下文也使用IIFE来表达这一概念。</p>
+<p>首先看一个程序：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">wrapElements</span>(<span class="params">a</span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> result = [], i, n;  </div><div class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>, n = a.length; i &lt; n; i++) &#123;  </div><div class="line">        result[i] = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> a[i]; &#125;;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> wrapped = wrapElements([<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>]);  </div><div class="line"><span class="keyword">var</span> f = wrapped[<span class="number">0</span>];  </div><div class="line">f(); <span class="comment">// ?</span></div></pre></td></tr></table></figure>
 <a id="more"></a>
-<h2 id="Item2：理解JavaScript的浮点数"><a href="#Item2：理解JavaScript的浮点数" class="headerlink" title="Item2：理解JavaScript的浮点数"></a>Item2：理解JavaScript的浮点数</h2><h3 id="重点-1"><a href="#重点-1" class="headerlink" title="重点"></a>重点</h3><ol>
-<li>JavaScript中的所有数值都是遵循IEEE754规范的双精度浮点数</li>
-<li>所有位操作的工作方式都是首先将浮点数转换成整形数，然后执行操作，最后再将结果转换成浮点数</li>
-<li><p>浮点数运算的结果也许不能满足交换律，比如：</p>
-<p> (0.1 + 0.2) + 0.3 的结果和 0.1 + (0.2 + 0.3)的结果分别是：<br>0.600000000000001 和 0.6</p>
-</li>
-<li><p>在精度重要的情况下，使用最小的度量单位作为基准，比如表示1元钱时，可以使用100这个值来表示，因为最小的度量单位是分</p>
-</li>
+<p>这个程序的作用是，将传入到wrapElements中的数组的每个元素进行一次”打包”操作，将元素替换成一个返回它们自身的函数，</p>
+<p>也许你会认为最后输出的而结果是10，但是最后的结果实际上是undefined。</p>
+<p>会做出这种符合直觉的假设的原因是，在function() { return a[i]; }; 这段代码中，一般会认为这里的i就是当前循环时使用到的变量i，那么下面的赋值就应该成立：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">result[<span class="number">1</span>] = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> a[<span class="number">1</span>]; &#125;;</div></pre></td></tr></table></figure>
+<p>但是，不要忘了一个重要的事实，在以上的赋值语句中，首先会创建一个闭包。在这个闭包中引用到了其外部的变量i，回顾在Item 11我们学习到的关于闭包的一个原则，就是闭包会以引用的形式存储其外部的变量，而不是以值的形式。</p>
+<p>所以，在循环结束之后，i的值应该是5。那么在调用wrapped<a href="">0</a>时，就相当于调用：return a[5]。很显然，这个值是不存在的，故返回undefined。</p>
+<p>如果将上述代码换成下面这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">wrapElements</span>(<span class="params">a</span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> result = [];  </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = a.length; i &lt; n; i++) &#123;  </div><div class="line">        result[i] = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> a[i]; &#125;;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> wrapped = wrapElements([<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>]);  </div><div class="line"><span class="keyword">var</span> f = wrapped[<span class="number">0</span>];  </div><div class="line">f(); <span class="comment">// ?</span></div></pre></td></tr></table></figure>
+<p>可以发现，变量i和n直到for循环开始的时候才会开始。那么结果是怎么样的呢？</p>
+<p>结果还是undefined。</p>
+<p>这是因为VariableHoisting(Item 12)的缘故。无论在一个function中的哪里声明变量，该变量的定义部分总会出现在function的开始处。</p>
+<p>那么，如何让程序以我们期待的方式运行呢，IIFE就派上用场了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">wrapElements</span>(<span class="params">a</span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> result = [];  </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = a.length; i &lt; n; i++) &#123;  </div><div class="line">        (<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">            <span class="keyword">var</span> j = i;  </div><div class="line">            result[i] = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> a[j]; &#125;;  </div><div class="line">        &#125;)();  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在for循环中，创建了一个IIFE，将当前的循环变量i赋值给了j，然后在后面的function中返回的是a[j]。这相当使用了另外一个局部变量将外部变量当前的值给记录下来，以便将来使用。那么IIFE的价值就在于它能够克服JavaScript语言中没有块作用域(Block Scoping)的弊端：通过创建一个匿名的闭包，将某个外部变量的当前值给保存起来。就好比将一个变量的当前值”冻结”住，供将来使用。</p>
+<p>IIFE的另一种形式是将需要”冻结”的变量作为参数传入到IIFE中：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">wrapElements</span>(<span class="params">a</span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> result = [];  </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = a.length; i &lt; n; i++) &#123;  </div><div class="line">        (<span class="function"><span class="keyword">function</span>(<span class="params">j</span>) </span>&#123;  </div><div class="line">            result[i] = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">return</span> a[j]; &#125;;  </div><div class="line">        &#125;)(i);  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在使用IIFE的时候，有两个注意事项：</p>
+<ol>
+<li>如果在for或者while循环中使用了IIFE，那么注意不要在IIFE中包含break以及continue语句。因为break和continue只有在循环中才能够使用，否则抛出SyntaxError: Illegal break statement。</li>
+<li>如果IIFE中使用了this或者arguments，那么它们的意义可能会和你想象的有出入，关于这一点，在后续的Items中会进行介绍。</li>
 </ol>
-<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
-<li>JavaScript中的数值是双精度浮点数</li>
-<li>整型数值在JavaScript中只是浮点数的一个子集，而不是一个单独的数据类型</li>
-<li>位操作将数值当做32位的有符号整形数</li>
-<li>注意浮点运算的精度问题</li>
-</ol>
-<h2 id="Item-3：注意隐式的强制转换"><a href="#Item-3：注意隐式的强制转换" class="headerlink" title="Item 3：注意隐式的强制转换"></a>Item 3：注意隐式的强制转换</h2><h3 id="重点-2"><a href="#重点-2" class="headerlink" title="重点"></a>重点</h3><ol>
-<li>算术运算符-，*，/，%以及位操作符都会首先尝试将参数转换为数值然后再进行计算</li>
-<li>运算符+比较特殊，因为它还重载了字符串拼接的功能</li>
-<li>注意null和undefined的在转换到数值的结果，分别是0和NaN</li>
-<li>NaN的特殊性，它不等于它自己，同时isNaN也有其问题，它首先会尝试将参数转换为数值类型，所以IsNaN(“foo”)的结果也是true。更好的检测方式是return a !== a</li>
-<li>object通过调用toString方法来得到string类型，通过调用valueOf方法来得到number类型</li>
-<li>在面对+操作符时，因为+既能够操作number类型，也能够操作string类型，所以在使用+操作两个objects的时候，会面临两难。但是JavaScript会选择使用valueOf方法，而不是toString方法</li>
-<li>如果你的对象并不是数值类型，不要实现valueOf方法</li>
-<li>7个falsy值：false，0，-0，“”，NaN，null以及undefined，所有其他值都是truthy</li>
-</ol>
-<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ol>
-<li>类型错误可能会因为隐式强制转换而被忽略掉</li>
-<li>根据参数类型，+会执行加法操作或者字符串连接操作</li>
-<li>object通过valueOf方法和toString方法来强转成number和string类型</li>
-<li>拥有valueOf方法的object应该实现一个toString方法来提供该数值的一个字符串表达</li>
-<li>使用typeof或者直接和undefined进行对于undefined值得判断，而不是依赖于truthy判断，因为0或者空字符串在truthy判断时返回的和undefined返回的相同，都是false</li>
-</ol>
-<h2 id="Item-4：优先使用Primitives而不是Object-Wrapper"><a href="#Item-4：优先使用Primitives而不是Object-Wrapper" class="headerlink" title="Item 4：优先使用Primitives而不是Object Wrapper"></a>Item 4：优先使用Primitives而不是Object Wrapper</h2><h3 id="重点-3"><a href="#重点-3" class="headerlink" title="重点"></a>重点</h3><ol>
-<li><p>JavaScript中只有5种primitives：</p>
-<p> boolean，number，string，null以及undefined </p>
-<p> 但是需要注意的是：typeof null 返回的结果却是object</p>
-</li>
-<li>在必要的时候，primitive类型会被自动转换成为object类型，比如调用”hello”.toUpperCase()，实际上hello字符串首先会被创建一个string对象</li>
-<li>不要给primitive设置任何属性，尽管这种行为不会报错，但设置的属性并不会生效，因为这个属性是赋给了某个中间对象，并没有办法拿到这个中间对象的引用</li>
-</ol>
-<h3 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a>总结</h3><ol>
-<li>在比较是否相等的时候，primitive和object wrapper的行为并不一致，这一点类似其它的编程语言如Java</li>
-<li>设置或者读取primitive的属性的时候，会创建值为该primitive的一个object wrapper</li>
-</ol>
-<h2 id="Item-5：避免在比较不同类型时使用"><a href="#Item-5：避免在比较不同类型时使用" class="headerlink" title="Item 5：避免在比较不同类型时使用=="></a>Item 5：避免在比较不同类型时使用==</h2><h3 id="重点-4"><a href="#重点-4" class="headerlink" title="重点"></a>重点</h3><ol>
-<li><p>尽量不要依赖参与到比较运算中参数会被自动转换为number类型这一特性，显式使用Number进行构造或者使用单元+操作符更加合适，比如：</p>
-<p> <code>+form.month.value === today.getMonth() + 1</code></p>
-</li>
-<li><p>优先使用strict equality操作符，即===，这样能够告诉读者在这个比较运算中不涉及到隐式转换</p>
-</li>
-<li>注意一些非常微妙的自动转换规则：<ol>
-<li>对于非Date类型的object，会先尝试通过valueOf进行转换，如果没有valueOf则通过toString</li>
-<li>对于Date类型的object，会先尝试通过toString进行转换，如果没有toString则通过valueOf</li>
-</ol>
-</li>
-</ol>
-<h3 id="总结-4"><a href="#总结-4" class="headerlink" title="总结"></a>总结</h3><ol>
-<li>==这一非严格的比较操作符会使用一套令人费解的隐式转换规则来进行比较运算</li>
-<li>优先使用===，这样能够告诉读者这个比较操作不依赖和涉及恼人的隐式转换</li>
-<li>对于不同类型的比较，使用自定义的转换以及比较逻辑，而不是依赖于隐式转换</li>
-</ol>
-<h2 id="Item-6：了解分号插入的限制"><a href="#Item-6：了解分号插入的限制" class="headerlink" title="Item 6：了解分号插入的限制"></a>Item 6：了解分号插入的限制</h2><h3 id="重点-5"><a href="#重点-5" class="headerlink" title="重点"></a>重点</h3><p>尽量不要依赖于分号的自动插入。在需要插入分号的时候就手工插入。编码习惯好的话，很少会遇到这个问题。作为了解即可。</p>
-<h3 id="总结-5"><a href="#总结-5" class="headerlink" title="总结"></a>总结</h3><ol>
-<li>分号的inferred只会在以下几种情况中生效：<ol>
-<li>在 } 之前</li>
-<li>行末</li>
-<li>程序的末尾</li>
-</ol>
-</li>
-<li>只有当下一个token无法被解析的时候才会被inferred</li>
-<li>在后续语句以 ( [ + - / 开头的时候，不要在前面省略分号</li>
-<li>在对scripts进行拼接的时候，在scripts间显式插入分号</li>
-<li>注意restricted productions，即在return，throw以及break以及可选的参数间（比如return可以接上一个可选的参数作为返回值）不要插入换行</li>
-<li>在for循环中，不要依赖分号的自动inferred</li>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>闭包会存储外部变量的引用，而不是值</li>
+<li>使用IIFE来创建局部作用域</li>
 </ol>
 
       
@@ -550,8 +489,8 @@ use strict只在script或者function的最开始处才能被识别，所以在�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2014/05/15/Java-8-Lambda-java-util-stream-简介/" rel="next" title="[Java 8 Lambda] java.util.stream 简介">
-                <i class="fa fa-chevron-left"></i> [Java 8 Lambda] java.util.stream 简介
+              <a href="/2014/08/20/理解Angular中的-apply-以及-digest/" rel="next" title="理解Angular中的$apply()以及$digest()">
+                <i class="fa fa-chevron-left"></i> 理解Angular中的$apply()以及$digest()
               </a>
             
           </div>
@@ -559,10 +498,6 @@ use strict只在script或者function的最开始处才能被识别，所以在�
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2014/08/20/理解Angular中的-apply-以及-digest/" rel="prev" title="理解Angular中的$apply()以及$digest()">
-                理解Angular中的$apply()以及$digest() <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -705,7 +640,7 @@ use strict只在script或者function的最开始处才能被识别，所以在�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Item-1-了解你正在使用的JavaScript"><span class="nav-number">1.</span> <span class="nav-text">Item 1: 了解你正在使用的JavaScript</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重点"><span class="nav-number">1.1.</span> <span class="nav-text">重点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.2.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Item2：理解JavaScript的浮点数"><span class="nav-number">2.</span> <span class="nav-text">Item2：理解JavaScript的浮点数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重点-1"><span class="nav-number">2.1.</span> <span class="nav-text">重点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-1"><span class="nav-number">2.2.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Item-3：注意隐式的强制转换"><span class="nav-number">3.</span> <span class="nav-text">Item 3：注意隐式的强制转换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重点-2"><span class="nav-number">3.1.</span> <span class="nav-text">重点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-2"><span class="nav-number">3.2.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Item-4：优先使用Primitives而不是Object-Wrapper"><span class="nav-number">4.</span> <span class="nav-text">Item 4：优先使用Primitives而不是Object Wrapper</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重点-3"><span class="nav-number">4.1.</span> <span class="nav-text">重点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-3"><span class="nav-number">4.2.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Item-5：避免在比较不同类型时使用"><span class="nav-number">5.</span> <span class="nav-text">Item 5：避免在比较不同类型时使用==</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重点-4"><span class="nav-number">5.1.</span> <span class="nav-text">重点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-4"><span class="nav-number">5.2.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Item-6：了解分号插入的限制"><span class="nav-number">6.</span> <span class="nav-text">Item 6：了解分号插入的限制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重点-5"><span class="nav-number">6.1.</span> <span class="nav-text">重点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-5"><span class="nav-number">6.2.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#重点"><span class="nav-number">1.</span> <span class="nav-text">重点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
