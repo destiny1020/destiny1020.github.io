@@ -1,0 +1,889 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,Java 8,函数式编程,Lambda,MapReduce,并行," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Java 8中同时存在面向对象编程(OOP)和函数式编程(FP, Functional Programming)这两种编程范式。实际上，这两种范式并不矛盾，只是着重点不同。在OOP中，着重于通过丰富的类型系统对需要解决的问题进行建模；而FP中则着重于通过高阶函数和Lambda表达式来完成计算。所以我们完全可以将这两者融合在一起，对问题提出更加优雅的解决方案。
+在这篇文章中，会介绍如何通过函数组合(">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Java 8] (10) 使用Lambda完成函数组合，Map-Reduce以及并行化">
+<meta property="og:url" content="http://rxjiang.com/2014/11/06/Java-8-10-使用Lambda完成函数组合，Map-Reduce以及并行化/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="Java 8中同时存在面向对象编程(OOP)和函数式编程(FP, Functional Programming)这两种编程范式。实际上，这两种范式并不矛盾，只是着重点不同。在OOP中，着重于通过丰富的类型系统对需要解决的问题进行建模；而FP中则着重于通过高阶函数和Lambda表达式来完成计算。所以我们完全可以将这两者融合在一起，对问题提出更加优雅的解决方案。
+在这篇文章中，会介绍如何通过函数组合(">
+<meta property="og:image" content="http://img.blog.csdn.net/20141106100802097?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20141106100826059?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2017-02-19T14:33:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Java 8] (10) 使用Lambda完成函数组合，Map-Reduce以及并行化">
+<meta name="twitter:description" content="Java 8中同时存在面向对象编程(OOP)和函数式编程(FP, Functional Programming)这两种编程范式。实际上，这两种范式并不矛盾，只是着重点不同。在OOP中，着重于通过丰富的类型系统对需要解决的问题进行建模；而FP中则着重于通过高阶函数和Lambda表达式来完成计算。所以我们完全可以将这两者融合在一起，对问题提出更加优雅的解决方案。
+在这篇文章中，会介绍如何通过函数组合(">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20141106100802097?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/11/06/Java-8-10-使用Lambda完成函数组合，Map-Reduce以及并行化/"/>
+
+
+
+
+
+  <title> [Java 8] (10) 使用Lambda完成函数组合，Map-Reduce以及并行化 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/06/Java-8-10-使用Lambda完成函数组合，Map-Reduce以及并行化/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Java 8] (10) 使用Lambda完成函数组合，Map-Reduce以及并行化
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-06T10:09:00+08:00">
+                2014-11-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Java 8中同时存在面向对象编程(OOP)和函数式编程(FP, Functional Programming)这两种编程范式。实际上，这两种范式并不矛盾，只是着重点不同。在OOP中，着重于通过丰富的类型系统对需要解决的问题进行建模；而FP中则着重于通过高阶函数和Lambda表达式来完成计算。所以我们完全可以将这两者融合在一起，对问题提出更加优雅的解决方案。</p>
+<p>在这篇文章中，会介绍如何通过函数组合(Function Composition)来将若干个函数单元组合成一个Map-Reduce模式的应用。同时，还会介绍如何将整个计算过程并行化。</p>
+<a id="more"></a>
+<h2 id="使用函数组合"><a href="#使用函数组合" class="headerlink" title="使用函数组合"></a>使用函数组合</h2><p>在使用函数式编程的时候，函数是组成程序的单元。通过将函数以高阶函数的形式组织，可以有效地提高不变性(Immutability)，从而减少程序的状态变化，最终让并行化更加容易。</p>
+<p>下面这张图反映了，纯粹的面向对象设计和混合式设计(面向对象和函数式)的风格。</p>
+<p><img src="http://img.blog.csdn.net/20141106100802097?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>在OOP中，对象的状态会随着程序的进行而不断发生变化，但是对象始终只有一个。 而在FP中，对象每次被一个函数处理之后，都会得到一个新的对象，而原来的对象并不会发生变化。</p>
+<p>下面是一个小例子，让你对这种混合式的编程范式有一个初步的了解。假设我们有一些股票的代码，需要得到股票价格大于100美元的股票并对它们进行排序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Tickers</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> List&lt;String&gt; symbols = Arrays.asList(</div><div class="line">        <span class="string">"AMD"</span>, <span class="string">"HPQ"</span>, <span class="string">"IBM"</span>, <span class="string">"TXN"</span>, <span class="string">"VMW"</span>, <span class="string">"XRX"</span>, <span class="string">"AAPL"</span>, <span class="string">"ADBE"</span>,</div><div class="line">        <span class="string">"AMZN"</span>, <span class="string">"CRAY"</span>, <span class="string">"CSCO"</span>, <span class="string">"DELL"</span>, <span class="string">"GOOG"</span>, <span class="string">"INTC"</span>, <span class="string">"INTU"</span>,</div><div class="line">        <span class="string">"MSFT"</span>, <span class="string">"ORCL"</span>, <span class="string">"TIBX"</span>, <span class="string">"VRSN"</span>, <span class="string">"YHOO"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对于每只股票代码，可以通过调用下面这段程序借助Yahoo提供的Web Service来得到对应的股价：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">YahooFinance</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> BigDecimal <span class="title">getPrice</span><span class="params">(<span class="keyword">final</span> String ticker)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            <span class="keyword">final</span> URL url = <span class="keyword">new</span> URL(<span class="string">"http://ichart.finance.yahoo.com/table.csv?s="</span> + ticker);</div><div class="line">            <span class="keyword">final</span> BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(url.openStream()));</div><div class="line">            <span class="keyword">final</span> String data = reader.lines().skip(<span class="number">1</span>).findFirst().get();</div><div class="line">            <span class="keyword">final</span> String[] dataItems = data.split(<span class="string">","</span>);</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> BigDecimal(dataItems[dataItems.length - <span class="number">1</span>]);</div><div class="line">        &#125; <span class="keyword">catch</span>(Exception ex) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(ex);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>最后，通过一串操作来得到我们需要的答案：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> BigDecimal HUNDRED = <span class="keyword">new</span> BigDecimal(<span class="string">"100"</span>);</div><div class="line">System.out.println(<span class="string">"Stocks priced over $100 are "</span> +</div><div class="line">    Tickers.symbols</div><div class="line">        .stream()</div><div class="line">        .filter(symbol -&gt; YahooFinance.getPrice(symbol).compareTo(HUNDRED) &gt; <span class="number">0</span>)</div><div class="line">        .sorted()</div><div class="line">        .collect(joining(<span class="string">", "</span>)));</div></pre></td></tr></table></figure>
+<p>这就是一个混合范式的应用，将主要的计算逻辑通过方法进行封装，然后将这些函数根据其所属的类型进行面向对象建模，比如getPrice方法属于类型YahooFinance。最后使用Stream类型和Lambda表达式完成需要执行的计算逻辑，得到最终结果。</p>
+<p>将计算逻辑封装成一个函数调用链的好处在于：</p>
+<ul>
+<li>更简洁，代码量会少很多，从而代码也更容易被理解</li>
+<li>提高了对象的不变性(Immutability)，从而更加容易并行化</li>
+<li>调用链中的每一环都很容易被复用，如filter，sorted等</li>
+</ul>
+<h2 id="使用Map-Reduce"><a href="#使用Map-Reduce" class="headerlink" title="使用Map-Reduce"></a>使用Map-Reduce</h2><p>顾名思义，Map-Reduce实际上分为了两个步骤：</p>
+<ol>
+<li>Map阶段：对集合中的元素进行操作</li>
+<li>Reduce阶段：将上一步得到的结果进行合并得到最终的结果</li>
+</ol>
+<p>正是因为这个模式十分简单，同时它也能够最大限度的利用多核处理器的能力，所以它得到了广泛关注。</p>
+<p>比如，当我们需要得到股票价格小于500美元的最高价格的股票时，应该如何做呢？ 首先我们还是从最熟悉的命令式代码开始。</p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>首先，我们需要对这个问题进行一个基础的建模，这个步骤就是面向对象设计的过程。很容易地，可以得到下面的实体类型：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StockInfo</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">final</span> String ticker;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">final</span> BigDecimal price;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">StockInfo</span><span class="params">(<span class="keyword">final</span> String symbol, <span class="keyword">final</span> BigDecimal thePrice)</span> </span>&#123;</div><div class="line">        ticker = symbol;</div><div class="line">        price = thePrice;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> String.format(<span class="string">"ticker: %s price: %g"</span>, ticker, price);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>同时，也需要一些工具方法来帮助我们解决这个问题：</p>
+<ol>
+<li>通过股票代码得到对应的实体信息。我们可以使用前面介绍的YahooFinance中定义的getPrice方法来完成这一任务。</li>
+<li>判断股票的价格是否小于某个值，可以通过Predicate函数接口实现，它是一个高阶函数，会将传入的price信息作为阈值来生成一个Lambda表达式并返回。</li>
+<li>用来比较取得两个股价实体对象中股价较高的对象的方法。</li>
+</ol>
+<p>分别实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StockUtil</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> StockInfo <span class="title">getPrice</span><span class="params">(<span class="keyword">final</span> String ticker)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> StockInfo(ticker, YahooFinance.getPrice(ticker));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Predicate&lt;StockInfo&gt; <span class="title">isPriceLessThan</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> price)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> stockInfo -&gt; stockInfo.price.compareTo(BigDecimal.valueOf(price)) &lt; <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> StockInfo <span class="title">pickHigh</span><span class="params">(</span></span></div><div class="line">        <span class="keyword">final</span> StockInfo stockInfo1, <span class="keyword">final</span> StockInfo stockInfo2) &#123;</div><div class="line">        <span class="keyword">return</span> stockInfo1.price.compareTo(stockInfo2.price) &gt; <span class="number">0</span> ? stockInfo1 : stockInfo2;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="命令式风格"><a href="#命令式风格" class="headerlink" title="命令式风格"></a>命令式风格</h3><p>有了以上的准备工作，我们就可以着手实现了。首先是命令式风格的代码，这也是最熟悉的方式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> List&lt;StockInfo&gt; stocks = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line"><span class="keyword">for</span>(String symbol : Tickers.symbols) &#123;</div><div class="line">    stocks.add(StockUtil.getPrice(symbol));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">final</span> List&lt;StockInfo&gt; stocksPricedUnder500 = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line"><span class="keyword">final</span> Predicate&lt;StockInfo&gt; isPriceLessThan500 = StockUtil.isPriceLessThan(<span class="number">500</span>);</div><div class="line"><span class="keyword">for</span>(StockInfo stock : stocks) &#123;</div><div class="line">    <span class="keyword">if</span>(isPriceLessThan500.test(stock))</div><div class="line">        stocksPricedUnder500.add(stock);</div><div class="line">&#125;</div><div class="line"></div><div class="line">StockInfo highPriced = <span class="keyword">new</span> StockInfo(<span class="string">""</span>, BigDecimal.ZERO);</div><div class="line"><span class="keyword">for</span>(StockInfo stock : stocksPricedUnder500) &#123;</div><div class="line">    highPriced = StockUtil.pickHigh(highPriced, stock);</div><div class="line">&#125;</div><div class="line"></div><div class="line">System.out.println(<span class="string">"High priced under $500 is "</span> + highPriced);</div></pre></td></tr></table></figure>
+<p>上述代码完成了以下几个工作：</p>
+<ol>
+<li>首先是根据股票代码得到股价信息，然后将股价实体放到一个列表对象中。</li>
+<li>然后对集合进行一次遍历，得到所有价格低于500美元的股价实体。</li>
+<li>对步骤2中的结果进行遍历，得到其中拥有最高股价的实体。</li>
+</ol>
+<p>当然，如果觉得循环的次数太多了，我们也可以将它们合并到一个循环中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">StockInfo highPriced = <span class="keyword">new</span> StockInfo(<span class="string">""</span>, BigDecimal.ZERO);</div><div class="line"><span class="keyword">final</span> Predicate&lt;StockInfo&gt; isPriceLessThan500 = StockUtil.isPriceLessThan(<span class="number">500</span>);</div><div class="line"></div><div class="line"><span class="keyword">for</span>(String symbol : Tickers.symbols) &#123;</div><div class="line">    StockInfo stockInfo = StockUtil.getPrice(symbol);</div><div class="line">    <span class="keyword">if</span>(isPriceLessThan500.test(stockInfo))</div><div class="line">        highPriced = StockUtil.pickHigh(highPriced, stockInfo);</div><div class="line">&#125;</div><div class="line"></div><div class="line">System.out.println(<span class="string">"High priced under $500 is "</span> + highPriced);</div></pre></td></tr></table></figure>
+<p>可以发现，只是使用了一个Predicate类型的Lambda表达式就可以将代码的篇幅大大的较少。 只不过，以上的代码仍然是命令式风格，仍然会通过对变量进行修改来实现计算逻辑。更重要的是，以上的代码复用性比较差，当我们需要更改过滤条件的时候，就需要对它进行修改。</p>
+<p>更好的办法是将所有会发生变化的代码封装成一个个单独的小模块，然后使用函数式风格的代码将它们联系起来。</p>
+<h3 id="函数式风格"><a href="#函数式风格" class="headerlink" title="函数式风格"></a>函数式风格</h3><p>使用函数式风格后，代码中看不到for循环的踪影了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">findHighPriced</span><span class="params">(<span class="keyword">final</span> Stream&lt;String&gt; symbols)</span> </span>&#123;</div><div class="line">    <span class="keyword">final</span> StockInfo highPriced = symbols</div><div class="line">        .map(StockUtil::getPrice)</div><div class="line">        .filter(StockUtil.isPriceLessThan(<span class="number">500</span>))</div><div class="line">        .reduce(StockUtil::pickHigh)</div><div class="line">        .get();</div><div class="line"></div><div class="line">    System.out.println(<span class="string">"High priced under $500 is "</span> + highPriced);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>map，filter和reduce方法分别替代了三个for循环，而且代码也变的异常简洁。除了简洁之外，更重要的是这段代码随时可以被并行化。</p>
+<p>以上的计算逻辑可以使用下图进行表达：</p>
+<p><img src="http://img.blog.csdn.net/20141106100826059?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<h2 id="并行化"><a href="#并行化" class="headerlink" title="并行化"></a>并行化</h2><p>在实施并行化之前，让我们看看上面的几个操作：map，filter和reduce。</p>
+<p>显然，map方法的速度是最慢的，因为它依赖于外部的Web Service。但是同时也可以注意到，对于每个股票代码，获取它们对应的股价信息是完全独立的，故而可以考虑将这部分并行化。</p>
+<p>当需要让一段代码以并行的方式运行时，需要考虑两个方面：</p>
+<ul>
+<li>如何完成？</li>
+<li>如何以合适的方式完成？</li>
+</ul>
+<p>对于第一个方面，我们可以使用JDK中提供的各种并发相关的库来完成。 对于第二个方面，就需要我们根据这段代码的特点进行考虑了。对于并发程序，首先需要避免的是竞态条件(Race Condition)，当多个线程试图去更新一个对象或者一个变量时，就有可能发生。所以对于这类更新，我们需要小心翼翼地维护其线程安全性。反过来，如果对象的状态是不可变的(状态变量被修饰为final)，那么滋生竞态条件的土壤也就不复存在了，而这一点正是函数式编程所一再强调和标榜的。</p>
+<p>因此，在严格遵守函数式编程的最佳实践后，并行化只不过是临门一脚的功夫而已：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 串行执行的调用方式</span></div><div class="line">findHighPriced(Tickers.symbols.stream());</div><div class="line"></div><div class="line"><span class="comment">// 并行执行的调用方式</span></div><div class="line">findHighPriced(Tickers.symbols.parallelStream());</div></pre></td></tr></table></figure>
+<p>只不过是把stream方法替换成了parallelStream方法，就给代码插上了并行的翅膀。不需要考虑如何完成，也不需要考虑如竞态条件那样的各种风险。</p>
+<p>关于这两个方法的定义，可以在Collection接口中找到，这也意味着不仅仅对于List类型可以很方便的实现并行，对其它实现了Collection接口的类型也非常方便：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">default</span> Stream&lt;E&gt; <span class="title">stream</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> StreamSupport.stream(spliterator(), <span class="keyword">false</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">default</span> Stream&lt;E&gt; <span class="title">parallelStream</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> StreamSupport.stream(spliterator(), <span class="keyword">true</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里不打算对深层的实现原理进行剖析，但是当使用parallelStream时，意味着像map，filter这样的方法都会以并行的方式被运行，而工作线程则是来自于底层的一个线程池。这些细节都已经被封装的相当好，作为开发人员只需要保证你的代码确实遵守了游戏规则。</p>
+<p>串行方式和并行方式的性能比较如下：</p>
+<table>
+<thead>
+<tr>
+<th>串行</th>
+<th>并行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>24.325s</td>
+<td>5.621s</td>
+</tr>
+</tbody>
+</table>
+<p>通过简单地改变一个方法，就将性能提高了接近5倍！这也许就是函数式编程的魅力之一吧。</p>
+<p>那么，在从stream和parallelStream方法中进行选择时，需要考虑以下几个问题：</p>
+<ol>
+<li>是否需要并行？</li>
+<li>任务之间是否是独立的？是否会引起任何竞态条件？</li>
+<li>结果是否取决于任务的调用顺序？</li>
+</ol>
+<p>对于问题2，如果任务之间是独立的，并且代码中不涉及到对同一个对象的某个状态或者某个变量的更新操作，那么就表明代码是可以被并行化的。</p>
+<p>对于问题3，由于在并行环境中任务的执行顺序是不确定的，因此对于依赖于顺序的任务而言，并行化也许不能给出正确的结果。</p>
+<p>对于问题1，在回答这个问题之前，你需要弄清楚你要解决的问题是什么，数据量有多大，计算的特点是什么？并不是所有的问题都适合使用并发程序来求解，比如当数据量不大时，顺序执行往往比并行执行更快。毕竟，准备线程池和其它相关资源也是需要时间的。</p>
+<p>但是，当任务涉及到I/O操作并且任务之间不互相依赖时，那么并行化就是一个不错的选择。通常而言，将这类程序并行化之后，执行速度会提升好几个等级，正如上面的例子那样。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Java-8/" rel="tag"># Java 8</a>
+          
+            <a href="/tags/函数式编程/" rel="tag"># 函数式编程</a>
+          
+            <a href="/tags/Lambda/" rel="tag"># Lambda</a>
+          
+            <a href="/tags/MapReduce/" rel="tag"># MapReduce</a>
+          
+            <a href="/tags/并行/" rel="tag"># 并行</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/10/30/Java-8-9-Lambda表达式对递归的优化-下-使用备忘录模式-Memoization-Pattern/" rel="next" title="[Java 8] (9) Lambda表达式对递归的优化(下) - 使用备忘录模式(Memoization Pattern)">
+                <i class="fa fa-chevron-left"></i> [Java 8] (9) Lambda表达式对递归的优化(下) - 使用备忘录模式(Memoization Pattern)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用函数组合"><span class="nav-number">1.</span> <span class="nav-text">使用函数组合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Map-Reduce"><span class="nav-number">2.</span> <span class="nav-text">使用Map-Reduce</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#准备工作"><span class="nav-number">2.1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#命令式风格"><span class="nav-number">2.2.</span> <span class="nav-text">命令式风格</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数式风格"><span class="nav-number">2.3.</span> <span class="nav-text">函数式风格</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#并行化"><span class="nav-number">3.</span> <span class="nav-text">并行化</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

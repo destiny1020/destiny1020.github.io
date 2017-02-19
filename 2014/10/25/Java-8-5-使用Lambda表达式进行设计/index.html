@@ -1,0 +1,906 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,Java 8,函数式编程,Lambda,设计," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="使用Lambda表达式进行设计在前面的几篇文章中，我们已经见识到了Lambda表达式是如何让代码变的更加紧凑和简洁的。
+这一篇文章主要会介绍Lambda表达式如何改变程序的设计，如何让程序变的更加轻量级和简洁。如何让接口的使用变得更加流畅和直观。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Java 8] (5) 使用Lambda表达式进行设计">
+<meta property="og:url" content="http://rxjiang.com/2014/10/25/Java-8-5-使用Lambda表达式进行设计/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="使用Lambda表达式进行设计在前面的几篇文章中，我们已经见识到了Lambda表达式是如何让代码变的更加紧凑和简洁的。
+这一篇文章主要会介绍Lambda表达式如何改变程序的设计，如何让程序变的更加轻量级和简洁。如何让接口的使用变得更加流畅和直观。">
+<meta property="og:updated_time" content="2017-02-19T12:47:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Java 8] (5) 使用Lambda表达式进行设计">
+<meta name="twitter:description" content="使用Lambda表达式进行设计在前面的几篇文章中，我们已经见识到了Lambda表达式是如何让代码变的更加紧凑和简洁的。
+这一篇文章主要会介绍Lambda表达式如何改变程序的设计，如何让程序变的更加轻量级和简洁。如何让接口的使用变得更加流畅和直观。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/10/25/Java-8-5-使用Lambda表达式进行设计/"/>
+
+
+
+
+
+  <title> [Java 8] (5) 使用Lambda表达式进行设计 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/25/Java-8-5-使用Lambda表达式进行设计/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Java 8] (5) 使用Lambda表达式进行设计
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-25T06:37:00+08:00">
+                2014-10-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="使用Lambda表达式进行设计"><a href="#使用Lambda表达式进行设计" class="headerlink" title="使用Lambda表达式进行设计"></a>使用Lambda表达式进行设计</h2><p>在前面的几篇文章中，我们已经见识到了Lambda表达式是如何让代码变的更加紧凑和简洁的。</p>
+<p>这一篇文章主要会介绍Lambda表达式如何改变程序的设计，如何让程序变的更加轻量级和简洁。如何让接口的使用变得更加流畅和直观。</p>
+<a id="more"></a>
+<h3 id="使用Lambda表达式来实现策略模式"><a href="#使用Lambda表达式来实现策略模式" class="headerlink" title="使用Lambda表达式来实现策略模式"></a>使用Lambda表达式来实现策略模式</h3><p>假设现在有一个Asset类型是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Asset</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">enum</span> AssetType &#123; BOND, STOCK &#125;;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AssetType type;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> value;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Asset</span><span class="params">(<span class="keyword">final</span> AssetType assetType, <span class="keyword">final</span> <span class="keyword">int</span> assetValue)</span> </span>&#123;</div><div class="line">        type = assetType;</div><div class="line">        value = assetValue;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> AssetType <span class="title">getType</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> type; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getValue</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> value; &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>每一个资产都有一个种类，使用枚举类型表示。同时资产也有其价值，使用整型类型表示。</p>
+<p>如果我们想得到所有资产的价值，那么使用Lambda可以轻松实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">totalAssetValues</span><span class="params">(<span class="keyword">final</span> List&lt;Asset&gt; assets)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> assets.stream()</div><div class="line">        .mapToInt(Asset::getValue)</div><div class="line">        .sum();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>虽然上述代码能够很好的完成计算资产总值这一任务，但是仔细分析会发现这段代码将以下三个任务给放在了一起：</p>
+<ol>
+<li>如何遍历</li>
+<li>计算什么</li>
+<li>如何计算</li>
+</ol>
+<p>如何现在来了一个新需求，要求计算Bond类型的资产总值，那么很直观的我们会考虑将上段代码复制一份然后有针对性地进行修改：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">totalBondValues</span><span class="params">(<span class="keyword">final</span> List&lt;Asset&gt; assets)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> assets.stream()</div><div class="line">        .mapToInt(asset -&gt;</div><div class="line">            asset.getType() == AssetType.BOND ? asset.getValue() : <span class="number">0</span>)</div><div class="line">        .sum();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>而唯一不同的地方，就是传入到mapToInt方法中的Lambda表达式。当然，也可以在mapToInt方法之前添加一个filter，过滤掉不需要的Stock类型的资产，这样的话mapToInt中的Lambda表达式就可以不必修改了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">totalBondValues</span><span class="params">(<span class="keyword">final</span> List&lt;Asset&gt; assets)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> assets.stream()</div><div class="line">        .filter(asset -&gt; asset.getType == AssetType.BOND)</div><div class="line">        .mapToInt(Asset::getValue)</div><div class="line">        .sum();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样虽然实现了新需求，但是这种做法明显地违反了DRY原则。我们需要重新设计它们来增强可重用性。 在计算Bond资产的代码中，Lambda表达式起到了两个作用：</p>
+<ol>
+<li>如何遍历</li>
+<li>如何计算</li>
+</ol>
+<p>当使用面向对象设计时，我们会考虑使用策略模式(Strategy Pattern)来将上面两个职责进行分离。但是这里我们使用Lambda表达式进行实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">totalAssetValues</span><span class="params">(<span class="keyword">final</span> List&lt;Asset&gt; assets, <span class="keyword">final</span> Predicate&lt;Asset&gt; assetSelector)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> assets.stream().filter(assetSelector).mapToInt(Asset::getValue).sum();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>重构后的方法接受了第二个参数，它是一个Predicate类型的函数式接口，很显然它的作用就是来指定如何遍历。这实际上就是策略模式在使用Lambda表达式时的一个简单实现，因为Predicate表达的是一个行为，而这个行为本身就是一种策略。这种方法更加轻量级，因为它没有额外创建其他的接口或者类型，只是重用了Java 8中提供的Predicate这一函数式接口而已。</p>
+<p>比如，当我们需要计算所有资产的总值时，传入的Predicate可以是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">System.out.println(<span class="string">"Total of all assets: "</span> + totalAssetValues(assets, asset -&gt; <span class="keyword">true</span>));</div></pre></td></tr></table></figure>
+<p>因此，在使用了Predicate自后，就将“如何遍历”这个任务也分离出来了。因此，任务之间不再纠缠在一起，实现了单一职责的原则，自然而然就提高了重用性。</p>
+<h3 id="使用Lambda表达式实现组合-Composition"><a href="#使用Lambda表达式实现组合-Composition" class="headerlink" title="使用Lambda表达式实现组合(Composition)"></a>使用Lambda表达式实现组合(Composition)</h3><p>在面向对象设计中，一般认为使用组合的方式会比使用继承的方式更好，因为它减少了不必要的类层次。其实，使用Lambda表达式也能够实现组合。</p>
+<p>比如，在下面的CalculateNAV类中，有一个用来计算股票价值的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CalculateNAV</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> BigDecimal <span class="title">computeStockWorth</span><span class="params">(<span class="keyword">final</span> String ticker, <span class="keyword">final</span> <span class="keyword">int</span> shares)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> priceFinder.apply(ticker).multiply(BigDecimal.valueOf(shares));</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//... other methods that use the priceFinder ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>因为传入的ticker是一个字符串，代表的是股票的代码。而在计算中我们显然需要的是股票的价格，所以priceFinder的类型很容易被确定为Function。因此我们可以这样声明CalculateNAV的构造函数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> Function&lt;String, BigDecimal&gt; priceFinder;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">CalculateNAV</span><span class="params">(<span class="keyword">final</span> Function&lt;String, BigDecimal&gt; aPriceFinder)</span> </span>&#123;</div><div class="line">    priceFinder = aPriceFinder;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>实际上，上面的代码使用了一种设计模式叫做“依赖倒转原则(Dependency Inversion Principle)”，使用依赖注入的方式将类型和具体的实现进行关联，而不是直接将实现写死到代码中，从而提高了代码的重用性。</p>
+<p>为了测试CalculateNAV，可以使用JUnit：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CalculateNAVTest</span> </span>&#123;</div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">computeStockWorth</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> CalculateNAV calculateNAV = <span class="keyword">new</span> CalculateNAV(ticker -&gt; <span class="keyword">new</span> BigDecimal(<span class="string">"6.01"</span>));</div><div class="line">        BigDecimal expected = <span class="keyword">new</span> BigDecimal(<span class="string">"6010.00"</span>);</div><div class="line">        assertEquals(<span class="number">0</span>, calculateNAV.computeStockWorth(<span class="string">"GOOG"</span>, <span class="number">1000</span>).compareTo(expected));</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当然，也可以使用真实的Web Service来得到某只股票的价格：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">YahooFinance</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> BigDecimal <span class="title">getPrice</span><span class="params">(<span class="keyword">final</span> String ticker)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            <span class="keyword">final</span> URL url = <span class="keyword">new</span> URL(<span class="string">"http://ichart.finance.yahoo.com/table.csv?s="</span> + ticker);</div><div class="line">            <span class="keyword">final</span> BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(url.openStream()));</div><div class="line">            <span class="keyword">final</span> String data = reader.lines().skip(<span class="number">1</span>).findFirst().get();</div><div class="line">            <span class="keyword">final</span> String[] dataItems = data.split(<span class="string">","</span>);</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> BigDecimal(dataItems[dataItems.length - <span class="number">1</span>]);</div><div class="line">        &#125; <span class="keyword">catch</span>(Exception ex) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(ex);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里想说明的是在Java 8中，BufferedReader也有一个新方法叫做lines，目的是得到包含所有行数据的一个Stream对象，很明显这也是为了让该类和函数式编程能够更好的融合。</p>
+<p>另外想说明的是是Lambda表达式和异常之间的关系。很明显，当使用getPrice方法时，我们可以直接传入方法引用：YahooFinance::getPrice。但是如果在调用此方法期间发生了异常该如何处理呢？上述代码在发生了异常时，将异常包装成RuntimeException并重新抛出。这样做是因为只有当函数式接口中的方法本身声明了会抛出异常时(即声明了throws XXX)，才能够抛出受检异常(Checked Exception)。而显然在Function这一个函数式接口的apply方法中并未声明可以抛出的受检异常，因此getPrice本身是不能抛出受检异常的，我们可以做的就是将异常封装成运行时异常(非受检异常)，然后再抛出。</p>
+<h3 id="使用Lambda表达式实现装饰模式-Decorator-Pattern"><a href="#使用Lambda表达式实现装饰模式-Decorator-Pattern" class="headerlink" title="使用Lambda表达式实现装饰模式(Decorator Pattern)"></a>使用Lambda表达式实现装饰模式(Decorator Pattern)</h3><p>装饰模式本身并不复杂，但是在面向对象设计中实现起来并不轻松，因为使用它需要设计和实现较多的类型，这无疑增加了开发人员的负担。比如JDK中的各种InputStream和OutputStream，在其上有各种各样的类型用来装饰它，所以最后I/O相关的类型被设计的有些过于复杂了，学习成本较高，要想正确而高效地使用它们并不容易。</p>
+<p>使用Lambda表达式来实现装饰模式，就相对地容易多了。在图像领域，滤镜(Filter)实际上就是一种装饰器(Decorator)，我们会为一幅图像增加各种各样的滤镜，这些滤镜的数量是不确定的，顺序也是不确定的。</p>
+<p>比如以下代码为摄像机对色彩的处理进行建模：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Camera</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> Function&lt;Color, Color&gt; filter;</div><div class="line">    <span class="function"><span class="keyword">public</span> Color <span class="title">capture</span><span class="params">(<span class="keyword">final</span> Color inputColor)</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> Color processedColor = filter.apply(inputColor);</div><div class="line">        <span class="comment">//... more processing of color...</span></div><div class="line">        <span class="keyword">return</span> processedColor;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//... other functions that use the filter ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>目前只定义了一个filter。我们可以利用Function的compose和andThen来进行多个Function(也就是filter)的串联操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">default</span> &lt;V&gt; <span class="function">Function&lt;V, R&gt; <span class="title">compose</span><span class="params">(Function&lt;? <span class="keyword">super</span> V, ? extends T&gt; before)</span> </span>&#123;</div><div class="line">    Objects.requireNonNull(before);</div><div class="line">    <span class="keyword">return</span> (V v) -&gt; apply(before.apply(v));    </div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">default</span> &lt;V&gt; <span class="function">Function&lt;T, V&gt; <span class="title">andThen</span><span class="params">(Function&lt;? <span class="keyword">super</span> R, ? extends V&gt; after)</span> </span>&#123;</div><div class="line">    Objects.requireNonNull(after);</div><div class="line">    <span class="keyword">return</span> (T t) -&gt; after.apply(apply(t));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以发现，compose和andThen方法的区别仅仅在于串联的顺序。使用compose时，传入的Function会被首先调用；使用andThen时，当前的Function会被首先调用。</p>
+<p>因此，在Camera类型中，我们可以定义一个方法用来串联不定数量的Filters：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFilters</span><span class="params">(<span class="keyword">final</span> Function&lt;Color, Color&gt;... filters)</span> </span>&#123;</div><div class="line">    filter = Arrays.asList(filters).stream()</div><div class="line">        .reduce((current, next) -&gt; current.andThen(next))</div><div class="line">        .orElse(color -&gt; color);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>前面介绍过，由于reduce方法返回的对象是Optional类型的，因此当结果不存在时，需要进行特别处理。以上的orElse方法在结果不存在时会被调用来得到一个替代方案。那么当setFilters方法没有接受任何参数时，orElse就会被调用，color -&gt; color的意义就是直接返回该color，不作任何操作。</p>
+<p>实际上，Function接口中也定义了一个静态方法identity用来处理需要直接返回自身的场景：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> &lt;T&gt; <span class="function">Function&lt;T, T&gt; <span class="title">identity</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> t -&gt; t;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>因此可以将上面的setFilters方法的实现改进成下面这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFilters</span><span class="params">(<span class="keyword">final</span> Function&lt;Color, Color&gt;... filters)</span> </span>&#123;</div><div class="line">    filter = Arrays.asList(filters).stream()</div><div class="line">        .reduce((current, next) -&gt; current.andThen(next))</div><div class="line">        .orElseGet(Function::identity);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>orElse被替换成了orElseGet，两者的定义如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> T <span class="title">orElse</span><span class="params">(T other)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> value != <span class="keyword">null</span> ? value : other;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> T <span class="title">orElseGet</span><span class="params">(Supplier&lt;? extends T&gt; other)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> value != <span class="keyword">null</span> ? value : other.get();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>前者当value为空时会直接返回传入的参数other，而后者则是通过调用调用Supplier中的get方法来得到要返回的对象。这里又出现了一个新的函数式接口Supplier：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@FunctionalInterface</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Supplier</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="function">T <span class="title">get</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>它不需要任何参数，直接返回需要的对象。这一点和类的无参构造函数(有些情况下也被称为工厂)有些类似。</p>
+<p>说到了Supplier，就不能不提和它相对的Consumer函数接口，它们正好是一种互补的关系。Consumer中的accept方法会接受一个参数，但是没有返回值。</p>
+<p>现在，我们就可以使用Camera的滤镜功能了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> Camera camera = <span class="keyword">new</span> Camera();</div><div class="line"><span class="keyword">final</span> Consumer&lt;String&gt; printCaptured = (filterInfo) -&gt;</div><div class="line">    System.out.println(String.format(<span class="string">"with %s: %s"</span>, filterInfo,</div><div class="line">        camera.capture(<span class="keyword">new</span> Color(<span class="number">200</span>, <span class="number">100</span>, <span class="number">200</span>))));</div><div class="line"></div><div class="line">camera.setFilters(Color::brighter, Color::darker);</div><div class="line">printCaptured.accept(<span class="string">"brighter &amp; darker filter"</span>);</div></pre></td></tr></table></figure>
+<p>在不知不觉中，我们在setFilters方法中实现了一个轻量级的装饰模式(Decorator Pattern)，不需要定义任何多余的类型，只需要借助Lambda表达式即可。</p>
+<h3 id="了解接口的default方法"><a href="#了解接口的default方法" class="headerlink" title="了解接口的default方法"></a>了解接口的default方法</h3><p>在Java 8中，接口中也能够拥有非抽象的方法了，这是一个非常重大的设计。那么从Java编译器的角度来看，default方法的解析有以下几个规则：</p>
+<ol>
+<li>子类型会自动拥有父类型中的default方法。</li>
+<li>对于接口中实现的default方法，该接口的子类型能够对该方法进行覆盖。</li>
+<li>类中的具体实现以及抽象的声明，都会覆盖所有实现接口类型中出现的default方法。</li>
+<li>当两个或者两个以上的default方法实现中出现了冲突时，实现类需要解决这个冲突。</li>
+</ol>
+<p>举个例子来说明以上的规则：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Fly</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">takeOff</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"Fly::takeOff"</span>); &#125;</div><div class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">land</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"Fly::land"</span>); &#125;</div><div class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">turn</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"Fly::turn"</span>); &#125;</div><div class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">cruise</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"Fly::cruise"</span>); &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">FastFly</span> <span class="keyword">extends</span> <span class="title">Fly</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">takeOff</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"FastFly::takeOff"</span>); &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Sail</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">cruise</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"Sail::cruise"</span>); &#125;</div><div class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">turn</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"Sail::turn"</span>); &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Vehicle</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">turn</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"Vehicle::turn"</span>); &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对于规则1，FastFly和Fly接口能够说明。FastFly虽然覆盖了Fly中的takeOff方法，但是它同时也继承了Fly中的其它三个方法。</p>
+<p>对于规则2，如果有任何接口继承了FastFly或者任何类型实现了FastFly，那么该子类型中的takeOff方法是来自于FastFly，而非Fly接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SeaPlane</span> <span class="keyword">extends</span> <span class="title">Vehicle</span> <span class="keyword">implements</span> <span class="title">FastFly</span>, <span class="title">Sail</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> altitude;</div><div class="line">    <span class="comment">//...</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cruise</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.print(<span class="string">"SeaPlane::cruise currently cruise like: "</span>);</div><div class="line">        <span class="keyword">if</span>(altitude &gt; <span class="number">0</span>)</div><div class="line">            FastFly.<span class="keyword">super</span>.cruise();</div><div class="line">        <span class="keyword">else</span></div><div class="line">            Sail.<span class="keyword">super</span>.cruise();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上的SeaPlane继承了Vehicle类型，同时实现了FastFly和Sail接口。由于这两个接口中都定义了cruise方法，根据规则4，会发生冲突。因此需要SeaPlane来解决这个冲突，而解决的办法就是重新定义这个方法。但是，父类型中的方法还是能够被调用的。正如上述代码会首先判断高度，然后调用相应父类的方法。</p>
+<p>实际上，turn方法也存在于FastFly和Sail类型中。该方法之所以不存在冲突得益于Vehicle方法覆盖了接口中的default方法。因此根据规则3，turn方法就不存在冲突了。</p>
+<p>也许有人会觉得在Java 8中，接口类型更像是一个抽象类，因为它不仅仅能够拥有抽象方法，现在它还能够有具体实现。但是这种说法还是过于片面了，毕竟接口还是不能够拥有状态的，而抽象类则可以持有状态。同时，从继承的角度来看，一个类可以实现多个接口，而一个类至多只能继承一个类。</p>
+<h3 id="使用Lambda表达式创建更流畅的API"><a href="#使用Lambda表达式创建更流畅的API" class="headerlink" title="使用Lambda表达式创建更流畅的API"></a>使用Lambda表达式创建更流畅的API</h3><p>比如，现在有一个用于发送邮件的类型和它的使用方式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Mailer</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">from</span><span class="params">(<span class="keyword">final</span> String address)</span> </span>&#123; <span class="comment">/*... */</span> &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">to</span><span class="params">(<span class="keyword">final</span> String address)</span> </span>&#123; <span class="comment">/*... */</span> &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subject</span><span class="params">(<span class="keyword">final</span> String line)</span> </span>&#123; <span class="comment">/*... */</span> &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">body</span><span class="params">(<span class="keyword">final</span> String message)</span> </span>&#123; <span class="comment">/*... */</span> &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"sending..."</span>); &#125;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">Mailer mailer = <span class="keyword">new</span> Mailer();</div><div class="line">mailer.from(<span class="string">"build@agiledeveloper.com"</span>);</div><div class="line">mailer.to(<span class="string">"venkats@agiledeveloper.com"</span>);</div><div class="line">mailer.subject(<span class="string">"build notification"</span>);</div><div class="line">mailer.body(<span class="string">"...your code sucks..."</span>);</div><div class="line">mailer.send();</div></pre></td></tr></table></figure>
+<p>这种代码我们几乎每天都要碰到。但是其中的坏味道你发现了吗？不觉得mailer实例出现的太频繁了吗？对于这种情况，我们可以使用方法链模式(Method Chaining Pattern)来改进：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MailBuilder</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> MailBuilder <span class="title">from</span><span class="params">(<span class="keyword">final</span> String address)</span> </span>&#123; <span class="comment">/*... */</span>; <span class="keyword">return</span> <span class="keyword">this</span>; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> MailBuilder <span class="title">to</span><span class="params">(<span class="keyword">final</span> String address)</span> </span>&#123; <span class="comment">/*... */</span>; <span class="keyword">return</span> <span class="keyword">this</span>; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> MailBuilder <span class="title">subject</span><span class="params">(<span class="keyword">final</span> String line)</span> </span>&#123; <span class="comment">/*... */</span>; <span class="keyword">return</span> <span class="keyword">this</span>; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> MailBuilder <span class="title">body</span><span class="params">(<span class="keyword">final</span> String message)</span> </span>&#123; <span class="comment">/*... */</span>; <span class="keyword">return</span> <span class="keyword">this</span>; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">()</span> </span>&#123; System.out.println(<span class="string">"sending..."</span>); &#125;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">new</span> MailBuilder()</div><div class="line">    .from(<span class="string">"build@agiledeveloper.com"</span>)</div><div class="line">    .to(<span class="string">"venkats@agiledeveloper.com"</span>)</div><div class="line">    .subject(<span class="string">"build notification"</span>)</div><div class="line">    .body(<span class="string">"...it sucks less..."</span>)</div><div class="line">    .send();</div></pre></td></tr></table></figure>
+<p>这样就流畅多了，代码也更加简练。 但是上述代码还是存在问题：</p>
+<ol>
+<li>new关键字的使用增加了噪声</li>
+<li>新创建的对象的引用可以被保存，意味着该对象的生命周期不可预测</li>
+</ol>
+<p>这次我们让Lambda也参与到改进的过程中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FluentMailer</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">FluentMailer</span><span class="params">()</span> </span>&#123;&#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> FluentMailer <span class="title">from</span><span class="params">(<span class="keyword">final</span> String address)</span> </span>&#123; <span class="comment">/*... */</span>; <span class="keyword">return</span> <span class="keyword">this</span>; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> FluentMailer <span class="title">to</span><span class="params">(<span class="keyword">final</span> String address)</span> </span>&#123; <span class="comment">/*... */</span>; <span class="keyword">return</span> <span class="keyword">this</span>; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> FluentMailer <span class="title">subject</span><span class="params">(<span class="keyword">final</span> String line)</span> </span>&#123; <span class="comment">/*... */</span>; <span class="keyword">return</span> <span class="keyword">this</span>; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> FluentMailer <span class="title">body</span><span class="params">(<span class="keyword">final</span> String message)</span> </span>&#123; <span class="comment">/*... */</span>; <span class="keyword">return</span> <span class="keyword">this</span>; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">(<span class="keyword">final</span> Consumer&lt;FluentMailer&gt; block)</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> FluentMailer mailer = <span class="keyword">new</span> FluentMailer();</div><div class="line">        block.accept(mailer);</div><div class="line">        System.out.println(<span class="string">"sending..."</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">FluentMailer.send(mailer -&gt;</div><div class="line">    mailer.from(<span class="string">"build@agiledeveloper.com"</span>)</div><div class="line">        .to(<span class="string">"venkats@agiledeveloper.com"</span>)</div><div class="line">        .subject(<span class="string">"build notification"</span>)</div><div class="line">        .body(<span class="string">"...much better..."</span>));</div></pre></td></tr></table></figure>
+<p>最重要的改进就是让类型的构造函数声明成私有的，这就防止了在类外部被显式的实例化，控制了实例的生命周期。然后send方法被重构成了一个static方法，它接受一个Consumer类型的Lambda表达式来完成对新创建的实例的操作。</p>
+<p>此时，新创建的实例的生命周期非常明确：即当send方法调用结束之后，该实例的生命周期也就随之结束了。这种模式也被直观地称为“Loan Pattern”。即首先得到它，操作它，最后归还它。</p>
+<h3 id="处理异常"><a href="#处理异常" class="headerlink" title="处理异常"></a>处理异常</h3><p>前文中提到过，如果函数接口的方法本身没有定义可以被抛出的受检异常，那么在使用该接口时是无法处理可能存在的受检异常的，比如典型的IOException这类，在进行文件操作的时候必须要处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HandleException</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        List&lt;String&gt; paths = Arrays.asList(<span class="string">"/usr"</span>, <span class="string">"/tmp"</span>);</div><div class="line">        paths.stream()</div><div class="line">            .map(path -&gt; <span class="keyword">new</span> File(path).getCanonicalPath())</div><div class="line">            .forEach(System.out::println);</div><div class="line">        <span class="comment">// 以上代码不能通过编译，因为没有处理可能存在的IOException</span></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// ... unreported exception IOException; must be caught or declared to be thrown</span></div><div class="line"><span class="comment">// .map(path -&gt; new File(path).getCanonicalPath())</span></div><div class="line"><span class="comment">//</span></div></pre></td></tr></table></figure>
+<p>这是因为在map方法需要的Function函数接口中，并没有声明任何可以被抛出的受检异常。这里我们有两个选择：</p>
+<ol>
+<li>在Lambda表达式内处理受检异常</li>
+<li>捕获该受检异常并重新以非受检异常(如RuntimeException)的形式抛出</li>
+</ol>
+<p>使用第一个选择时，代码是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">paths.stream()</div><div class="line">    .map(path -&gt; &#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> File(path).getCanonicalPath();</div><div class="line">        &#125; <span class="keyword">catch</span>(IOException ex) &#123;</div><div class="line">            <span class="keyword">return</span> ex.getMessage();</div><div class="line">        &#125;</div><div class="line">    &#125;)</div><div class="line">    .forEach(System.out::println);</div></pre></td></tr></table></figure>
+<p>使用第二个选择时，代码是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">paths.stream()</div><div class="line">    .map(path -&gt; &#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> File(path).getCanonicalPath();</div><div class="line">        &#125; <span class="keyword">catch</span>(IOException ex) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(ex);</div><div class="line">        &#125;</div><div class="line">    &#125;)</div><div class="line">    .forEach(System.out::println);</div></pre></td></tr></table></figure>
+<p>在单线程环境中，使用捕获受检异常并重新抛出非受检异常的方法是可行的。但是在多线程环境这样用，就存在一些风险。</p>
+<p>多线程环境中，Lambda表达式中发生的错误会被自动传递到主线程中。这会带来两个问题：</p>
+<ol>
+<li>这不会停止其他正在并行执行的Lambda表达式。</li>
+<li>如果有多个线程抛出了异常，在主线程中却只能捕获到一个线程中的异常。如果这些异常信息都很重要的话，那么更好的方法是在Lambda表达式中就进行异常处理并将异常信息作为结果的一部分返回到主线程中。</li>
+</ol>
+<p>实际上，还有一种方法。就是根据异常处理的需要定义我们自己的函数接口，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@FunctionalInterface</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UseInstance</span>&lt;<span class="title">T</span>, <span class="title">X</span> <span class="keyword">extends</span> <span class="title">Throwable</span>&gt; </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">accept</span><span class="params">(T instance)</span> <span class="keyword">throws</span> X</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样的话，任何使用UseInstance类型的Lambda表达式就能够抛出各种异常了。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Java-8/" rel="tag"># Java 8</a>
+          
+            <a href="/tags/函数式编程/" rel="tag"># 函数式编程</a>
+          
+            <a href="/tags/Lambda/" rel="tag"># Lambda</a>
+          
+            <a href="/tags/设计/" rel="tag"># 设计</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/10/24/Java-8-4-列举目录下的所有文件和监视文件变化/" rel="next" title="[Java 8] (4) 列举目录下的所有文件和监视文件变化">
+                <i class="fa fa-chevron-left"></i> [Java 8] (4) 列举目录下的所有文件和监视文件变化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/10/26/Java-8-6-Lambda与资源管理/" rel="prev" title="[Java 8] (6) Lambda与资源管理">
+                [Java 8] (6) Lambda与资源管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Lambda表达式进行设计"><span class="nav-number">1.</span> <span class="nav-text">使用Lambda表达式进行设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Lambda表达式来实现策略模式"><span class="nav-number">1.1.</span> <span class="nav-text">使用Lambda表达式来实现策略模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Lambda表达式实现组合-Composition"><span class="nav-number">1.2.</span> <span class="nav-text">使用Lambda表达式实现组合(Composition)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Lambda表达式实现装饰模式-Decorator-Pattern"><span class="nav-number">1.3.</span> <span class="nav-text">使用Lambda表达式实现装饰模式(Decorator Pattern)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#了解接口的default方法"><span class="nav-number">1.4.</span> <span class="nav-text">了解接口的default方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Lambda表达式创建更流畅的API"><span class="nav-number">1.5.</span> <span class="nav-text">使用Lambda表达式创建更流畅的API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#处理异常"><span class="nav-number">1.6.</span> <span class="nav-text">处理异常</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

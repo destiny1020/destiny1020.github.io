@@ -1,0 +1,843 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,Java 8,函数式编程,Lambda,资源管理," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="资源处理Java本身自带了垃圾回收(Garbage Collection)功能，但是只有垃圾回收的目标是内部资源(Internal Resource)，典型的比如堆上分配的内存区域等。对于外部资源(External Resource)，如数据库连接，文件句柄，套接字等资源，还是需要在程序中进行显式回收的。
+使用Lambda表达式可以实现一种叫做Execute Around的模式，用来处理外部资源的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Java 8] (6) Lambda与资源管理">
+<meta property="og:url" content="http://rxjiang.com/2014/10/26/Java-8-6-Lambda与资源管理/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="资源处理Java本身自带了垃圾回收(Garbage Collection)功能，但是只有垃圾回收的目标是内部资源(Internal Resource)，典型的比如堆上分配的内存区域等。对于外部资源(External Resource)，如数据库连接，文件句柄，套接字等资源，还是需要在程序中进行显式回收的。
+使用Lambda表达式可以实现一种叫做Execute Around的模式，用来处理外部资源的">
+<meta property="og:updated_time" content="2017-02-19T12:54:29.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Java 8] (6) Lambda与资源管理">
+<meta name="twitter:description" content="资源处理Java本身自带了垃圾回收(Garbage Collection)功能，但是只有垃圾回收的目标是内部资源(Internal Resource)，典型的比如堆上分配的内存区域等。对于外部资源(External Resource)，如数据库连接，文件句柄，套接字等资源，还是需要在程序中进行显式回收的。
+使用Lambda表达式可以实现一种叫做Execute Around的模式，用来处理外部资源的">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/10/26/Java-8-6-Lambda与资源管理/"/>
+
+
+
+
+
+  <title> [Java 8] (6) Lambda与资源管理 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/26/Java-8-6-Lambda与资源管理/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Java 8] (6) Lambda与资源管理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-26T11:33:00+08:00">
+                2014-10-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="资源处理"><a href="#资源处理" class="headerlink" title="资源处理"></a>资源处理</h2><p>Java本身自带了垃圾回收(Garbage Collection)功能，但是只有垃圾回收的目标是内部资源(Internal Resource)，典型的比如堆上分配的内存区域等。对于外部资源(External Resource)，如数据库连接，文件句柄，套接字等资源，还是需要在程序中进行显式回收的。</p>
+<p>使用Lambda表达式可以实现一种叫做Execute Around的模式，用来处理外部资源的回收。关于Execute Around模式，可以参考这个<a href="http://stackoverflow.com/questions/341971/what-is-the-execute-around-idiom" target="_blank" rel="external">链接</a>。</p>
+<a id="more"></a>
+<h3 id="回收资源"><a href="#回收资源" class="headerlink" title="回收资源"></a>回收资源</h3><p>下面是一个利用FileWriter完成消息写入的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FileWriterExample</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> FileWriter writer;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FileWriterExample</span><span class="params">(<span class="keyword">final</span> String fileName)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        writer = <span class="keyword">new</span> FileWriter(fileName);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeStuff</span><span class="params">(<span class="keyword">final</span> String message)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        writer.write(message);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">finalize</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        writer.close();</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">final</span> String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    <span class="keyword">final</span> FileWriterExample writerExample = <span class="keyword">new</span> FileWriterExample(<span class="string">"peekaboo.txt"</span>);</div><div class="line">    writerExample.writeStuff(<span class="string">"peek-a-boo"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>但是运行以上的main方法后会发现，文件peekaboo.txt虽然被创建了，但是它是空的。出现这种情况的原因在于文件并没有被关闭，也就是说finalize方法没有被调用。这个方法是由JVM负责调用的，这里没有调用是因为JVM认为此刻还有足够的内存，不需要执行finalize操作用来回收。毕竟垃圾回收操作也是需要消耗时间的，而且还是一种“Stop-the-world”(停下所有正在运行的应用程序代码)的方式。关于垃圾回收的基础知识，可以参考<a href="http://www.rxjiang.com/2014/09/21/Java-Performance-Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%80%E4%BB%8B/" target="_blank" rel="external">这篇文章</a>。</p>
+<p>实际上，在《Effective Java》这本书中，明确的指出了不要依赖于finalize方法来执行资源的回收。以上的代码违背这一准则。</p>
+<h4 id="关闭资源"><a href="#关闭资源" class="headerlink" title="关闭资源"></a>关闭资源</h4><p>更好的方式是直接调用资源的close方法用来回收外部资源：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    writer.close();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">final</span> FileWriterExample writerExample = <span class="keyword">new</span> FileWriterExample(<span class="string">"peekaboo.txt"</span>);</div><div class="line">writerExample.writeStuff(<span class="string">"peek-a-boo"</span>);</div><div class="line">writerExample.close();</div></pre></td></tr></table></figure>
+<p>调用以上的代码后，文件中确实有内容了，但是这种做法还是有问题。如果在调用writeStuff方法的时候就发生了异常，那么close方法就没有机会被执行了。</p>
+<h4 id="确保资源的关闭"><a href="#确保资源的关闭" class="headerlink" title="确保资源的关闭"></a>确保资源的关闭</h4><p>可以将close方法的调用放到finally语句中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> FileWriterExample writerExample = <span class="keyword">new</span> FileWriterExample(<span class="string">"peekaboo.txt"</span>);</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    writerExample.writeStuff(<span class="string">"peek-a-boo"</span>);</div><div class="line">&#125; <span class="keyword">finally</span> &#123;</div><div class="line">    writerExample.close();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这种写法也是目前十分主流的写法，很多代码都是这样处理外部资源的。但是不觉得这段代码噪声过多了，不够简洁吗？针对这种问题，Java 7中引入了自动资源管理(ARM，Automatic Resource Management)这一特性。它使用了一种特殊形式的try语句，编译器会自动地将包含close方法调用的finally语句块插入到try的最后。下面是一个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span>(<span class="keyword">final</span> FileWriterARM writerARM = <span class="keyword">new</span> FileWriterARM(<span class="string">"peekaboo.txt"</span>)) &#123;</div><div class="line">    writerARM.writeStuff(<span class="string">"peek-a-boo"</span>);</div><div class="line">    System.out.println(<span class="string">"done with the resource..."</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当try语句块执行完毕之后，writeARM这一资源就会被关闭。然而并不是所有的资源都能够利用ARM进行自动回收的，需要该资源类实现AutoCloseable接口，其中值包含了一个方法：close()。在Java 8中，Stream接口实现了AutoCloseable接口，也就意味着基于I/O的Stream也能够利用ARM来实现资源的自动回收。</p>
+<p>为了使用ARM，重新实现的FileWriterARM如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FileWriterARM</span> <span class="keyword">implements</span> <span class="title">AutoCloseable</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> FileWriter writer;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FileWriterARM</span><span class="params">(<span class="keyword">final</span> String fileName)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        writer = <span class="keyword">new</span> FileWriter(fileName);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeStuff</span><span class="params">(<span class="keyword">final</span> String message)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        writer.write(message);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        System.out.println(<span class="string">"close called automatically..."</span>);</div><div class="line">        writer.close();</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>ARM确实简化了代码，但是仍然需要开发人员去显示的调用它。如果没有调用，程序除了不会关闭资源外，也不会出现什么其他错误。因此，可以对它进行进一步的优化。</p>
+<h4 id="使用Lambda表达式来回收资源"><a href="#使用Lambda表达式来回收资源" class="headerlink" title="使用Lambda表达式来回收资源"></a>使用Lambda表达式来回收资源</h4><p>之前介绍的ARM有两个主要的缺点：</p>
+<ol>
+<li>资源需要实现AutoCloseable接口</li>
+<li>需要显式地使用它</li>
+</ol>
+<p>下面我们看看如何使用Lambda表达式结合Execute Around模式来进行优化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FileWriterEAM</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> FileWriter writer;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">FileWriterEAM</span><span class="params">(<span class="keyword">final</span> String fileName)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        writer = <span class="keyword">new</span> FileWriter(fileName);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        System.out.println(<span class="string">"close called automatically..."</span>);</div><div class="line">        writer.close();</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeStuff</span><span class="params">(<span class="keyword">final</span> String message)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        writer.write(message);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以发现，这个资源类的构造函数被声明成私有的了，也就意味着外部代码不能直接创建这种资源。close方法也被声明为私有的，只有writeStuff是公有的方法。</p>
+<p>我们需要一个工厂方法来得到该资源类的实例，这一点可以通过静态方法结合Lambda表达式来办到：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">use</span><span class="params">(<span class="keyword">final</span> String fileName,</span></span></div><div class="line">    <span class="keyword">final</span> UseInstance&lt;FileWriterEAM, IOException&gt; block) <span class="keyword">throws</span> IOException &#123;</div><div class="line">    <span class="keyword">final</span> FileWriterEAM writerEAM = <span class="keyword">new</span> FileWriterEAM(fileName);</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        block.accept(writerEAM);</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        writerEAM.close();</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@FunctionalInterface</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UseInstance</span>&lt;<span class="title">T</span>, <span class="title">X</span> <span class="keyword">extends</span> <span class="title">Throwable</span>&gt; </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">accept</span><span class="params">(T instance)</span> <span class="keyword">throws</span> X</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个静态工厂方法和传统意义上的静态工厂方法不太一样。它并没有返回被创建的实例，而是立即在方法中使用了被创建的实例。use方法接受的第二个参数是UseInstance类型的函数接口，它和JDK中的Consumer非常类似，只不过它能够抛出一个异常。关于这一点，在之前的文章中进行了介绍。</p>
+<p>另外还可以将ARM融合到上面的代码中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">use</span><span class="params">(<span class="keyword">final</span> String fileName,</span></span></div><div class="line">    <span class="keyword">final</span> UseInstance&lt;FileWriterEAM, IOException&gt; block) <span class="keyword">throws</span> IOException &#123;</div><div class="line">    <span class="keyword">try</span>(<span class="keyword">final</span> FileWriterEAM writerEAM = <span class="keyword">new</span> FileWriterEAM(fileName)) &#123;</div><div class="line">        block.accept(writerEAM);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>只不过此时需要FileWriterEAM实现AutoCloseable接口，并将之前的close方法访问级别从私有变成公有。</p>
+<p>使用它也非常简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// case 1</span></div><div class="line">FileWriterEAM.use(<span class="string">"eam.txt"</span>, writerEAM -&gt; writerEAM.writeStuff(<span class="string">"sweet"</span>));</div><div class="line"></div><div class="line"><span class="comment">// case 2</span></div><div class="line">FileWriterEAM.use(<span class="string">"eam2.txt"</span>, writerEAM -&gt; &#123;</div><div class="line">    writerEAM.writeStuff(<span class="string">"how"</span>);</div><div class="line">    writerEAM.writeStuff(<span class="string">"sweet"</span>);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>这种模式克服了之前提到的首要缺点，即需要显式调用try with resource语句进行资源回收。并且它对资源对象的生命周期也进行了很好的控制，因此它也实现了Loan模式，只有在需要使用一个资源的时候才会创建它，并且在利用完毕之后立即将它标记为回收。</p>
+<h3 id="锁管理"><a href="#锁管理" class="headerlink" title="锁管理"></a>锁管理</h3><p>在并发程序中，锁是一类相当重要的资源，下面我们看看Lambda表达式如何处理锁资源。</p>
+<p>历史悠久的synchronized代码块实际上就是一个典型的Execute Around模式的实现。synchronized关键词的出现能保证同一时刻至多只有一个线程能够运行这段代码。</p>
+<p>但是synchronized关键字也有其缺点：</p>
+<ol>
+<li>synchronized代码块难以进行超时处理</li>
+<li>synchronized代码块难以进行单元测试</li>
+</ol>
+<p>因此为了解决这些问题，Lock接口应运而生。Lock接口能够处理超时的情况，并且因为其本身是一个接口，也容易被Mocking而完成单元测试。但是天下没有免费的午餐，使用Lock时需要显式地进行加锁和解锁操作。</p>
+<p>但是在Java 8中，可以使用Lambda表达式结合前面提到的Execute Around模式来轻松解决这一类问题，下面是一段使用了Lock的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Locking</span> </span>&#123;</div><div class="line">    Lock lock = <span class="keyword">new</span> ReentrantLock(); <span class="comment">//or mock</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setLock</span><span class="params">(<span class="keyword">final</span> Lock mock)</span> </span>&#123;</div><div class="line">        lock = mock;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doOp1</span><span class="params">()</span> </span>&#123;</div><div class="line">        lock.lock();</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            <span class="comment">//...critical code...</span></div><div class="line">        &#125; <span class="keyword">finally</span> &#123;</div><div class="line">            lock.unlock();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述的doOp1方法噪声太多，过多的加锁解锁和try finally语句块让代码的意图不够清晰。为了使用Lambda表达式，我们可以首先设计一段代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Locker</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">runLocked</span><span class="params">(Lock lock, Runnable block)</span> </span>&#123;</div><div class="line">        lock.lock();</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            block.run();</div><div class="line">        &#125; <span class="keyword">finally</span> &#123;</div><div class="line">            lock.unlock();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码将加锁解锁操作和固定的try finally语句块给抽象成一个方法，然后将真正需要在锁环境中运行的代码通过一个Runnable参数传入。这样一来，其它需要锁环境的操作就可以这样实现了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doOp2</span><span class="params">()</span> </span>&#123;</div><div class="line">    runLocked(lock, () -&gt; &#123;<span class="comment">/*...critical code ... */</span>&#125;);</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doOp3</span><span class="params">()</span> </span>&#123;</div><div class="line">    runLocked(lock, () -&gt; &#123;<span class="comment">/*...critical code ... */</span>&#125;);</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doOp4</span><span class="params">()</span> </span>&#123;</div><div class="line">    runLocked(lock, () -&gt; &#123;<span class="comment">/*...critical code ... */</span>&#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Java-8/" rel="tag"># Java 8</a>
+          
+            <a href="/tags/函数式编程/" rel="tag"># 函数式编程</a>
+          
+            <a href="/tags/Lambda/" rel="tag"># Lambda</a>
+          
+            <a href="/tags/资源管理/" rel="tag"># 资源管理</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/10/25/Java-8-5-使用Lambda表达式进行设计/" rel="next" title="[Java 8] (5) 使用Lambda表达式进行设计">
+                <i class="fa fa-chevron-left"></i> [Java 8] (5) 使用Lambda表达式进行设计
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/10/27/Java-8-7-利用Stream类型的懒操作/" rel="prev" title="[Java 8] (7) 利用Stream类型的懒操作">
+                [Java 8] (7) 利用Stream类型的懒操作 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">66</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#资源处理"><span class="nav-number">1.</span> <span class="nav-text">资源处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#回收资源"><span class="nav-number">1.1.</span> <span class="nav-text">回收资源</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#关闭资源"><span class="nav-number">1.1.1.</span> <span class="nav-text">关闭资源</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#确保资源的关闭"><span class="nav-number">1.1.2.</span> <span class="nav-text">确保资源的关闭</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用Lambda表达式来回收资源"><span class="nav-number">1.1.3.</span> <span class="nav-text">使用Lambda表达式来回收资源</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#锁管理"><span class="nav-number">1.2.</span> <span class="nav-text">锁管理</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
