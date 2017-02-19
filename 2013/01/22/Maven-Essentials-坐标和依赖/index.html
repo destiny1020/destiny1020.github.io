@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="TestNG,并发," />
+  <meta name="keywords" content="Maven,依赖管理," />
 
 
 
@@ -87,27 +87,55 @@
 
 
 
-<meta name="description" content="翻译自：http://beust.com/weblog/2009/12/13/more-on-multithreaded-topological-sorting-2/ 
-限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！
+<meta name="description" content="坐标要素
+groupId
+  当前maven项目隶属的实际项目。Maven项目和实际项目不一定是一对一的关系。
 
-在上篇文章中我介绍了在TestNG中新实现的多线程拓扑排序(译注：严格说来，应该是更加动态的拓扑排序，为了支持对待测试方法的并发运行，上">
+artifactId
+  定义实际项目中的一个maven项目(模块)，推荐的做法是使用实际项目名称作为artifactId的前缀。
+
+version
+  定义maven项目当前所处的版本。
+
+packaging
+  定义maven项目的打包方式。默认为jar。
+
+classifier">
 <meta property="og:type" content="article">
-<meta property="og:title" content="TestNG 并发运行相关的核心概念 - 补充">
-<meta property="og:url" content="http://rxjiang.com/2012/06/15/TestNG-并发运行相关的核心概念-补充/index.html">
+<meta property="og:title" content="[Maven Essentials] 坐标和依赖">
+<meta property="og:url" content="http://rxjiang.com/2013/01/22/Maven-Essentials-坐标和依赖/index.html">
 <meta property="og:site_name" content="RXJIANG's Home">
-<meta property="og:description" content="翻译自：http://beust.com/weblog/2009/12/13/more-on-multithreaded-topological-sorting-2/ 
-限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！
+<meta property="og:description" content="坐标要素
+groupId
+  当前maven项目隶属的实际项目。Maven项目和实际项目不一定是一对一的关系。
 
-在上篇文章中我介绍了在TestNG中新实现的多线程拓扑排序(译注：严格说来，应该是更加动态的拓扑排序，为了支持对待测试方法的并发运行，上">
-<meta property="og:image" content="http://my.csdn.net/uploads/201206/15/1339772470_1861.png">
-<meta property="og:updated_time" content="2017-02-17T06:06:14.000Z">
+artifactId
+  定义实际项目中的一个maven项目(模块)，推荐的做法是使用实际项目名称作为artifactId的前缀。
+
+version
+  定义maven项目当前所处的版本。
+
+packaging
+  定义maven项目的打包方式。默认为jar。
+
+classifier">
+<meta property="og:updated_time" content="2017-02-19T02:28:48.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="TestNG 并发运行相关的核心概念 - 补充">
-<meta name="twitter:description" content="翻译自：http://beust.com/weblog/2009/12/13/more-on-multithreaded-topological-sorting-2/ 
-限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！
+<meta name="twitter:title" content="[Maven Essentials] 坐标和依赖">
+<meta name="twitter:description" content="坐标要素
+groupId
+  当前maven项目隶属的实际项目。Maven项目和实际项目不一定是一对一的关系。
 
-在上篇文章中我介绍了在TestNG中新实现的多线程拓扑排序(译注：严格说来，应该是更加动态的拓扑排序，为了支持对待测试方法的并发运行，上">
-<meta name="twitter:image" content="http://my.csdn.net/uploads/201206/15/1339772470_1861.png">
+artifactId
+  定义实际项目中的一个maven项目(模块)，推荐的做法是使用实际项目名称作为artifactId的前缀。
+
+version
+  定义maven项目当前所处的版本。
+
+packaging
+  定义maven项目的打包方式。默认为jar。
+
+classifier">
 
 
 
@@ -135,13 +163,13 @@
 
 
 
-  <link rel="canonical" href="http://rxjiang.com/2012/06/15/TestNG-并发运行相关的核心概念-补充/"/>
+  <link rel="canonical" href="http://rxjiang.com/2013/01/22/Maven-Essentials-坐标和依赖/"/>
 
 
 
 
 
-  <title> TestNG 并发运行相关的核心概念 - 补充 | RXJIANG's Home </title>
+  <title> [Maven Essentials] 坐标和依赖 | RXJIANG's Home </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -316,7 +344,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2012/06/15/TestNG-并发运行相关的核心概念-补充/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2013/01/22/Maven-Essentials-坐标和依赖/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -340,7 +368,7 @@
             
             
               
-                TestNG 并发运行相关的核心概念 - 补充
+                [Maven Essentials] 坐标和依赖
               
             
           </h1>
@@ -355,8 +383,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-06-15T23:07:00+08:00">
-                2012-06-15
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-01-22T11:22:00+08:00">
+                2013-01-22
               </time>
             
 
@@ -378,8 +406,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/工具/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
                   </a>
                 </span>
 
@@ -389,8 +417,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/TestNG/" itemprop="url" rel="index">
-                    <span itemprop="name">TestNG</span>
+                  <a href="/categories/工具/Maven/" itemprop="url" rel="index">
+                    <span itemprop="name">Maven</span>
                   </a>
                 </span>
 
@@ -424,23 +452,124 @@
       
 
       
-        <p>翻译自：<a href="http://beust.com/weblog/2009/12/13/more-on-multithreaded-topological-sorting-2/" target="_blank" rel="external">http://beust.com/weblog/2009/12/13/more-on-multithreaded-topological-sorting-2/</a> </p>
-<p><strong>限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！</strong></p>
-<p><img src="http://my.csdn.net/uploads/201206/15/1339772470_1861.png" alt=""></p>
-<p>在上篇文章中我介绍了在TestNG中新实现的多线程拓扑排序(译注：严格说来，应该是更加动态的拓扑排序，为了支持对待测试方法的并发运行，上一篇文章的译文连接在<a href="http://www.rxjiang.com/2012/06/14/TestNG-%E5%B9%B6%E5%8F%91%E8%BF%90%E8%A1%8C%E7%9B%B8%E5%85%B3%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/" target="_blank" rel="external">这里</a>)，这篇文章收到了一些有意思的评论，其中有一条来自Rafael Naufal的评论我想拿出来讨论一下：</p>
+        <h2 id="坐标要素"><a href="#坐标要素" class="headerlink" title="坐标要素"></a>坐标要素</h2><ul>
+<li><p>groupId</p>
+<p>  当前maven项目隶属的实际项目。Maven项目和实际项目不一定是一对一的关系。</p>
+</li>
+<li><p>artifactId</p>
+<p>  定义实际项目中的一个maven项目(模块)，推荐的做法是使用实际项目名称作为artifactId的前缀。</p>
+</li>
+<li><p>version</p>
+<p>  定义maven项目当前所处的版本。</p>
+</li>
+<li><p>packaging</p>
+<p>  定义maven项目的打包方式。默认为jar。</p>
+</li>
+<li><p>classifier</p>
+<p>  用来帮助定义构建输出的一些附属构建。比如源代码jar包和文档jar包。该要素不能直接定义，需要通过附加的插件帮助生成。</p>
+</li>
+</ul>
 <a id="more"></a>
-<p>他提到：</p>
-<p>@Priority注解难道不能改进，从而能够表明哪个独立方法应该被首先调度？顺便说一下，判断哪些方法是独立的难道不能放到测试方法的graph对象中么？</p>
-<p>这个想法让当前的算法更进一步，即我们不仅需要在测试方法变成独立节点的时候去调度它们，最好还能够根据它们重要的程度去调度。</p>
-<p>什么让一个节点比其它的节点更加重要？是它的被依赖程度。一个节点被依赖的越多，那么尽快调度这个节点就更有益，因为这个节点一旦运行结束，就能够让更多的节点变成独立状态。诚然，你还是会受到线程池大小的限制(<strong><em>译注：即最大并发数仍受到线程池大小的限制</em></strong>)，但是这就是我们需要的：增加线程池的大小就能够增加并发度，因此也就带来了更好的性能，但是现在公平的(或者称为随机的)调度算法并不能保证性能会增加。</p>
-<p>我的第一个反应就是修改我的Executor，但是实际上你能够通过现有的实现来达到目的。<a href="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/ThreadPoolExecutor.html" target="_blank" rel="external">Executors</a>的构造方法中接受一个BlockingQueue作为参数，Executor会根据这个queue来处理其中的workers。毫不意外地，现在已经有一个优先队列的实现，叫做<a href="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/PriorityBlockingQueue.html" target="_blank" rel="external">PriorityBlockingQueue</a>。</p>
-<p>你需要做的就是在创建你自己的Executor时，使用这个带有queue作为参数的构造方法，而不是默认的构造方法，然后还需要保证你传入的workers需要拥有自然排序(<strong><em>译注：其实也不一定需要自然排序，显式的指定一个Comparator也是可行的，这是因为PriorityBlockingQueue需要知道如何确定优先级，而此情此景的优先级，就是worker的权重，如后文</em></strong>)。在这种情况下，worker的权重就是有多少其他的workers依赖它，这是非常容易计算的。</p>
-<p>与此相关的，我想仔细看看在我上一篇博文中提到的算法是如何工作的。我描述了一些理论，同时我对该算法进行了一些测试，算法也符合预期，但是我突然想起来我能够很轻松的从细节的角度去考虑这些问题。(<strong><em>译注：因为这些代码本来就是博主写的……，他的意思应该是他没有考虑到读者可能对细节不太熟悉</em></strong>)</p>
-<p>首先，我添加了一个toDot方法，用来产生一个表示当前图的<a href="http://www.graphviz.org/" target="_blank" rel="external">Graphviz</a>文件，这很容易实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/** </span></div><div class="line">* <span class="doctag">@return</span> a .dot file (GraphViz) version of this graph. </div><div class="line">*/  </div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">toDot</span><span class="params">()</span> </span>&#123;  </div><div class="line">  String FREE = <span class="string">"[style=filled color=yellow]"</span>;  </div><div class="line">  String RUNNING = <span class="string">"[style=filled color=green]"</span>;  </div><div class="line">  String FINISHED = <span class="string">"[style=filled color=grey]"</span>;  </div><div class="line">  StringBuilder result = <span class="keyword">new</span> StringBuilder(<span class="string">"digraph g &#123;\n"</span>);  </div><div class="line">  Set&lt;T&gt; freeNodes = getFreeNodes();  </div><div class="line">  String color;  </div><div class="line">  <span class="keyword">for</span> (T n : m_nodesReady) &#123;  </div><div class="line">    color = freeNodes.contains(n) ? FREE : <span class="string">""</span>;  </div><div class="line">    result.append(<span class="string">"  "</span> + getName(n) + color + <span class="string">"\n"</span>);  </div><div class="line">  &#125;  </div><div class="line">  <span class="keyword">for</span> (T n : m_nodesRunning) &#123;  </div><div class="line">    color = freeNodes.contains(n) ? FREE : RUNNING;  </div><div class="line">    result.append(<span class="string">"  "</span> + getName(n) + color + <span class="string">"\n"</span>);  </div><div class="line">  &#125;  </div><div class="line">  <span class="keyword">for</span> (T n : m_nodesFinished) &#123;  </div><div class="line">    result.append(<span class="string">"  "</span> + getName(n) + FINISHED+ <span class="string">"\n"</span>);  </div><div class="line">  &#125;  </div><div class="line">  result.append(<span class="string">"\n"</span>);  </div><div class="line">  <span class="keyword">for</span> (T k : m_dependingOn.getKeys()) &#123;  </div><div class="line">    List&lt;T&gt; nodes = m_dependingOn.get(k);  </div><div class="line">    <span class="keyword">for</span> (T n : nodes) &#123;  </div><div class="line">      String dotted = m_nodesFinished.contains(k) ? <span class="string">"style=dotted"</span> : <span class="string">""</span>;  </div><div class="line">      result.append(<span class="string">"  "</span> + getName(k) + <span class="string">" -&gt; "</span> + getName(n) + <span class="string">" [dir=back "</span> + dotted +<span class="string">"]\n"</span>);  </div><div class="line">    &#125;  </div><div class="line">  &#125;  </div><div class="line">  result.append(<span class="string">"&#125;\n"</span>);  </div><div class="line">  <span class="keyword">return</span> result.toString();  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>然后我修改executor，让它在每个worker终止的时候就绘制一张图，最后，我写了一个shell脚本用来将这些dot文件转换为图像并生成了一个HTML文件。我跑了一个简单的测试，通过该shell脚本处理，最后的得到的结果在<a href="http://beust.com/topo/graphs.html" target="_blank" rel="external">这里</a>。</p>
-<p>黄色的节点是独立的，绿色代表该节点处于就绪状态(可以在线程池中运行了)，灰色代表完成状态，白色则指该节点还没有被处理。点划线的箭头表示已经满足的依赖关系。</p>
-<p>正如你看到的，执行的结果与我们描述的算法的工作模式十分接近。同时我也确认了改变线程池的大小能够产生不同的执行方式。</p>
+<hr>
+<p>构件的文件名与坐标对应：</p>
+<p>一般的规则为artifactId - version [-classifier].packaging其中classifier是可选的。</p>
+<p>一个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;groupId&gt;com.example.project&lt;/groupId&gt;  </div><div class="line">&lt;artifactId&gt;backend&lt;/artifactId&gt;  </div><div class="line">&lt;packaging&gt;jar&lt;/packaging&gt;</div></pre></td></tr></table></figure>
+<p>更推荐的做法应该是将artifactId由backend改成project-backend，这是因为如果还存在一个名为xxx的项目，其中如果也存在一个backend的模块(子项目)，那么最后这两个模块都会生成叫做backend-version.jar的输出，这样不利于定位和分辨。</p>
+<h2 id="依赖的配置"><a href="#依赖的配置" class="headerlink" title="依赖的配置"></a>依赖的配置</h2><p>比如在项目的pom.xml文件中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">&lt;dependencies&gt;  </div><div class="line">  &lt;dependency&gt;  </div><div class="line">    &lt;groupId&gt;com.example.project&lt;/groupId&gt;  </div><div class="line">    &lt;artifactId&gt;project-cms&lt;/artifactId&gt;  </div><div class="line">    &lt;version&gt;$&#123;project.version&#125;&lt;/version&gt;  </div><div class="line">    &lt;exclusions&gt;  </div><div class="line">      &lt;exclusion&gt;  </div><div class="line">        &lt;groupId&gt;cglib&lt;/groupId&gt;  </div><div class="line">        &lt;artifactId&gt;cglib&lt;/artifactId&gt;  </div><div class="line">      &lt;/exclusion&gt;  </div><div class="line">      &lt;exclusion&gt;  </div><div class="line">        &lt;groupId&gt;jboss&lt;/groupId&gt;  </div><div class="line">        &lt;artifactId&gt;javassist&lt;/artifactId&gt;  </div><div class="line">      &lt;/exclusion&gt;  </div><div class="line">    &lt;/exclusions&gt;  </div><div class="line">  &lt;/dependency&gt;  </div><div class="line">  ……  </div><div class="line">&lt;/dependencies&gt;</div></pre></td></tr></table></figure>
+<p>dependencies标签下定义了若干个dependency元素，每个dependency元素中包含的要素如下：</p>
+<ul>
+<li><p>groupId，artifactId，version</p>
+<p>  它们是依赖的基本坐标，这是最重要的三个要素，因为只有通过这三个坐标才能找到所需要的依赖。</p>
+</li>
+<li><p>type</p>
+<p>  依赖的类型，对应项目坐标中定义的packaging，大部分情况下，不需要声明它，其默认值为jar。</p>
+</li>
+<li><p>scope</p>
+<p>  依赖的范围。默认的是compile，另外的还有test，provided，runtime以及system。</p>
+</li>
+<li><p>optional</p>
+<p>  标记依赖是否可选。</p>
+</li>
+<li><p>exclusions</p>
+<p>  用来排除传递性依赖。</p>
+</li>
+</ul>
+<h3 id="依赖范围"><a href="#依赖范围" class="headerlink" title="依赖范围"></a>依赖范围</h3><ul>
+<li><p>compile</p>
+<p>  默认的依赖范围、使用compile作为依赖范围，那么此依赖对于编译、测试、运行三种classpath都有效。</p>
+</li>
+<li><p>test</p>
+<p>  测试依赖范围。此种依赖只对于测试classpath有效，在编译主代码或者运行项目时将无法使用此依赖。典型的例子如JUnit等。</p>
+</li>
+<li><p>provided</p>
+<p>  以提供依赖范围。对于编译和测试classpath有效，但是在运行时无效。典型的例子如servlet-api，编译和测试项目的时候需要，但是在运行项目的时候，由于容器已经提供，就不需要重复引入了。</p>
+</li>
+<li><p>runtime</p>
+<p>  运行时依赖范围。对于测试和运行classpath有效，但是在编译主代码时无效。典型的例子如JDBC驱动。</p>
+</li>
+<li><p>system</p>
+<p>  系统依赖范围。classpaths相关的依赖关系和provided一致。但是使用system范围的依赖必须通过systemPath元素显式地指定依赖文件的路径。此类依赖不是通过maven仓库解析的，而且往往与本机系统绑定，可能造成构建的不可移植，应该谨慎使用。</p>
+</li>
+<li><p>import</p>
+<p>  导入依赖范围。参见后序文章。</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>依赖范围</th>
+<th>编译classpath是否有效</th>
+<th>测试classpath是否有效</th>
+<th>运行时classpath是否有效</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>compile</td>
+<td>YES</td>
+<td>YES</td>
+<td>YES</td>
+<td>默认依赖范围</td>
+</tr>
+<tr>
+<td>test</td>
+<td>NO</td>
+<td>YES</td>
+<td>NO</td>
+<td>JUnit</td>
+</tr>
+<tr>
+<td>provided</td>
+<td>YES</td>
+<td>YES</td>
+<td>NO</td>
+<td>servlet-api</td>
+</tr>
+<tr>
+<td>runtime</td>
+<td>NO</td>
+<td>YES</td>
+<td>YES</td>
+<td>JDBC驱动实现</td>
+</tr>
+<tr>
+<td>system</td>
+<td>YES</td>
+<td>YES</td>
+<td>NO</td>
+<td>本地的，maven仓库之外的类库</td>
+</tr>
+</tbody>
+</table>
+<h3 id="依赖性传递"><a href="#依赖性传递" class="headerlink" title="依赖性传递"></a>依赖性传递</h3><p>比如在project-backend项目中为了使用反射的一些功能，引入了如下依赖：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;  </div><div class="line">  &lt;groupId&gt;org.reflections&lt;/groupId&gt;  </div><div class="line">  &lt;artifactId&gt;reflections&lt;/artifactId&gt;  </div><div class="line">  &lt;version&gt;0.9.8&lt;/version&gt;  </div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<p>而这个构件本身也存在其它的一些依赖，可以通过访问该构件的pom文件来查看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;  </div><div class="line">  &lt;groupId&gt;com.google.guava&lt;/groupId&gt;  </div><div class="line">  &lt;artifactId&gt;guava&lt;/artifactId&gt;  </div><div class="line">  &lt;!--&lt;version&gt;12.0&lt;/version&gt;--&gt; &lt;!-- jdk1.6+ --&gt;  </div><div class="line">  &lt;version&gt;11.0.2&lt;/version&gt; &lt;!-- case: when only jdk1.5 isacceptable --&gt;  </div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<p>可以看到这个构件本身又依赖于Google的guava这一项目。</p>
+<p>因此在最后的实际依赖构件中，guava这一构件会以传递依赖的形式被添加到maven dependency中。</p>
 
       
     </div>
@@ -459,9 +588,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/TestNG/" rel="tag"># TestNG</a>
+            <a href="/tags/Maven/" rel="tag"># Maven</a>
           
-            <a href="/tags/并发/" rel="tag"># 并发</a>
+            <a href="/tags/依赖管理/" rel="tag"># 依赖管理</a>
           
         </div>
       
@@ -474,8 +603,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2012/06/14/TestNG-并发运行相关的核心概念/" rel="next" title="TestNG 并发运行相关的核心概念">
-                <i class="fa fa-chevron-left"></i> TestNG 并发运行相关的核心概念
+              <a href="/2013/01/19/Effective-Java-Distilled-Item-4-通过私有构造方法来加强化不可实例化的性质/" rel="next" title="[Effective Java Distilled] Item 4 通过私有构造方法来加强化不可实例化的性质">
+                <i class="fa fa-chevron-left"></i> [Effective Java Distilled] Item 4 通过私有构造方法来加强化不可实例化的性质
               </a>
             
           </div>
@@ -484,8 +613,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2012/07/04/拓扑排序的原理及其实现/" rel="prev" title="拓扑排序的原理及其实现">
-                拓扑排序的原理及其实现 <i class="fa fa-chevron-right"></i>
+              <a href="/2013/01/22/Maven-Essentials-生命周期和插件/" rel="prev" title="[Maven Essentials] 生命周期和插件">
+                [Maven Essentials] 生命周期和插件 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -533,8 +662,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
@@ -610,6 +748,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#坐标要素"><span class="nav-number">1.</span> <span class="nav-text">坐标要素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#依赖的配置"><span class="nav-number">2.</span> <span class="nav-text">依赖的配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#依赖范围"><span class="nav-number">2.1.</span> <span class="nav-text">依赖范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#依赖性传递"><span class="nav-number">2.2.</span> <span class="nav-text">依赖性传递</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
     </div>
