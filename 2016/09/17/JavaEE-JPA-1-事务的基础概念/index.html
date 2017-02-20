@@ -1,0 +1,847 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JPA,JavaEE,事务," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="现在任何应用都需要数据持久化。否则就不算是一个完整的应用。那么对于一个数据持久化而言，最重要的无外乎两方面：
+
+事务管理(Transaction Management)
+对象关系映射(Object Relational Mapping)
+
+本文作为JPA(Java Persistence API)这一系列文章的首篇，就来先谈谈事物管理相关的一些概念和基础。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JavaEE - JPA] 1. 事务的基础概念">
+<meta property="og:url" content="http://rxjiang.com/2016/09/17/JavaEE-JPA-1-事务的基础概念/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="现在任何应用都需要数据持久化。否则就不算是一个完整的应用。那么对于一个数据持久化而言，最重要的无外乎两方面：
+
+事务管理(Transaction Management)
+对象关系映射(Object Relational Mapping)
+
+本文作为JPA(Java Persistence API)这一系列文章的首篇，就来先谈谈事物管理相关的一些概念和基础。">
+<meta property="og:updated_time" content="2017-02-20T11:15:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JavaEE - JPA] 1. 事务的基础概念">
+<meta name="twitter:description" content="现在任何应用都需要数据持久化。否则就不算是一个完整的应用。那么对于一个数据持久化而言，最重要的无外乎两方面：
+
+事务管理(Transaction Management)
+对象关系映射(Object Relational Mapping)
+
+本文作为JPA(Java Persistence API)这一系列文章的首篇，就来先谈谈事物管理相关的一些概念和基础。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/09/17/JavaEE-JPA-1-事务的基础概念/"/>
+
+
+
+
+
+  <title> [JavaEE - JPA] 1. 事务的基础概念 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/09/17/JavaEE-JPA-1-事务的基础概念/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [JavaEE - JPA] 1. 事务的基础概念
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-17T23:34:00+08:00">
+                2016-09-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>现在任何应用都需要数据持久化。否则就不算是一个完整的应用。那么对于一个数据持久化而言，最重要的无外乎两方面：</p>
+<ol>
+<li>事务管理(Transaction Management)</li>
+<li>对象关系映射(Object Relational Mapping)</li>
+</ol>
+<p>本文作为JPA(Java Persistence API)这一系列文章的首篇，就来先谈谈事物管理相关的一些概念和基础。</p>
+<a id="more"></a>
+<h2 id="事务-Transaction-TX"><a href="#事务-Transaction-TX" class="headerlink" title="事务(Transaction, TX)"></a>事务(Transaction, TX)</h2><p>事务管理，事务管理，管理的是事务。那么事务又究竟是个什么呢。</p>
+<p>比较标准的定义可以参考<a href="https://en.wikipedia.org/wiki/Transaction" target="_blank" rel="external">英文Wiki</a>以及<a href="http://baike.baidu.com/link?url=ppfRV5K2ihgTHCpE127i83eTkl9qt2j_WaZEOtH9OyBKGXTWa_99WTq6_qtyQ5wh4xtuy0gk7AADTCkQM6GPSXwHzyCvmw7KzvpCzTgYd0O" target="_blank" rel="external">百度百科</a>。</p>
+<p>这里尝试用比较好理解的方式来解释一下什么是事务。</p>
+<p>我们都知道不管多复杂的代码逻辑最终都是由一行行的代码所组成的。这些代码的执行顺序有先有后，在一个执行单元(如今一般是线程)内部，绝对不可能出现同时执行两个操作的情况，那么当前一个操作出现错误的时候(比如抛出了异常)，往往后面的操作就无法执行下去了。如果这两个操作在逻辑上是一个整体，比如我们都知道的银行转帐问题，那么问题就来了。银行转帐粗略可以分为下面两个行为(不考虑查询过程)：</p>
+<ol>
+<li>发起账户的金额减去转账金额</li>
+<li>目标账户的金额加上转账金额</li>
+</ol>
+<p>一个成功的转账操作，上面的两个行为必然都要成功。不会允许行为1成功，而行为2失败的情况存在。那么如何保证这一点呢？答案就是通过事务。</p>
+<p>所谓的事务，实际上是一种抽象。它将一系列的细微操作组合起来形成一个整体上的操作，这个整体上的操作要么成功，要么失败，不存在除此之外的任何其它状态。因为处于其它状态就好比上述银行转账例子中的行为1成功，行为2失败这种状态，是万万不可在现实的金融系统中出现的，否则世界岂不乱了套？</p>
+<p>所以从上面的例子中，我们可以发现事务最重要的一个特点 - 原子性(Atomicity)。这个整体操作就是一个原子操作，要么其中所有的操作所有都成功，要么所有的都失败。</p>
+<p>而除了原子性之外，一般的事务还有另外3个特点：</p>
+<ul>
+<li><p>一致性(Consistency)：事务结束后，参与其中的数据应该处于一种能够解释的通的状态。不应该处于一种”错乱”的状态。比如转账前后，参与到过程中的两个账户的总金额应该保持相等(不考虑万恶的手续费)。</p>
+</li>
+<li><p>隔离性(Isolation)：在一个事务正在进行的过程中，对于变更只有在该事务内部才可见。在事务成功提交之前，事务外部对于这个变更是不可见的。比如说，现在银行系统有一个查询转账次数的统计字段，在转账事务的过程中，肯定需要对这个字段进行+1的操作。那么这个操作在转账事务未提交之前，银行的统计程序是没办法得到变更后的最新数据的。只有当转账确确实实成功提交之后，这个最新的数据才生效，才对外部可见。</p>
+</li>
+<li><p>持久性(Durability)：在事务内执行的变更操作在事务成功提交后仍然生效。(这个很好理解，要不岂不是白干了)</p>
+</li>
+</ul>
+<p>将上面的4个特点的首字母组合起来，就是大名鼎鼎的ACID。这个ACID就是用来描述事务的特点的。虽然我们在后面的讨论中会发现尽管JavaEE应用中的事务通常都是满足ACID几个特点的。但是随着技术的发展和更迭，并不是所有的事务都能够满足ACID。尤其是现在互联网和大数据的时代背景下，由于数据量激增，对于某些应用场景已经没有办法让事务满足所有的4个特点。往往都会根据场景的特点来牺牲掉某个特点，来换取更佳的性能让用户能够满意。</p>
+<h2 id="JavaEE中的事务"><a href="#JavaEE中的事务" class="headerlink" title="JavaEE中的事务"></a>JavaEE中的事务</h2><p>既然本文是作为介绍和讨论JPA的首篇文章，那么就必然需要提及JavaEE环境下的事务。毕竟JPA也只是JavaEE整体生态环境下的一个用于描述数据持久化的规范而已。</p>
+<p>JavaEE中的事务可以分为两种类型：</p>
+<ol>
+<li>Resource-local事务</li>
+<li><p>Container事务</p>
+<p>Resource-local事务，翻译成中文就是”本地资源”事务。这是最基本的事务类型，直接和JDBC的DataSource接口打交道，因此本质上而言它就是数据库事务。所以即使不在JavaEE这个环境下，比如JavaSE中也是能够使用这种事务类型的。</p>
+</li>
+</ol>
+<p>而Container事务就不同了，根据名字就可以知道它是依赖于容器(Container)的，对于实现了JavaEE标准的应用服务器而言，Container事务一般指的就是使用了JTA(Java Transaction API)的事务。这种事务的特点是能够将一系列的企业级资源涵盖到一个事务中，比如我们常见的数据库，消息队列等等。毕竟企业级应用比较复杂，数据可能分散到很多个数据源中，保存和修改这些数据的时候要保证它们的ACID性质还是需要一定代价的。</p>
+<h3 id="事务划分-Transaction-Demarcation"><a href="#事务划分-Transaction-Demarcation" class="headerlink" title="事务划分(Transaction Demarcation)"></a>事务划分(Transaction Demarcation)</h3><p>我们已经知道了事务实际上是将一系列操作打了个包，形成了一个”原子”操作。那么事务划分所要解决的问题就是如何规定事务从哪里开始，到哪里结束。对于企业级应用的开发而言，事务划分可以算是比较重要的一环，如果事务划分的不恰当则很容易引起数据错乱以及性能下降。</p>
+<p>接下来我们来看看上面谈到的两种事务类型是如何划分的。</p>
+<h4 id="Resource-local事务"><a href="#Resource-local事务" class="headerlink" title="Resource-local事务"></a>Resource-local事务</h4><p>对于这种最基本的事务类型，都是由开发人员直接通过编码地方式来完成事务划分。比如下面这类常见操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">tx.begin();    <span class="comment">// 事务开始</span></div><div class="line"><span class="comment">// ......</span></div><div class="line">tx.commit();  <span class="comment">// 事务提交</span></div></pre></td></tr></table></figure>
+<p>所以事务划分听上去有点吓人，实际上放到Resource-local事务类型中来，就是两行代码而已(如果考虑到可能出现的tx.rollback()，则是三行代码)。</p>
+<h4 id="Container事务"><a href="#Container事务" class="headerlink" title="Container事务"></a>Container事务</h4><p>对于容器中的事务，除了像上面那样由开发人员直接划分，还多了一种选择，就是让容器来帮你划分。归纳一下就是下面的两种方案：</p>
+<ol>
+<li>使用JTA接口在应用中编码完成显式划分</li>
+<li>在容器的帮助下完成自动划分</li>
+</ol>
+<p>由于JPA作为JavaEE规范的一部分，对同属于JavaEE规范中的EJB作了充分考虑，因此对于EJB而言，上面的两种方案可以被具体描述为：</p>
+<p>对于第一种情况，利用JTA提供的接口完成的划分，可以被称为基于Bean的事务(Bean-managed Transaction，BMT)。<br>对于第二种情况，利用容器完成事务的自动划分的，可以被成为基于容器的事务(Container-managed Transaction，CMT)。</p>
+<p>而我们都知道EJB在2.x时代由于其自身十分笨重，开发效率比较低而被疯狂吐槽。所以才出现了时至今日都十分流行的Spring Framework。好不容易到了EJB 3.x时代，虽然它提高了不少，但是由于口碑比较差加上Spring Framework的出色表现，导致真正使用EJB来进行企业级Java开发的人数还是比较少。</p>
+<p>那么将上面两种方案放到Spring Framework这个语境中，是这样描述的：</p>
+<p>对于第一种情况，被称为编程式的事务管理(Programmatic Transaction Management)。<br>对于第二种情况，被称为声明式的事务管理(Declarative Transaction Management)。</p>
+<p>所以不要拘泥于具体的称呼，还是要还原到问题的本质。而规范就是定义这个本质的。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇文章首先介绍了事务是什么，然后提到了非常著名的ACID性质。<br>紧接介绍了JavaEE中的事务类型以及事务划分的概念。<br>在下一篇文章中将继续介绍事务划分在EJB以及Spring中的具体实现方式。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JPA/" rel="tag"># JPA</a>
+          
+            <a href="/tags/JavaEE/" rel="tag"># JavaEE</a>
+          
+            <a href="/tags/事务/" rel="tag"># 事务</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/" rel="next" title="[AngularJS面面观] 24. 依赖注入 --- Value以及Decorator">
+                <i class="fa fa-chevron-left"></i> [AngularJS面面观] 24. 依赖注入 --- Value以及Decorator
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/19/JavaEE-JPA-2-EJB中的事务管理/" rel="prev" title="[JavaEE - JPA] 2. EJB中的事务管理">
+                [JavaEE - JPA] 2. EJB中的事务管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#事务-Transaction-TX"><span class="nav-number">1.</span> <span class="nav-text">事务(Transaction, TX)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JavaEE中的事务"><span class="nav-number">2.</span> <span class="nav-text">JavaEE中的事务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#事务划分-Transaction-Demarcation"><span class="nav-number">2.1.</span> <span class="nav-text">事务划分(Transaction Demarcation)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Resource-local事务"><span class="nav-number">2.1.1.</span> <span class="nav-text">Resource-local事务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Container事务"><span class="nav-number">2.1.2.</span> <span class="nav-text">Container事务</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

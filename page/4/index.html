@@ -302,7 +302,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/01/05/Elasticsearch-聚合的测试数据/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/06/07/AngularJS面面观-4-scope中的-apply方法-Digest-Cycle的触发者/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -327,8 +327,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/05/Elasticsearch-聚合的测试数据/" itemprop="url">
-                  [Elasticsearch] 聚合的测试数据
+                <a class="post-title-link" href="/2016/06/07/AngularJS面面观-4-scope中的-apply方法-Digest-Cycle的触发者/" itemprop="url">
+                  [AngularJS面面观] 4. scope中的$apply方法 - Digest Cycle的触发者
                 </a>
               
             
@@ -344,8 +344,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-05T00:02:00+08:00">
-                2015-01-05
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-07T18:49:00+08:00">
+                2016-06-07
               </time>
             
 
@@ -367,8 +367,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
                   </a>
                 </span>
 
@@ -378,8 +378,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
                   </a>
                 </span>
 
@@ -414,13 +414,12 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_aggregation_test_drive.html">Aggregation Test-Drive</a>一章。</p>
-<h1 id="聚合的测试数据-Aggregation-Test-Drive"><a href="#聚合的测试数据-Aggregation-Test-Drive" class="headerlink" title="聚合的测试数据(Aggregation Test-Drive)"></a>聚合的测试数据(Aggregation Test-Drive)</h1><p>我们将学习各种聚合以及它们的语法，但是最好的学习方法还是通过例子。一旦你了解了如何思考聚合以及如何对它们进行合适的嵌套，那么语法本身是不难的。</p>
-<p>让我们从一个例子开始。我们会建立一个也许对汽车交易商有所用处的聚合。数据是关于汽车交易的：汽车型号，制造商，销售价格，销售时间以及一些其他的相关数据。</p>
-<p>首先，通过批量索引(Bulk-Index)来添加一些数据：</p>
+          <p>本文介绍scope对象中<code>$apply</code>方法的实现。关于<code>$apply</code>和<code>$digest</code>方法，就像是一枚硬币的两面，它们之间的区别和联系，在<a href="http://www.rxjiang.com/2014/08/20/%E7%90%86%E8%A7%A3Angular%E4%B8%AD%E7%9A%84-apply-%E4%BB%A5%E5%8F%8A-digest/">这篇译文</a>中做出了解答，有兴趣的同学可以看看。</p>
+<p>当然，本文的重点还是在于该方法是如何实现的。下面言归正传，来看看相关源代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$apply: <span class="function"><span class="keyword">function</span>(<span class="params">expr</span>) </span>&#123;</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    beginPhase(<span class="string">'$apply'</span>);</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">this</span>.$<span class="built_in">eval</span>(expr);</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      clearPhase();</div><div class="line">    &#125;</div><div class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">    $exceptionHandler(e);</div><div class="line">  &#125; <span class="keyword">finally</span> &#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      $rootScope.$digest();</div><div class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">      $exceptionHandler(e);</div><div class="line">      <span class="keyword">throw</span> e;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2015/01/05/Elasticsearch-聚合的测试数据/#more" rel="contents">
+            <a class="btn" href="/2016/06/07/AngularJS面面观-4-scope中的-apply方法-Digest-Cycle的触发者/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -461,7 +460,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/01/04/Elasticsearch-聚合中的重要概念-Buckets-桶-及Metrics-指标/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/05/15/AngularJS面面观-3-scope中的Dirty-Checking-脏数据检查-Digest-Cycle中的优化和细节/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -486,8 +485,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/04/Elasticsearch-聚合中的重要概念-Buckets-桶-及Metrics-指标/" itemprop="url">
-                  [Elasticsearch] 聚合中的重要概念 - Buckets(桶)及Metrics(指标)
+                <a class="post-title-link" href="/2016/05/15/AngularJS面面观-3-scope中的Dirty-Checking-脏数据检查-Digest-Cycle中的优化和细节/" itemprop="url">
+                  [AngularJS面面观] 3. scope中的Dirty Checking(脏数据检查) --- Digest Cycle中的优化和细节
                 </a>
               
             
@@ -503,8 +502,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-04T10:03:00+08:00">
-                2015-01-04
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-15T15:04:00+08:00">
+                2016-05-15
               </time>
             
 
@@ -526,8 +525,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
                   </a>
                 </span>
 
@@ -537,8 +536,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
                   </a>
                 </span>
 
@@ -573,16 +572,11 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/aggs-high-level.html">Aggregations-High-level Concepts</a>一章。</p>
-<h1 id="高层概念-High-Level-Concepts"><a href="#高层概念-High-Level-Concepts" class="headerlink" title="高层概念(High-Level Concepts)"></a>高层概念(High-Level Concepts)</h1><p>和查询DSL一样，聚合(Aggregations)也拥有一种可组合(Composable)的语法：独立的功能单元可以被混合在一起来满足你的需求。这意味着需要学习的基本概念虽然不多，但是它们的组合方式是几近无穷的。</p>
-<p>为了掌握聚合，你只需要了解两个主要概念：</p>
-<p><strong>Buckets(桶)：</strong></p>
-<p>满足某个条件的文档集合。</p>
-<p><strong>Metrics(指标)：</strong></p>
-<p>为某个桶中的文档计算得到的统计信息。</p>
+          <h2 id="Digest-Cycle中的优化"><a href="#Digest-Cycle中的优化" class="headerlink" title="Digest Cycle中的优化"></a>Digest Cycle中的优化</h2><p>在<a href="http://blog.csdn.net/dm_vincent/article/details/51407292">上一篇文章</a>中，介绍了Digest Cycle的实现方法\$digest的大概逻辑。但是离真正的实现还有相当大的差距，具体的实现比较长，而且其中有很多细节在本篇文章还不会介绍，所以就不贴在这里了，有兴趣的可以去看<a href="https://github.com/angular/angular.js/blob/v1.5.5/src/ng/rootScope.js#L746">源码</a>。</p>
+<p>现在<code>$digest</code>方法的实现逻辑是这样的：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> ttl = <span class="number">10</span>;</div><div class="line"><span class="keyword">do</span> &#123;</div><div class="line">  <span class="keyword">var</span> dirty = <span class="literal">false</span>;</div><div class="line">  <span class="keyword">var</span> length = $$watchers.length;</div><div class="line">  <span class="keyword">var</span> watcher;</div><div class="line">  <span class="keyword">for</span>(<span class="keyword">var</span> idx = <span class="number">0</span>; idx &lt; length; idx++) &#123;</div><div class="line">    watcher = $$watchers[idx];</div><div class="line">    newVal = watcher.watchFn(scope);</div><div class="line">    oldVal = watcher.last;</div><div class="line">    <span class="keyword">if</span> (!newVal.equals(oldVal)) &#123;</div><div class="line">      watcher.last = newVal;</div><div class="line">      watcher.listener(newVal, oldVal, scope);</div><div class="line">      dirty = <span class="literal">true</span>;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  ttl -= <span class="number">1</span>;</div><div class="line">  <span class="keyword">if</span> (dirty &amp;&amp; ttl === <span class="number">0</span>) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="string">'10 $digest() iterations reached. Aborting!'</span>;</div><div class="line">  &#125;</div><div class="line">&#125; <span class="keyword">while</span> (dirty);</div></pre></td></tr></table></figure></p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2015/01/04/Elasticsearch-聚合中的重要概念-Buckets-桶-及Metrics-指标/#more" rel="contents">
+            <a class="btn" href="/2016/05/15/AngularJS面面观-3-scope中的Dirty-Checking-脏数据检查-Digest-Cycle中的优化和细节/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -623,7 +617,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/27/Elasticsearch-控制相关度-六-function-score查询中的filter，functions及random-score参数/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -648,8 +642,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/12/27/Elasticsearch-控制相关度-六-function-score查询中的filter，functions及random-score参数/" itemprop="url">
-                  [Elasticsearch] 控制相关度 (六) - function_score查询中的filter，functions及random_score参数
+                <a class="post-title-link" href="/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/" itemprop="url">
+                  [AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle
                 </a>
               
             
@@ -665,8 +659,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-27T23:26:00+08:00">
-                2014-12-27
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-15T00:45:00+08:00">
+                2016-05-15
               </time>
             
 
@@ -688,8 +682,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
                   </a>
                 </span>
 
@@ -699,8 +693,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
                   </a>
                 </span>
 
@@ -735,12 +729,11 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
-<h2 id="根据过滤子集来提升-Boosting-Filtered-Subsets"><a href="#根据过滤子集来提升-Boosting-Filtered-Subsets" class="headerlink" title="根据过滤子集来提升(Boosting Filtered Subsets)"></a>根据过滤子集来提升(Boosting Filtered Subsets)</h2><p>回到在<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/ignoring-tfidf.html">忽略TF/IDF(Ignoring TF/IDF)</a>中处理的那个问题，我们需要根据每个度假酒店拥有的卖点数量来对它们的相关度分值进行计算。我们希望利用缓存的过滤器来影响分值，而function_score则正好可以实现该目标。</p>
-<p>在目前的例子中，我们为所有的文档都使用了一个函数。现在我们希望使用过滤器将结果分成子集(一个卖点对应一个过滤器)，然后对每个子集适用一个不同的函数。</p>
+          <h2 id="Dirty-Checking的实现方式"><a href="#Dirty-Checking的实现方式" class="headerlink" title="Dirty Checking的实现方式"></a>Dirty Checking的实现方式</h2><p>了解Angular的开发人员都知道，是一种叫做脏数据检查(Dirty Checking)的机制实现了双向绑定这一前端开发中的黑科技。那么在Angular中到底是如何实现它的呢？本文就一一来揭开它的神秘面纱。</p>
+<p>一言以蔽之，在angular中是通过Digest Cycle来完成脏数据检查从而完成双向绑定进而实现scope和view的同步的。下面分几个方面来介绍一下什么是Digest Cycle(DC)：</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/12/27/Elasticsearch-控制相关度-六-function-score查询中的filter，functions及random-score参数/#more" rel="contents">
+            <a class="btn" href="/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -781,7 +774,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/27/Elasticsearch-控制相关度-五-function-score查询及field-value-factor，boost-mode，max-mode参数/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/05/08/Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -806,8 +799,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/12/27/Elasticsearch-控制相关度-五-function-score查询及field-value-factor，boost-mode，max-mode参数/" itemprop="url">
-                  [Elasticsearch] 控制相关度 (五) - function_score查询及field_value_factor，boost_mode，max_mode参数
+                <a class="post-title-link" href="/2016/05/08/Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤/" itemprop="url">
+                  Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤
                 </a>
               
             
@@ -823,8 +816,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-27T23:20:00+08:00">
-                2014-12-27
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-08T01:49:00+08:00">
+                2016-05-08
               </time>
             
 
@@ -857,8 +850,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
+                  <a href="/categories/译文/REST/" itemprop="url" rel="index">
+                    <span itemprop="name">REST</span>
                   </a>
                 </span>
 
@@ -893,13 +886,12 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
-<h2 id="function-score查询"><a href="#function-score查询" class="headerlink" title="function_score查询"></a>function_score查询</h2><p><a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html">function_score查询</a>是处理分值计算过程的终极工具。它让你能够对所有匹配了主查询的每份文档调用一个函数来调整甚至是完全替换原来的_score。</p>
-<p>实际上，你可以通过设置过滤器来将查询得到的结果分成若干个子集，然后对每个子集使用不同的函数。这样你就能够同时得益于：高效的分值计算以及可缓存的过滤器。</p>
-<p>它拥有几种预先定义好了的函数：</p>
+          <h2 id="Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤"><a href="#Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤" class="headerlink" title="Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤"></a>Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤</h2><p>原文地址：<br><a href="http://martinfowler.com/articles/richardsonMaturityModel.html">Richardson Maturity Model - steps toward the glory of REST</a></p>
+<p>最近我在阅读<a href="https://www.amazon.com/gp/product/0596805829?ie=UTF8&amp;tag=martinfowlerc-20&amp;linkCode=as2&amp;camp=1789&amp;creative=9325&amp;creativeASIN=0596805829">Rest In Practice</a>的草稿，这本书由我的一些同事撰写。他们希望通过这本书解释如何利用Restful Web Service来解决企业面临的很多集成上的问题。该书的核心观点是目前的Web就是一个大规模分布式系统能够很好地工作的证据，而我们则可以借助这个观点来让系统集成更加容易。</p>
+<p><img src="http://martinfowler.com/articles/images/richardsonMaturityModel/overview.png" alt=""><br>图1： 通往REST的步骤</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/12/27/Elasticsearch-控制相关度-五-function-score查询及field-value-factor，boost-mode，max-mode参数/#more" rel="contents">
+            <a class="btn" href="/2016/05/08/Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -940,7 +932,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/26/Elasticsearch-控制相关度-四-忽略TF-IDF/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/04/06/Gulp-Workflow-在提交代码前使用jslint进行代码检查/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -965,8 +957,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/12/26/Elasticsearch-控制相关度-四-忽略TF-IDF/" itemprop="url">
-                  [Elasticsearch] 控制相关度 (四) - 忽略TF/IDF
+                <a class="post-title-link" href="/2016/04/06/Gulp-Workflow-在提交代码前使用jslint进行代码检查/" itemprop="url">
+                  [Gulp Workflow] 在提交代码前使用jslint进行代码检查
                 </a>
               
             
@@ -982,8 +974,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-26T00:07:00+08:00">
-                2014-12-26
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-04-06T15:29:00+08:00">
+                2016-04-06
               </time>
             
 
@@ -1005,8 +997,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
                   </a>
                 </span>
 
@@ -1016,8 +1008,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
+                  <a href="/categories/工具-库与框架/Gulp/" itemprop="url" rel="index">
+                    <span itemprop="name">Gulp</span>
                   </a>
                 </span>
 
@@ -1052,18 +1044,13 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
-<h2 id="忽略TF-IDF"><a href="#忽略TF-IDF" class="headerlink" title="忽略TF/IDF"></a>忽略TF/IDF</h2><p>有时我们不需要TF/IDF。我们想知道的只是一个特定的单词是否出现在了字段中。比如我们正在搜索度假酒店，希望它拥有的卖点越多越好：</p>
-<ul>
-<li>WiFi</li>
-<li>花园(Garden)</li>
-<li>泳池(Pool)</li>
-</ul>
-<p>而关于度假酒店的文档类似下面这样：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123; <span class="attr">"description"</span>: <span class="string">"A delightful four-bedroomed house with ... "</span> &#125;</div></pre></td></tr></table></figure>
+          <p>查阅到的解决方案主要还是使用gulp结合git hook来执行pre-commit脚本。比如：</p>
+<p><a href="https://www.qianduan.net/task-master-gulp-lint/">这里</a></p>
+<p>其实不需要那么麻烦，直接使用gulp的插件即可帮助你生成需要的pre-commit脚本：</p>
+<h3 id="1-安装git-pre-commit以及gulp-jshint"><a href="#1-安装git-pre-commit以及gulp-jshint" class="headerlink" title="1. 安装git-pre-commit以及gulp-jshint"></a>1. 安装<a href="https://www.npmjs.com/package/git-pre-commit">git-pre-commit</a>以及<a href="https://www.npmjs.com/package/gulp-jshint">gulp-jshint</a></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install git-pre-commit --save-dev</div></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/12/26/Elasticsearch-控制相关度-四-忽略TF-IDF/#more" rel="contents">
+            <a class="btn" href="/2016/04/06/Gulp-Workflow-在提交代码前使用jslint进行代码检查/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1104,7 +1091,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/25/Elasticsearch-控制相关度-三-通过查询结构调整相关度以及boosting查询/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/12/18/AngularJS面面观-1-scope中的Dirty-Checking-脏数据检查-引言/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1129,8 +1116,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/12/25/Elasticsearch-控制相关度-三-通过查询结构调整相关度以及boosting查询/" itemprop="url">
-                  [Elasticsearch] 控制相关度 (三) - 通过查询结构调整相关度以及boosting查询
+                <a class="post-title-link" href="/2015/12/18/AngularJS面面观-1-scope中的Dirty-Checking-脏数据检查-引言/" itemprop="url">
+                  [AngularJS面面观] 1. scope中的Dirty Checking(脏数据检查) --- 引言 
                 </a>
               
             
@@ -1146,8 +1133,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-25T01:10:00+08:00">
-                2014-12-25
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-18T11:27:00+08:00">
+                2015-12-18
               </time>
             
 
@@ -1169,8 +1156,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
                   </a>
                 </span>
 
@@ -1180,8 +1167,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
                   </a>
                 </span>
 
@@ -1216,16 +1203,17 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
-<h2 id="通过查询结构调整相关度"><a href="#通过查询结构调整相关度" class="headerlink" title="通过查询结构调整相关度"></a>通过查询结构调整相关度</h2><p>ES提供的查询DSL是相当灵活的。你可以通过将单独的查询子句在查询层次中上下移动来让它更重要/更不重要。比如，下面的查询：</p>
-<blockquote>
-<p>quick OR brown OR red OR fox</p>
-</blockquote>
-<p>我们可以使用一个bool查询，对所有词条一视同仁：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "should": [</div><div class="line">        &#123; "term": &#123; "text": "quick" &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "brown" &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "red"   &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "fox"   &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+          <h2 id="scope功能概述"><a href="#scope功能概述" class="headerlink" title="scope功能概述"></a>scope功能概述</h2><p>scope是AngularJS中的核心概念之一。它的设计思想和实现方式也是希望深入了解和学习AngularJS的开发人员必须熟知的。</p>
+<p>它的功能主要有以下几点：</p>
+<ol>
+<li>通过数据共享连接Controller和View</li>
+<li>事件的监听和响应</li>
+<li>脏数据检查和数据绑定</li>
+</ol>
+<p>前两点并没有什么新奇的地方，关键的地方在于第三点。这是AngularJS这一框架和好多其它框架的不同之处，也是AngularJS的一大卖点。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/12/25/Elasticsearch-控制相关度-三-通过查询结构调整相关度以及boosting查询/#more" rel="contents">
+            <a class="btn" href="/2015/12/18/AngularJS面面观-1-scope中的Dirty-Checking-脏数据检查-引言/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1266,7 +1254,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/24/Elasticsearch-控制相关度-二-Lucene中的PSF-Practical-Scoring-Function-与查询期间提升/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/12/09/Elasticsearch-Elasticsearch权威指南翻译目录/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1291,8 +1279,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/12/24/Elasticsearch-控制相关度-二-Lucene中的PSF-Practical-Scoring-Function-与查询期间提升/" itemprop="url">
-                  [Elasticsearch] 控制相关度 (二) - Lucene中的PSF(Practical Scoring Function)与查询期间提升
+                <a class="post-title-link" href="/2015/12/09/Elasticsearch-Elasticsearch权威指南翻译目录/" itemprop="url">
+                  [Elasticsearch] Elasticsearch权威指南翻译目录
                 </a>
               
             
@@ -1308,8 +1296,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-24T10:12:00+08:00">
-                2014-12-24
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-09T11:16:00+08:00">
+                2015-12-09
               </time>
             
 
@@ -1378,11 +1366,14 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
-<h2 id="Lucene中的Practical-Scoring-Function"><a href="#Lucene中的Practical-Scoring-Function" class="headerlink" title="Lucene中的Practical Scoring Function"></a>Lucene中的Practical Scoring Function</h2><p>对于多词条查询(Multiterm Queries)，Lucene使用的是<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#boolean-model">布尔模型(Boolean Model)</a>，<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#tfidf">TF/IDF</a>以及<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#vector-space-model">向量空间模型(Vector Space Model)</a>来将它们结合在一起，用来收集匹配的文档和对它们进行分值计算。</p>
+          <p>为了方便大家能够更加快速地找到自己需要参考的那部分，对已经翻译完成的部分根据权威指南的目录做了相应目录，希望能够有所帮助。</p>
+<p>#起步(<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/getting-started.html">Getting Started</a>)</p>
+<h2 id="1-你懂的，为了搜索"><a href="#1-你懂的，为了搜索" class="headerlink" title="1. 你懂的，为了搜索"></a>1. 你懂的，为了搜索</h2><p>英文原文链接：<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/intro.html">You Know, for Search</a></p>
+<p>##2. 集群中的生活<br>译文链接：<br><a href="http://blog.csdn.net/dm_vincent/article/details/41205207">[Elasticsearch] 集群的工作原理 - 第一部分</a><br><a href="http://blog.csdn.net/dm_vincent/article/details/41205325">[Elasticsearch] 集群的工作原理 - 第二部分</a></p>
+<p>英文原文链接：<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/distributed-cluster.html">Life inside a Cluster</a></p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/12/24/Elasticsearch-控制相关度-二-Lucene中的PSF-Practical-Scoring-Function-与查询期间提升/#more" rel="contents">
+            <a class="btn" href="/2015/12/09/Elasticsearch-Elasticsearch权威指南翻译目录/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1423,7 +1414,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/23/Elasticsearch-控制相关度-一-相关度分值计算背后的理论/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/09/24/pandas-转换DatetimeIndex为一个日期字符串的Series/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1448,8 +1439,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/12/23/Elasticsearch-控制相关度-一-相关度分值计算背后的理论/" itemprop="url">
-                  [Elasticsearch] 控制相关度 (一) - 相关度分值计算背后的理论
+                <a class="post-title-link" href="/2015/09/24/pandas-转换DatetimeIndex为一个日期字符串的Series/" itemprop="url">
+                  [pandas] 转换DatetimeIndex为一个日期字符串的Series
                 </a>
               
             
@@ -1465,8 +1456,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-23T10:02:00+08:00">
-                2014-12-23
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-24T00:34:00+08:00">
+                2015-09-24
               </time>
             
 
@@ -1488,8 +1479,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
                   </a>
                 </span>
 
@@ -1499,8 +1490,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
+                  <a href="/categories/工具-库与框架/pandas/" itemprop="url" rel="index">
+                    <span itemprop="name">pandas</span>
                   </a>
                 </span>
 
@@ -1535,13 +1526,13 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
-<h1 id="控制相关度-Controlling-Relevance"><a href="#控制相关度-Controlling-Relevance" class="headerlink" title="控制相关度(Controlling Relevance)"></a>控制相关度(Controlling Relevance)</h1><p>对于仅处理结构化数据(比如日期，数值和字符枚举值)的数据库，它们只需要检查一份文档(在关系数据库中是一行)是否匹配查询即可。</p>
-<p>尽管布尔类型的YES|NO匹配也是全文搜索的一个必要组成，它们本身是不够的。我们还需要知道每份文档和查询之间的相关程度。全文搜索引擎不仅要找到匹配的文档，还需要根据相关度对它们进行排序。</p>
-<p>全文搜索相关度的公式，或者被称为相似度算法，将多个因素综合起来为没份文档产生一个相关度_score。在本章中，我们来讨论一下其中的一些变化的部分以及如何控制它们。</p>
+          <h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>需要将一个DatetimeIndex转换为一个日期字符串的Series类型。</p>
+<p>比如，有一个DatetimeIndex是这样的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">print</span> dti</div><div class="line">DatetimeIndex([<span class="string">'2015-09-21 10:30:00'</span>, <span class="string">'2015-09-21 11:30:00'</span>,</div><div class="line">               <span class="string">'2015-09-21 14:00:00'</span>, <span class="string">'2015-09-21 15:00:00'</span>,</div><div class="line">               <span class="string">'2015-09-22 10:30:00'</span>, <span class="string">'2015-09-22 11:30:00'</span>,</div><div class="line">               <span class="string">'2015-09-22 14:00:00'</span>, <span class="string">'2015-09-22 15:00:00'</span>],</div><div class="line">              dtype=<span class="string">'datetime64[ns]'</span>, freq=<span class="keyword">None</span>, tz=<span class="keyword">None</span>)</div></pre></td></tr></table></figure>
+<p>现在只需要这些数据里面的2015-09-21，2015-09-22这样的日期信息，时间信息可以省略。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/12/23/Elasticsearch-控制相关度-一-相关度分值计算背后的理论/#more" rel="contents">
+            <a class="btn" href="/2015/09/24/pandas-转换DatetimeIndex为一个日期字符串的Series/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1582,7 +1573,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/22/Elasticsearch-部分匹配-四-索引期间优化ngrams及索引期间的即时搜索/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/08/28/Elasticsearch-常用查询和操作总结/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1607,8 +1598,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/12/22/Elasticsearch-部分匹配-四-索引期间优化ngrams及索引期间的即时搜索/" itemprop="url">
-                  [Elasticsearch] 部分匹配 (四) - 索引期间优化ngrams及索引期间的即时搜索
+                <a class="post-title-link" href="/2015/08/28/Elasticsearch-常用查询和操作总结/" itemprop="url">
+                  [Elasticsearch] 常用查询和操作总结
                 </a>
               
             
@@ -1624,8 +1615,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-22T09:25:00+08:00">
-                2014-12-22
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-28T00:12:00+08:00">
+                2015-08-28
               </time>
             
 
@@ -1647,8 +1638,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
                   </a>
                 </span>
 
@@ -1658,7 +1649,7 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                  <a href="/categories/工具-库与框架/Elasticsearch/" itemprop="url" rel="index">
                     <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
@@ -1694,14 +1685,12 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/partial-matching.html">Partial Matching</a>一章。</p>
-<h2 id="索引期间的优化-Index-time-Optimizations"><a href="#索引期间的优化-Index-time-Optimizations" class="headerlink" title="索引期间的优化(Index-time Optimizations)"></a>索引期间的优化(Index-time Optimizations)</h2><p>目前我们讨论的所有方案都是在查询期间的。它们不需要任何特殊的映射或者索引模式(Indexing Patterns)；它们只是简单地工作在已经存在于索引中的数据之上。</p>
-<p>查询期间的灵活性是有代价的：搜索性能。有时，将这些代价放到查询之外的地方是有价值的。在一个实时的Web应用中，一个额外的100毫秒的延迟会难以承受。</p>
-<p>通过在索引期间准备你的数据，可以让你的搜索更加灵活并更具效率。你仍然付出了代价：增加了的索引大小和稍微低一些的索引吞吐量，但是这个代价是在索引期间付出的，而不是在每个查询的执行期间。</p>
-<p>你的用户会感激你的。</p>
+          <p>##1. 取得某个索引中某个字段中的所有出现过的值</p>
+<p>这种操作类似于使用SQL的SELECT UNIQUE语句。当需要获取某个字段上的所有可用值时，可以使用terms聚合查询完成：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">GET /index_streets/_search?search_type=count</div><div class="line">&#123;</div><div class="line"> "aggs": &#123;</div><div class="line">   "street_values": &#123;</div><div class="line">     "terms": &#123;</div><div class="line">       "field": "name.raw",</div><div class="line">       "size": 0</div><div class="line">     &#125;</div><div class="line">   &#125;</div><div class="line"> &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/12/22/Elasticsearch-部分匹配-四-索引期间优化ngrams及索引期间的即时搜索/#more" rel="contents">
+            <a class="btn" href="/2015/08/28/Elasticsearch-常用查询和操作总结/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1742,7 +1731,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/21/Elasticsearch-部分匹配-三-查询期间的即时搜索/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/08/17/Elasticsearch-数据建模-处理关联关系-2/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1767,8 +1756,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/12/21/Elasticsearch-部分匹配-三-查询期间的即时搜索/" itemprop="url">
-                  [Elasticsearch] 部分匹配 (三) - 查询期间的即时搜索
+                <a class="post-title-link" href="/2015/08/17/Elasticsearch-数据建模-处理关联关系-2/" itemprop="url">
+                  [Elasticsearch] 数据建模 - 处理关联关系(2)
                 </a>
               
             
@@ -1784,8 +1773,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-21T11:53:00+08:00">
-                2014-12-21
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-17T00:04:00+08:00">
+                2015-08-17
               </time>
             
 
@@ -1854,11 +1843,10 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/partial-matching.html">Partial Matching</a>一章。</p>
-<h2 id="查询期间的即时搜索-Query-time-Search-as-you-type"><a href="#查询期间的即时搜索-Query-time-Search-as-you-type" class="headerlink" title="查询期间的即时搜索(Query-time Search-as-you-type)"></a>查询期间的即时搜索(Query-time Search-as-you-type)</h2><p>现在让我们来看看前缀匹配能够如何帮助全文搜索。用户已经习惯于在完成输入之前就看到搜索结果了 - 这被称为即时搜索(Instant Search, 或者Search-as-you-type)。这不仅让用户能够在更短的时间内看到搜索结果，也能够引导他们得到真实存在于我们的索引中的结果。</p>
+          <h2 id="字段折叠-Field-Collapsing"><a href="#字段折叠-Field-Collapsing" class="headerlink" title="字段折叠(Field Collapsing)"></a>字段折叠(Field Collapsing)</h2><p>一个常见的需求是通过对某个特定的字段分组来展现搜索结果。我们或许希望通过对用户名分组来返回最相关的博文。对用户名分组意味着我们需要使用到terms聚合。为了对用户的全名进行分组，name字段需要有not_analyzed的原始值，如<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/aggregations-and-analysis.html">聚合和分析</a>中解释的那样。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/12/21/Elasticsearch-部分匹配-三-查询期间的即时搜索/#more" rel="contents">
+            <a class="btn" href="/2015/08/17/Elasticsearch-数据建模-处理关联关系-2/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1894,7 +1882,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1937,7 +1925,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">153</span>
+                <span class="site-state-item-count">177</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1946,7 +1934,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-count">26</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1955,7 +1943,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">95</span>
+                <span class="site-state-item-count">99</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

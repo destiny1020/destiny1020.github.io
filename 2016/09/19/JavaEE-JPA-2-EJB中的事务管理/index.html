@@ -1,0 +1,836 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JPA,JavaEE,事务," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在上一篇文章中介绍了事务的基本概念，包括事务的ACID性质，以及事务的类型并且稍微提到了事务划分。
+对于任何一个需要持久化数据的应用而言，事务划分(Transaction Demarcation)的规划都是非常重要的一环。如果规划的不好，轻则影响性能，重则会导致在某些情况下数据发生不一致，从而严重影响业务逻辑的顺利进行。
+本文继续介绍事务划分在当前JavaEE技术体系下基于EJB的实现方案。虽然E">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JavaEE - JPA] 2. EJB中的事务管理">
+<meta property="og:url" content="http://rxjiang.com/2016/09/19/JavaEE-JPA-2-EJB中的事务管理/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="在上一篇文章中介绍了事务的基本概念，包括事务的ACID性质，以及事务的类型并且稍微提到了事务划分。
+对于任何一个需要持久化数据的应用而言，事务划分(Transaction Demarcation)的规划都是非常重要的一环。如果规划的不好，轻则影响性能，重则会导致在某些情况下数据发生不一致，从而严重影响业务逻辑的顺利进行。
+本文继续介绍事务划分在当前JavaEE技术体系下基于EJB的实现方案。虽然E">
+<meta property="og:updated_time" content="2017-02-20T11:16:29.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JavaEE - JPA] 2. EJB中的事务管理">
+<meta name="twitter:description" content="在上一篇文章中介绍了事务的基本概念，包括事务的ACID性质，以及事务的类型并且稍微提到了事务划分。
+对于任何一个需要持久化数据的应用而言，事务划分(Transaction Demarcation)的规划都是非常重要的一环。如果规划的不好，轻则影响性能，重则会导致在某些情况下数据发生不一致，从而严重影响业务逻辑的顺利进行。
+本文继续介绍事务划分在当前JavaEE技术体系下基于EJB的实现方案。虽然E">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/09/19/JavaEE-JPA-2-EJB中的事务管理/"/>
+
+
+
+
+
+  <title> [JavaEE - JPA] 2. EJB中的事务管理 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/09/19/JavaEE-JPA-2-EJB中的事务管理/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [JavaEE - JPA] 2. EJB中的事务管理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-19T00:35:00+08:00">
+                2016-09-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在上一篇文章中介绍了事务的基本概念，包括事务的ACID性质，以及事务的类型并且稍微提到了事务划分。</p>
+<p>对于任何一个需要持久化数据的应用而言，事务划分(Transaction Demarcation)的规划都是非常重要的一环。如果规划的不好，轻则影响性能，重则会导致在某些情况下数据发生不一致，从而严重影响业务逻辑的顺利进行。</p>
+<p>本文继续介绍事务划分在当前JavaEE技术体系下基于EJB的实现方案。虽然EJB算是JavaEE的亲儿子，但是它的境遇却不怎么好，主要是被EJB 2.x给坑过的开发人员都对他失去了兴趣。加上同时代兴起的Spring Framework等轻量级的JavaEE解决方案，就算到了如今EJB 3.x时代，各方面都进步了不少，但还是有不少人拿有色眼睛看待它的。不过，作为JavaEE的正统，还是有必要看看它是如何处理事务划分这一问题的。</p>
+<a id="more"></a>
+<h2 id="事务划分概要"><a href="#事务划分概要" class="headerlink" title="事务划分概要"></a>事务划分概要</h2><h3 id="Resource-local事务类型"><a href="#Resource-local事务类型" class="headerlink" title="Resource-local事务类型"></a>Resource-local事务类型</h3><p>在上文中我们已经知道Resource-local事务类型实际上就是直接建立在JDBC标准的中的DataSource接口之上的一种事务类型，它直接建立在底层数据库所支持的事务之上，因此十分底层。而在往常的JDBC编程中，这是最常用的一种方式，正因为它的抽象层次低，需要开发人员百分百地控制事务的划分，使用代码指定事务的开始结束等生命周期。随着JavaEE标准的诞生，以及Web开发大行其道，出现的应用服务器(Application Server)则在最底层的基于DataSource接口的事务模型之上抽象出来基于Container的事务类型，这也是当今JavaEE开发中最常见，也是最常用的一种事务类型。下文即将讨论的都属于Container事务的范畴。</p>
+<h3 id="Container事务类型"><a href="#Container事务类型" class="headerlink" title="Container事务类型"></a>Container事务类型</h3><p>在这种事务类型中，由于应用服务器提供的容器对事务提供了一定程度的支持，因此有下面两种实现思路：</p>
+<ol>
+<li>在容器的帮助下完成自动划分</li>
+<li>使用JTA接口在应用中编码完成显式划分</li>
+</ol>
+<h2 id="EJB中的事务划分"><a href="#EJB中的事务划分" class="headerlink" title="EJB中的事务划分"></a>EJB中的事务划分</h2><p>回顾了一下事务划分是什么，下面开始正式介绍EJB是如何处理事务划分的。</p>
+<h3 id="容器管理的事务-Container-Managed-Transaction-CMT"><a href="#容器管理的事务-Container-Managed-Transaction-CMT" class="headerlink" title="容器管理的事务(Container-Managed Transaction, CMT)"></a>容器管理的事务(Container-Managed Transaction, CMT)</h3><p>首先，在EJB中默认的事务划分实现方式就是基于容器管理的事务(CMT)。所以你什么都不指定，那么就会默认使用CMT了。当然也可以显式指定：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Stateful</span></div><div class="line"><span class="meta">@TransactionManagement</span>(TransactionManagementType.CONTAINER)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BusinessLogicBean</span> <span class="keyword">implements</span> <span class="title">IBusinessLogic</span> </span>&#123;</div><div class="line">	<span class="comment">//  根据不同的元数据定义(通过@TransactionAttribute)，其中的方法会被运行在由容器创建的事务中(如果声明了需要事务)</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">business</span><span class="params">()</span> </span>&#123;&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>因此，一个定义其中的方法具体是否需要使用事务，使用的事务具有什么样的特征，都是通过<code>@TransactionAttribute</code>这个注解来完成的。下面就来看看这个注解定义了那些可选项：</p>
+<ul>
+<li><code>MANDATORY</code>: 运行当前方法时要求存在处于active状态的事务。如果没有active状态的事务则会抛出异常。</li>
+<li><code>REQUIRED</code>: 运行当前方法时，希望处于事务中。当容器碰到这个注解时，会检查当前是否存在active状态的事务。如果存在，就直接使用它；如果不存在，就创建(create)一个供它使用。(这个选项是最常用的，也是默认选项)</li>
+<li><code>REQUIRES_NEW</code>: 运行的当前方法如何总是希望能够运行在仅属于自己的事务中，就可以使用这个选项。也就是说，这个方法内对于资源的操作的提交以及回滚都和调用栈中其它事务无关。</li>
+<li><code>SUPPORTS</code>: 运行的当前方法对于又没有事务采取一种”无所谓”的态度。有也可以，没有也可以。因此可以推断出在此方法中定义的逻辑通常和资源没有太大的关系。</li>
+<li><code>NOT_SUPPORTED</code>: 运行的当前方法对事务有”消极”的态度。如果发现了处于active状态的事务，会尝试让容器挂起(suspend)该事务。因此也可以推断出在此方法中定义的逻辑通常和资源没有太大的关系。</li>
+<li><code>NEVER</code>: 当运行的当前方法采用此选项时，如果运行时发现有active状态的事务，那么会直接抛出一个异常。</li>
+</ul>
+<p>在上面的各种选项中，出现了事务的创建以及挂起。那么有事务的创建就有事务的提交(回滚)，有事务的挂起就有事务的唤起(resume)。这些操作都是由容器完成的，也就是说如果一个方法要求运行在事务中，那么容器会在运行这个的第一行方法前创建一个事务，在完成这个方法的最后一行代码的执行后提交该事务(回滚的话不需要都执行完)；如果一个方法要求挂起当前的事务，首先想想为什么会存在这种情况？自问自答，因为一个业务方法可能还会调用另外一个业务方法，而在在这个被调用的内层业务方法中，如果它使用了<code>NOT_SUPPORTED</code>这个选项的话，就会出现需要挂起的要求。回到刚才说的，如果一个方法要求挂起当前的事务，也是由容器来完成这个挂起的操作，然后等该方法运行完毕之后，在回到上一个方法之前，容器会唤起刚才被挂起的事务。</p>
+<p>具体的用法可以是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@TransactionAttribute</span>(TransactionAttributeType.SUPPORTS)</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">businessLogic</span><span class="params">()</span> </span>&#123;&#125;</div></pre></td></tr></table></figure>
+<p>如果在执行一个带有事务的方法时没有发生异常，那么在该方法结束的时候，容器就会将该事务提交。但是，如果程序在执行的过程中出现了开发人员可以觉察的异常，比如某些值不符合逻辑，那么就可以通过调用<code>EJBContext</code>对象(这个对象一般通过依赖注入的方式来得到)上的<code>setRollbackOnly()</code>方法来标注这个事务需要被回滚。所谓标注，表示调用这个方法并不会立即导致事务的回滚，而是在将来某个合适的时候再来由容器来执行回滚操作，比如在方法结束的时候，容器会来检查是否需要回滚。如果需要立即中断后续代码的执行，可以采取抛出异常的方式。</p>
+<h3 id="Bean管理的事务-Bean-Managed-Transaction-BMT"><a href="#Bean管理的事务-Bean-Managed-Transaction-BMT" class="headerlink" title="Bean管理的事务(Bean-Managed Transaction, BMT)"></a>Bean管理的事务(Bean-Managed Transaction, BMT)</h3><p>如果要使用BMT，首先需要在类上定义一些元数据：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Stateless</span></div><div class="line"><span class="meta">@TransactionManagement</span>(TransactionManagementType.BEAN)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BusinessLogicBean</span> <span class="keyword">implements</span> <span class="title">IBusinessLogic</span> </span>&#123;</div><div class="line">	<span class="comment">// 此类中的方法会自行定义事务划分</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>BMT最大的特点就是它需要开发人员自行控制事务什么时候开始，什么时候结束。不像CMT那样通常以业务方法的开始和结束作为事务的起点和终点。如果只开始了一个事务，而忘记关闭它，那么会导致异常的发生，同时该事务也会被容器回滚。</p>
+<p>而且，BMT类型的事务无法使用从外部进入的事务。比如我们有一个Bean A，它使用的是CMT类型的事务管理方式，其中的一个带有事务的方法调用了采用BMT的Bean B中一个自行管理事务的方法。那么在从A到B这个调用过程中，A中的事务只能有被挂起这一个选择。当B中的方法执行完毕后，该事务会被唤起。</p>
+<p>一般而言，选择使用CMT即可。只有在CMT确实解决不了问题的时候才会考虑BMT。因为BMT会增加程序的复杂性，既然应用服务器提供的容器能够帮助你解决事务问题了，为什么还要自己来呢？</p>
+<p>那么具体而言，BMT是如何进行事务的相关操作呢？通过<code>javax.transaction.UserTransaction</code>这一接口。</p>
+<p>这个接口是JTA(Java Transaction API)中定义的一个接口，它提供了几个方法用于显式地对事务进行操作。在使用了BMT的Bean中可以通过<code>@Resource</code>这一注解将它注入。注入的实际上是一个代理实现，它代表了一个JTA事务对象。</p>
+<p><code>javax.transaction.UserTransaction</code>这个接口并不复杂，定义了以下6个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserTransaction</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">begin</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">commit</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">int</span> <span class="title">getStatus</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">rollback</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">setRollbackOnly</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">setTransactionTimeout</span><span class="params">(<span class="keyword">int</span> seconds)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>注意到这个接口中并没有定义用于挂起/唤起事务的方法，比如<code>suspend()</code>以及<code>resume()</code>。这样做也是有其目的的，因为规范制定者认为这样的操作对于应用逻辑的开发者而言是不需要的。如果提供了只会增加犯错的机会，所以挂起和唤起的操作只能由容器通过其内部的API来完成。开发人员是无法自己完成这样的操作的。</p>
+<p>在同一线程中，是无法有两个处于active状态的事务的。因此连续的调用UserTransaction接口的begin方法是会导致异常发生的。然而一个线程是可以关联多个事务的，否则事务的挂起和唤起从何谈起。</p>
+<p>显而易见，<code>begin()</code>方法是事务的唯一出发点。而让事务结束，可以选择的方法就稍微多那么几个：</p>
+<ol>
+<li><code>rollback()</code> - 让当前事务<strong>立即</strong>回滚。</li>
+<li><code>setRollbackOnly()</code> - 标记当前事务需要回滚。这个方法的作用和上面在介绍CMT时，提及的<code>EJBContext</code>对象中的 <code>setRollbackOnly()</code>方法起到的作用是一模一样的。</li>
+<li><code>setTransactionTimeout(int seconds)</code> - 规定一个执行时限，如果事务在规定的时间内还没有完成，就会导致事务的回滚。这个时限需要在事务开始之前就指定好，在事务执行途中是无法变更的。</li>
+</ol>
+<p>最后，来看看<code>getStatus()</code>方法。这个方法用来得到当前执行线程的事务状态，它的返回值是一个名为<code>javax.transaction.</code>枚举类型。在这个枚举类型中，定义了多达10种状态。举几个例子：</p>
+<ul>
+<li>STATUS_ACTIVE : 当前线程正处于一个进行状态下事务中。</li>
+<li>STATUS_NO_TRANSACTION : 当前线程并不处于事务中。</li>
+<li>STATUS_MARKED_ROLLBACK : 当前线程处于事务中，但是该事务已经被标记为需要回滚了。</li>
+</ul>
+<p>在使用UserTransaction完成事务的操作时，一定需要注意合理处理各种编译时异常。尽管这些异常的种类确实是有些多，这也是为什么提倡使用CMT而非BMT的原因之一吧。</p>
+<hr>
+<p>在下篇文章中，会介绍Spring Framework是如何处理事务划分的。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JPA/" rel="tag"># JPA</a>
+          
+            <a href="/tags/JavaEE/" rel="tag"># JavaEE</a>
+          
+            <a href="/tags/事务/" rel="tag"># 事务</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/17/JavaEE-JPA-1-事务的基础概念/" rel="next" title="[JavaEE - JPA] 1. 事务的基础概念">
+                <i class="fa fa-chevron-left"></i> [JavaEE - JPA] 1. 事务的基础概念
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/23/JavaEE-JPA-3-Spring-Framework中的事务管理/" rel="prev" title="[JavaEE - JPA] 3. Spring Framework中的事务管理">
+                [JavaEE - JPA] 3. Spring Framework中的事务管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#事务划分概要"><span class="nav-number">1.</span> <span class="nav-text">事务划分概要</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Resource-local事务类型"><span class="nav-number">1.1.</span> <span class="nav-text">Resource-local事务类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Container事务类型"><span class="nav-number">1.2.</span> <span class="nav-text">Container事务类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EJB中的事务划分"><span class="nav-number">2.</span> <span class="nav-text">EJB中的事务划分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#容器管理的事务-Container-Managed-Transaction-CMT"><span class="nav-number">2.1.</span> <span class="nav-text">容器管理的事务(Container-Managed Transaction, CMT)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bean管理的事务-Bean-Managed-Transaction-BMT"><span class="nav-number">2.2.</span> <span class="nav-text">Bean管理的事务(Bean-Managed Transaction, BMT)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

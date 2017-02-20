@@ -1,0 +1,866 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,源码分析,依赖管理,注解," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本篇文章继续介绍angular用以实现依赖注入的关键元素之一 - 注解(Annotation)。
+在前几篇文章中，我们已经分析和讨论了有关angular依赖注入的几个方面：
+
+angular如何处理模块的声明和获取
+angular注入器的概念和它是如何加载模块以及执行模块定义的任务
+angular注入器如何管理被托管的对象
+
+既然我们定义的服务和数据都已经被angular注入器托管在其内部的缓存中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS面面观] 17. 依赖注入 --- 注解的定义与实现">
+<meta property="og:url" content="http://rxjiang.com/2016/08/07/AngularJS面面观-17-依赖注入-注解的定义与实现/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="本篇文章继续介绍angular用以实现依赖注入的关键元素之一 - 注解(Annotation)。
+在前几篇文章中，我们已经分析和讨论了有关angular依赖注入的几个方面：
+
+angular如何处理模块的声明和获取
+angular注入器的概念和它是如何加载模块以及执行模块定义的任务
+angular注入器如何管理被托管的对象
+
+既然我们定义的服务和数据都已经被angular注入器托管在其内部的缓存中">
+<meta property="og:updated_time" content="2017-02-20T10:39:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS面面观] 17. 依赖注入 --- 注解的定义与实现">
+<meta name="twitter:description" content="本篇文章继续介绍angular用以实现依赖注入的关键元素之一 - 注解(Annotation)。
+在前几篇文章中，我们已经分析和讨论了有关angular依赖注入的几个方面：
+
+angular如何处理模块的声明和获取
+angular注入器的概念和它是如何加载模块以及执行模块定义的任务
+angular注入器如何管理被托管的对象
+
+既然我们定义的服务和数据都已经被angular注入器托管在其内部的缓存中">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/08/07/AngularJS面面观-17-依赖注入-注解的定义与实现/"/>
+
+
+
+
+
+  <title> [AngularJS面面观] 17. 依赖注入 --- 注解的定义与实现 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/08/07/AngularJS面面观-17-依赖注入-注解的定义与实现/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS面面观] 17. 依赖注入 --- 注解的定义与实现
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-07T00:22:00+08:00">
+                2016-08-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本篇文章继续介绍angular用以实现依赖注入的关键元素之一 - 注解(Annotation)。</p>
+<p>在前几篇文章中，我们已经分析和讨论了有关angular依赖注入的几个方面：</p>
+<ol>
+<li><a href="http://blog.csdn.net/dm_vincent/article/details/51884464" target="_blank" rel="external">angular如何处理模块的声明和获取</a></li>
+<li><a href="http://blog.csdn.net/dm_vincent/article/details/52015678" target="_blank" rel="external">angular注入器的概念和它是如何加载模块以及执行模块定义的任务</a></li>
+<li><a href="http://blog.csdn.net/dm_vincent/article/details/52073838" target="_blank" rel="external">angular注入器如何管理被托管的对象</a></li>
+</ol>
+<p>既然我们定义的服务和数据都已经被angular注入器托管在其内部的缓存中了，接下来应该如何使用它呢？写过angular应用的同学们应该都写过下面这类代码：</p>
+<a id="more"></a>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> testApp = angular.module(<span class="string">'test'</span>, []);</div><div class="line"></div><div class="line">testApp.controller(<span class="string">'testController'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">$scope, $rootScope</span>) </span>&#123;</div><div class="line">  <span class="comment">// ......</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>我们直接在<code>testContoller</code>的函数中定义了两个服务，<code>$scope</code>以及<code>$rootScope</code>，然后就能够在应用的业务逻辑中使用这两项服务了，不需要自己将它们创建出来，也不需要做什么特别的准备工作，一切都显的水到渠成。但是！程序开发并不是变魔法，看似不可思议的事情背后总是有支撑它发生的逻辑。我们都知道这个逻辑就是依赖注入，而依赖注入的关键在于注入器，所以问题就演变成了注入器是如何找到对应的被托管的对象的呢？</p>
+<p>答案是通过注解(Annotation)。所谓注解，它的本质就是给源代码添加一些元数据。有Java开发经验的同学想必都见过<code>@Override</code>，<code>@Deprecated</code>以及<code>@SuppressWarnings</code>这类常用注解吧。它们的意义分别是表明某个方法覆盖了/实现了父类型(可以是父类，也可以是接口)上的同名方法；表明某个方法已经废弃了，不推荐再使用；抑制编译器产生警告信息。因为这类信息十分必要，但是又不好直接以传统意义上的源代码的形式体现出来，所以才设计出了注解这种数据类型。</p>
+<p>那么切换到angular的上下文中，又是如何来实现注解的呢？这个注解需要解决什么问题呢？这就是本篇文章需要分析和讨论的主题。</p>
+<p>我们已经知道定义的各种服务的函数实际上并不由我们自己来调用，而是交给angular框架提供的注入器进行调用，在调用的过程中首先我们需要知道注入器在哪个阶段会需要使用到注解提供的信息。其实在上一篇文章中在介绍注入器实例化托管对象的过程中可能发生循环依赖异常时就已经有一些线索了，这些线索就隐藏在异常的调用栈之中，我们来看看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">angular.js:13920 Error: [$injector:cdep] Circular dependency found: service1 &lt;- service2 &lt;- service1</div><div class="line">http://errors.angularjs.org/1.5.8/$injector/cdep?p0=service1%20%3C-%20service2%20%3C-%20service1</div><div class="line">    at angular.js:68</div><div class="line">    at getService (angular.js:4656)</div><div class="line">    at injectionArgs (angular.js:4688)</div><div class="line">    at Object.instantiate (angular.js:4730)</div><div class="line">    at Object.&lt;anonymous&gt; (angular.js:4573)</div><div class="line">    at Object.invoke (angular.js:4718)</div><div class="line">    at Object.enforcedReturnValue [as $get] (angular.js:4557)</div><div class="line">    at Object.invoke (angular.js:4718)</div><div class="line">    at angular.js:4517</div><div class="line">    at getService (angular.js:4664)</div></pre></td></tr></table></figure>
+<p>可以看到在几个调用点： <code>Object.instantiate</code> -&gt; <code>injectionArgs</code> -&gt; <code>getService</code>。</p>
+<p>毫无疑问，从字面意思上就能够理解这里发生了什么。首先注入器会尝试实例化一个被托管的对象，在实例化的过程中由于该对象也存在依赖关系，需要首先解析这些依赖关系，得到依赖关系之后，才能够调用<code>getService</code>完成真正的实例化操作。而解析依赖关系实际上就是我们所关注的注解的生成过程。那么在清楚了注解的应用场景后，让我们看看<code>injectionArgs</code>这个函数的逻辑是怎样的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">injectionArgs</span>(<span class="params">fn, locals, serviceName</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> args = [],</div><div class="line">      <span class="comment">// 获取注解信息</span></div><div class="line">      $inject = createInjector.$$annotate(fn, strictDi, serviceName);</div><div class="line"></div><div class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, length = $inject.length; i &lt; length; i++) &#123;</div><div class="line">    <span class="keyword">var</span> key = $inject[i];</div><div class="line">    <span class="comment">// 确保$inject中的每个key都是字符串类型，否则抛出异常</span></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> key !== <span class="string">'string'</span>) &#123;</div><div class="line">      <span class="keyword">throw</span> $injectorMinErr(<span class="string">'itkn'</span>,</div><div class="line">              <span class="string">'Incorrect injection token! Expected service name as string, got &#123;0&#125;'</span>, key);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 通过注解的key来得到的真正依赖的对象</span></div><div class="line">    args.push(locals &amp;&amp; locals.hasOwnProperty(key) ? locals[key] :</div><div class="line">                                                     getService(key, serviceName));</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> args;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码完成了几件事情：</p>
+<ol>
+<li>通过<code>createInjector.$$annotate</code>来得到所调用函数的注解信息<code>$inject</code>。这是我们需要关注的重点。</li>
+<li>遍历注解信息<code>$inject</code>，确保每个元素都是字符串类型(即被依赖的托管对象的名字)，如果存在别的类型将直接抛出异常。</li>
+<li>通过<code>$inject</code>中的被依赖托管对象的名字来得到真正的被托管对象。最后将这些对象返回。</li>
+</ol>
+<p>因此如何构建<code>$inject</code>就是问题的关键所在。构建<code>$inject</code>的过程被封装到了<code>createInjector.$$annotate</code>表示的函数中，而这个函数的实现在injector.js中，代码如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 在injector.js的最后一行定义了如下代码：createInjector.$$annotate = annotate</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">annotate</span>(<span class="params">fn, strictDi, name</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> $inject,</div><div class="line">      argDecl,</div><div class="line">      last;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> fn === <span class="string">'function'</span>) &#123;</div><div class="line">    <span class="keyword">if</span> (!($inject = fn.$inject)) &#123;</div><div class="line">      <span class="comment">// 没有提供$inject并且非严格模式时，使用源码解析的方式构建$inject</span></div><div class="line">      $inject = [];</div><div class="line">      <span class="keyword">if</span> (fn.length) &#123;</div><div class="line">        <span class="keyword">if</span> (strictDi) &#123;</div><div class="line">          <span class="keyword">if</span> (!isString(name) || !name) &#123;</div><div class="line">            name = fn.name || anonFn(fn);</div><div class="line">          &#125;</div><div class="line">          <span class="keyword">throw</span> $injectorMinErr(<span class="string">'strictdi'</span>,</div><div class="line">            <span class="string">'&#123;0&#125; is not using explicit annotation and cannot be invoked in strict mode'</span>, name);</div><div class="line">        &#125;</div><div class="line">        argDecl = extractArgs(fn);</div><div class="line">        forEach(argDecl[<span class="number">1</span>].split(FN_ARG_SPLIT), <span class="function"><span class="keyword">function</span>(<span class="params">arg</span>) </span>&#123;</div><div class="line">          arg.replace(FN_ARG, <span class="function"><span class="keyword">function</span>(<span class="params">all, underscore, name</span>) </span>&#123;</div><div class="line">            $inject.push(name);</div><div class="line">          &#125;);</div><div class="line">        &#125;);</div><div class="line">      &#125;</div><div class="line">      fn.$inject = $inject;</div><div class="line">    &#125;</div><div class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isArray(fn)) &#123;</div><div class="line">    <span class="comment">// 当使用Array-Style的声明方式时，去掉最后一个元素即为$inject</span></div><div class="line">    last = fn.length - <span class="number">1</span>;</div><div class="line">    assertArgFn(fn[last], <span class="string">'fn'</span>);</div><div class="line">    $inject = fn.slice(<span class="number">0</span>, last);</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    <span class="comment">// 抛出异常</span></div><div class="line">    assertArgFn(fn, <span class="string">'fn'</span>, <span class="literal">true</span>);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// 得到注解信息供后续使用</span></div><div class="line">  <span class="keyword">return</span> $inject;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>看看上述代码的整体逻辑，可以发现<code>$inject</code>的构建大概有几种方式：</p>
+<ol>
+<li>直接给fn提供<code>$inject</code>属性。</li>
+<li><code>fn</code>类型是函数且没有<code>fn</code>上没有<code>$inject</code>这个属性并且<code>strictDi</code>不为true时，通过一段操作来得到$inject`。</li>
+<li>当<code>fn</code>为数组类型时，截取它的前n-1个元素作为 <code>$inject</code>。</li>
+</ol>
+<p>这三种方式即为angular中注解的几种声明和工作方式。下面我们逐一进行介绍：</p>
+<ol>
+<li>直接提供<code>$inject</code>属性</li>
+</ol>
+<p>示例代码如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> testApp = angular.module(<span class="string">'test'</span>, []);</div><div class="line"></div><div class="line">testApp.controller(<span class="string">'testCtrl'</span>, testCtrlFunc);</div><div class="line"></div><div class="line">testCtrlFunc.$inject = [<span class="string">'aConstant'</span>, <span class="string">'bConstant'</span>];</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">testCtrlFunc</span>(<span class="params">a, b</span>) </span>&#123;</div><div class="line">  <span class="comment">// a 代表的就是 aConstant</span></div><div class="line">  <span class="comment">// b 代表的就是 bConstant</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这种方式简单粗暴，但是由于它还需要给函数附加一个属性，导致实际中很少用到。正是因为这一点，才有了第二种基于数组的注解声明方式的诞生。它将原来的函数替换成一个数组，数组的前n-1个元素表示的就是<code>$inject</code>的信息，最后一个元素为函数本身。</p>
+<p>因此使用这种声明方式的代码是这个样子的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> testApp = angular.module(<span class="string">'test'</span>, []);</div><div class="line"></div><div class="line">testApp.controller(<span class="string">'testCtrl'</span>, [<span class="string">'aConstant'</span>, <span class="string">'bConstant'</span>, testCtrlFunc]);</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">testCtrlFunc</span>(<span class="params">a, b</span>) </span>&#123;</div><div class="line">  <span class="comment">// a 代表的就是 aConstant</span></div><div class="line">  <span class="comment">// b 代表的就是 bConstant</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其实也是换汤不换药，换了个马甲就出来骗人了。这样的写法好处缩短了一点点代码量，代码也更加紧凑了。但是这还是满足不了懒人程序员们的需求，还是太麻烦了。</p>
+<p>于是第三种方式横空出世。在初学angular的时候，我们会写这样的代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> testApp = angular.module(<span class="string">'test'</span>, []);</div><div class="line"></div><div class="line"><span class="comment">// 假设我们已经定义过了aConstant以及bConstant</span></div><div class="line">testApp.controller(<span class="string">'testController'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">aConstant, bConstant</span>) </span>&#123;</div><div class="line">  <span class="comment">// ......</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>这里我们既没有为控制器的函数声明<code>$inject</code>，也木有使用基于数组的注解声明方式。但是我们还是能用上<code>aConstant</code>以及<code>bConstant</code>，这不是”黑魔法”是什么？我们来看看这个”黑魔法”背后是什么逻辑在支撑着它，重点就在<code>annotate</code>函数中的下面这一段：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">argDecl = extractArgs(fn);</div><div class="line">forEach(argDecl[<span class="number">1</span>].split(FN_ARG_SPLIT), <span class="function"><span class="keyword">function</span>(<span class="params">arg</span>) </span>&#123;</div><div class="line">  arg.replace(FN_ARG, <span class="function"><span class="keyword">function</span>(<span class="params">all, underscore, name</span>) </span>&#123;</div><div class="line">    $inject.push(name);</div><div class="line">  &#125;);</div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="comment">// extractArgs函数的定义</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">extractArgs</span>(<span class="params">fn</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> fnText = <span class="built_in">Function</span>.prototype.toString.call(fn).replace(STRIP_COMMENTS, <span class="string">''</span>),</div><div class="line">      args = fnText.match(ARROW_ARG) || fnText.match(FN_ARGS);</div><div class="line">  <span class="keyword">return</span> args;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 使用到的各种正则表达式</span></div><div class="line"><span class="keyword">var</span> ARROW_ARG = <span class="regexp">/^([^\(]+?)=&gt;/</span>;</div><div class="line"><span class="keyword">var</span> FN_ARGS = <span class="regexp">/^[^\(]*\(\s*([^\)]*)\)/m</span>;</div><div class="line"><span class="keyword">var</span> FN_ARG_SPLIT = <span class="regexp">/,/</span>;</div><div class="line"><span class="keyword">var</span> FN_ARG = <span class="regexp">/^\s*(_?)(\S+?)\1\s*$/</span>;</div><div class="line"><span class="keyword">var</span> STRIP_COMMENTS = <span class="regexp">/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg</span>;</div></pre></td></tr></table></figure>
+<p>这个功能初看上去严重依赖于正则表达式。的确，它的总体思路是去解析函数的源代码，从其中提取出参数列表，然后通过参数列表来构建出需要的<code>$inject</code>注解信息。</p>
+<p>来看看具体的实现过程是怎么样的：</p>
+<ol>
+<li><p>首先，需要得到函数的源代码并将参数列表解析出来。</p>
+ <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 通过Function.prototype.toString.call(fn)得到函数的源代码，然后去除掉其中的注释</span></div><div class="line"><span class="keyword">var</span> fnText = <span class="built_in">Function</span>.prototype.toString.call(fn).replace(STRIP_COMMENTS, <span class="string">''</span>),</div><div class="line"><span class="comment">// 通过ARROW_ARG或者FN_ARGS解析得到参数列表并返回</span></div><div class="line">      args = fnText.match(ARROW_ARG) || fnText.match(FN_ARGS);</div><div class="line">  <span class="keyword">return</span> args;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<pre><code>那么在获取函数的源代码时，为什么调用的是`Function.prototype.toString.call(fn)`，而不是直接调用`fn.toString`呢？这里涉及到了一些JavaScript原型继承的概念。我们需要考虑一种情况，如果`fn`上重新定义了`toString`这个属性那不就没法得到源代码了嘛？所以，使用`Function.prototype.toString`能够保证调用的是函数类型的原型对象上的那个最原始的`toString`方法。
+
+得到源代码后，通过将匹配到的注释代码替换成为&apos;&apos;来完成注释的删除工作。有了不含有注释的源代码，就可以进一步通过匹配箭头函数参数列表的正则表达式以及常规函数参数列表的正则表达式来完成参数列表的解析了。
+
+关于箭头函数，它实际上是ES6中的定义的规范之一，可以参考[MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Arrow_functions)关于箭头函数的说明。它从形式上很接近Lambda表达式，这也是近些年来很多编程语言都会添加的特性之一，也是为了迎合日渐流行的函数式编程。而常规函数不用多说，就是我们最常见的那种定义函数的方式。箭头函数和常规函数的示例如下所示：
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 箭头函数</span></div><div class="line">(aConstant, bConstant) =&gt; &#123; </div><div class="line">  <span class="comment">// ......</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 常规函数</span></div><div class="line"><span class="function"><span class="keyword">function</span>(<span class="params">aConstant, bConstant</span>) </span>&#123;</div><div class="line">  <span class="comment">// ......</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</code></pre><ol>
+<li><p>进一步解析参数列表，得到每个参数对应被托管对象的名字。</p>
+ <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// argDecl就是匹配了参数列表的结果</span></div><div class="line">argDecl = extractArgs(fn);</div><div class="line">forEach(argDecl[<span class="number">1</span>].split(FN_ARG_SPLIT), <span class="function"><span class="keyword">function</span>(<span class="params">arg</span>) </span>&#123;</div><div class="line">  arg.replace(FN_ARG, <span class="function"><span class="keyword">function</span>(<span class="params">all, underscore, name</span>) </span>&#123;</div><div class="line">    $inject.push(name);</div><div class="line">  &#125;);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<pre><code>注意上面调用了`argDecl[1].split(FN_ARG_SPLIT)`来得到由所有参数组成的一个数组。为什么这里取的是`argDecl`的第二个元素呢？是因为`ARROW_ARG`也好，`FN_ARGS`也好，都定义了分组。第一组才是真正匹配上的参数列表的那一部分。所以需要基于`argDecl[1]`来调用`split`方法。关于正则表达式的用法，可以参考很多文档，比如[MDN的文档](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions)，这里就不赘述了。得到了参数数组后，还需要一些处理才能够得到真正的被托管对象名字。这个处理主要是通过`FN_ARG`这一正则表达式完成的，在这个表达式中定义了两个组，第一个组匹配可能出现的下划线，第二个组匹配的才是被托管对象的名字信息。所以我们可以看到上述代码中使用了`replace`方法不那么常见，但是功能非常强大的一个重载，具体文档可以参考[MDN replace文档](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace)中&quot;指定一个函数作为参数&quot;这一部分。传入到`replace`方法中的第二参数的函数签名是这样的：`function(all, underscore, name)`，`all`代表的是匹配的整个字符串，`underscore`和`name`分别代表第一组和第二组。
+
+为什么需要处理下划线呢？这是基于angular的一条约定：如果参数被一个下划线字符包围，那么首先需要去掉包围它的下划线，剩下的部分才作为被托管对象的名字。注意，单侧的下划线不会被去掉。举个例子：
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> testApp = angular.module(<span class="string">'test'</span>, []);</div><div class="line"></div><div class="line"><span class="comment">// 假设我们已经定义过了aConstant，bConstant以及cConstant</span></div><div class="line">testApp.controller(<span class="string">'testController'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">_aConstant_, _bConstant, cConstant_</span>) </span>&#123;</div><div class="line">  <span class="comment">// ......</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+
+
+参数列表`[&apos;_aConstant_&apos;, &apos;_bConstant&apos;, &apos;cConstant_&apos;]`会被解析成`[&apos;aConstant&apos;, &apos;_bConstant&apos;, &apos;cConstant_&apos;]`。由于我们只定义了`bConstant`以及`cConstant`，而没有定义`_bConstant`和`cConstant_`。所以在尝试注入的时候是会抛出异常的。其实我并不清楚这样处理的意义在哪里，加个下划线是干嘛的呢？不过既然程序是这样写的，想必应该是有什么道理的吧。
+</code></pre><ol>
+<li>得到最终的注解信息<code>$inject</code>。</li>
+</ol>
+<hr>
+<p>得到了注解信息后，再来看这段代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">injectionArgs</span>(<span class="params">fn, locals, serviceName</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> args = [],</div><div class="line">      <span class="comment">// 获取注解信息</span></div><div class="line">      $inject = createInjector.$$annotate(fn, strictDi, serviceName);</div><div class="line"></div><div class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, length = $inject.length; i &lt; length; i++) &#123;</div><div class="line">    <span class="keyword">var</span> key = $inject[i];</div><div class="line">    <span class="comment">// 确保$inject中的每个key都是字符串类型，否则抛出异常</span></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> key !== <span class="string">'string'</span>) &#123;</div><div class="line">      <span class="keyword">throw</span> $injectorMinErr(<span class="string">'itkn'</span>,</div><div class="line">              <span class="string">'Incorrect injection token! Expected service name as string, got &#123;0&#125;'</span>, key);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 通过注解的key来得到的真正依赖的对象</span></div><div class="line">    args.push(locals &amp;&amp; locals.hasOwnProperty(key) ? locals[key] :</div><div class="line">                                                     getService(key, serviceName));</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> args;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该函数返回的<code>args</code>实际上就是将<code>$inject</code>一一转换后得到的被注入器托管对象的数组。也就是真实的参数列表。至此就完成了参数的准备工作，注入器终于可以开心地调用我们定义的函数了。</p>
+<p>最后，我们来比较一下这三种注解方式。<br>首先，第一种注解方式很朴素，注入器需要什么信息就直接提供，不拐弯抹角。但是太朴素了，用的人也不多。不过下次我们看到了<code>$inject</code>就没有必要焦虑了，它代表的就是注解信息，注入器需要使用它来完成声明参数和实际托管对象之间的关联。而第二种基于数组的方式，实际上就是一个稍微简单一点的写法，并没有什么本质上的改变，使用这种方式算是比较主流的方法。而第三种基于源代码解析的方式就非常酷炫了，大量使用正则表达式给这种方式披上了一层神秘的面纱。也正是因为这个缘故，导致一些开发者觉得这样并不”严格”，才导致了angular提供了一个在bootstrap阶段会读取一个配置项，来决定是否启用这个功能，也就是我们前面见到的<code>strictDi</code>标志：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span>(<span class="params">element, modules, config</span>) </span>&#123;</div><div class="line">  <span class="comment">// ......</span></div><div class="line">  <span class="comment">// 如果config.strictDi为true，那么会禁用基于源代码解析的注解生成方式</span></div><div class="line">  <span class="keyword">var</span> injector = createInjector(modules, config.strictDi);</div><div class="line">  <span class="comment">// ......</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其实这种方式不仅仅是不”严格”的问题。众所周知，应用在被部署到生产环境中之前通常还会经过一系列的处理。典型的比如JavaScript源代码的压缩和混淆，这些操作的主要目的分别是减少代码体积从而减少客户端的带宽压力以及增强代码的安全性。而混淆操作由于它会修改函数的参数名称，导致需要对象的名称和被托管对象之间的联系被切断。因此如果你的代码使用了基于源代码解析的方式实现依赖注入并且在使用前还经历了混淆处理，那么你的代码很可能就无法使用了。基于这一点，一般认为使用数组方式来实现依赖注入比较可靠，</p>
+<p>但是这种方式相比直接使用<code>$inject</code>而言虽然稍微方便了那么一点，但是始终还是不够方便。有没有办法既能够很方便地声明依赖，就像使用基于源码解析的方式那样，而同时也能够克服混淆带来的问题呢？”懒惰”的开发人员们能懒一点是一点，开发出了一些工具来让这个过程自动化起来。</p>
+<p>比如下面这款工具<a href="https://www.npmjs.com/package/ng-annotate" target="_blank" rel="external">ng-annotate</a>，使用它能够完成如下效果：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 定义方式如下：需要在function的内部第一行使用"ngInject"</span></div><div class="line">angular.module(<span class="string">"MyMod"</span>).controller(<span class="string">"MyCtrl"</span>, <span class="function"><span class="keyword">function</span>(<span class="params">$scope, $timeout</span>) </span>&#123;</div><div class="line">    <span class="string">"ngInject"</span>;</div><div class="line">    ...</div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="comment">// 然后通过运行ng-annotate -a 源文件 来得到自动生成的基于数组方式的注入方式：</span></div><div class="line">angular.module(<span class="string">"MyMod"</span>).controller(<span class="string">"MyCtrl"</span>, [<span class="string">"$scope"</span>, <span class="string">"$timeout"</span>, <span class="function"><span class="keyword">function</span>(<span class="params">$scope, $timeout</span>) </span>&#123;</div><div class="line">    <span class="string">"ngInject"</span>;</div><div class="line">    ...</div><div class="line">&#125;]);</div></pre></td></tr></table></figure>
+<p>但是这还是不够自动，每次还需要运行一个命令。因此借助gulp等自动化构建工具，出现了更”懒”的<a href="https://www.npmjs.com/package/gulp-ng-annotate/" target="_blank" rel="external">gulp-ng-annotate</a>，这样依赖注入所需要的注解信息直接通过定义task的方式自动生成，而这些task还可以和其它的诸如watch等task整合在一起，每次源代码发生变化的时候都会即使更新：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>);</div><div class="line"><span class="keyword">var</span> ngAnnotate = <span class="built_in">require</span>(<span class="string">'gulp-ng-annotate'</span>);</div><div class="line"></div><div class="line">gulp.task(<span class="string">'default'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> gulp.src(<span class="string">'src/app.js'</span>)</div><div class="line">        .pipe(ngAnnotate())</div><div class="line">        .pipe(gulp.dest(<span class="string">'dist'</span>));</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>以上就是和依赖注入密切相关的注解，它在angular中的实现方式。</p>
+<p>在下一篇文章中，会介绍angular提供给外部使用的<code>$injector</code>服务，有了这篇文章和前面数篇文章的铺垫，再理解<code>$injector</code>服务就一点也不难了。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/依赖管理/" rel="tag"># 依赖管理</a>
+          
+            <a href="/tags/注解/" rel="tag"># 注解</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/06/AngularJS面面观-16-依赖注入-注入器中如何管理对象/" rel="next" title="[AngularJS面面观] 16. 依赖注入 --- 注入器中如何管理对象">
+                <i class="fa fa-chevron-left"></i> [AngularJS面面观] 16. 依赖注入 --- 注入器中如何管理对象
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/09/AngularJS面面观-18-依赖注入-injector服务/" rel="prev" title="[AngularJS面面观] 18. 依赖注入 --- $injector服务">
+                [AngularJS面面观] 18. 依赖注入 --- $injector服务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

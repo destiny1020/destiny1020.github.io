@@ -302,7 +302,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/07/05/Jackson-使用ObjectMapper对含有任意key的JSON进行反序列化/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/24/AngularJS面面观-13-Angular工具库-异常对象创建方法minErr/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -327,8 +327,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/07/05/Jackson-使用ObjectMapper对含有任意key的JSON进行反序列化/" itemprop="url">
-                  [Jackson] 使用ObjectMapper对含有任意key的JSON进行反序列化
+                <a class="post-title-link" href="/2016/07/24/AngularJS面面观-13-Angular工具库-异常对象创建方法minErr/" itemprop="url">
+                  [AngularJS面面观] 13. Angular工具库 --- 异常对象创建方法minErr
                 </a>
               
             
@@ -344,8 +344,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-07-05T17:42:00+08:00">
-                2015-07-05
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-24T23:04:00+08:00">
+                2016-07-24
               </time>
             
 
@@ -367,8 +367,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
-                    <span itemprop="name">工具, 库与框架</span>
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
                   </a>
                 </span>
 
@@ -378,1113 +378,7 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/Jackson/" itemprop="url" rel="index">
-                    <span itemprop="name">Jackson</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="使用ObjectMapper对含有任意key的JSON进行反序列化"><a href="#使用ObjectMapper对含有任意key的JSON进行反序列化" class="headerlink" title="使用ObjectMapper对含有任意key的JSON进行反序列化"></a>使用ObjectMapper对含有任意key的JSON进行反序列化</h2><p>在调用某个RESTful API后，返回的JSON字符串中含有没有预先定义的key，和结构固定的JSON相比，它需要一些额外的操作。</p>
-<p>对于结构固定的JSON，使用ObjectMapper结合某个预先定义的实体类型可以非常方便地完成反序列化工作，比如对下面这样的JSON：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">GET /person/1</div><div class="line"></div><div class="line">&#123;</div><div class="line">	"id": "1",</div><div class="line">	"name": "dm_vincent",</div><div class="line">	"age": "28"</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/07/05/Jackson-使用ObjectMapper对含有任意key的JSON进行反序列化/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/04/09/PHP-利用openssl-random-pseudo-bytes和base64-encode函数来生成随机字符串/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/04/09/PHP-利用openssl-random-pseudo-bytes和base64-encode函数来生成随机字符串/" itemprop="url">
-                  [PHP]利用openssl_random_pseudo_bytes和base64_encode函数来生成随机字符串
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-04-09T23:22:00+08:00">
-                2015-04-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
-                    <span itemprop="name">工具, 库与框架</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/LAMP/" itemprop="url" rel="index">
-                    <span itemprop="name">LAMP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p><a href="http://php.net/manual/en/function.openssl-random-pseudo-bytes.php">openssl_random_pseudo_bytes</a>函数本身是用来生成指定个数的随机字节，因此在使用它来生成随机字符串时，还需要配合使用函数<a href="http://php.net/manual/en/function.base64-encode.php">base64_encode</a>。如下所示：</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/04/09/PHP-利用openssl-random-pseudo-bytes和base64-encode函数来生成随机字符串/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/03/27/PHP-xdebug-在Ubuntu-14-04下的PhpStorm中配置xdebug调试环境/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/03/27/PHP-xdebug-在Ubuntu-14-04下的PhpStorm中配置xdebug调试环境/" itemprop="url">
-                  [PHP+xdebug] 在Ubuntu 14.04下的PhpStorm中配置xdebug调试环境
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-03-27T16:52:00+08:00">
-                2015-03-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
-                    <span itemprop="name">工具, 库与框架</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/LAMP/" itemprop="url" rel="index">
-                    <span itemprop="name">LAMP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p><strong>在配置过程中参考了一些文章, 中英文的都有.. 但是都不能完整地解决这个问题. 经过一些折腾终于可以调试了, 现记录如下, 希望对后来人有所帮助.</strong></p>
-<h2 id="安装xdebug"><a href="#安装xdebug" class="headerlink" title="安装xdebug"></a>安装xdebug</h2><h3 id="得到本地PHP配置信息"><a href="#得到本地PHP配置信息" class="headerlink" title="得到本地PHP配置信息"></a>得到本地PHP配置信息</h3><p>在终端中运行: </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">php -i &gt; outputphp.txt</div></pre></td></tr></table></figure>
-<p>然后将得到的txt文件中的信息拷贝并复制到<a href="http://xdebug.org/wizard.php">http://xdebug.org/wizard.php</a> 这个页面提供的一个textarea中. 然后点击下方的Analyze按钮, 它会自动帮你解析你本地的PHP环境信息从而得到你需要下载的xdebug版本和相关配置指令.</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/03/27/PHP-xdebug-在Ubuntu-14-04下的PhpStorm中配置xdebug调试环境/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/03/14/使用JS实现页面内跳转的两种方式/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/03/14/使用JS实现页面内跳转的两种方式/" itemprop="url">
-                  使用JS实现页面内跳转的两种方式
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-03-14T12:03:00+08:00">
-                2015-03-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
-                    <span itemprop="name">工具, 库与框架</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/jQuery/" itemprop="url" rel="index">
-                    <span itemprop="name">jQuery</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="第一种方式是直接使用锚点配合链接标签"><a href="#第一种方式是直接使用锚点配合链接标签" class="headerlink" title="第一种方式是直接使用锚点配合链接标签"></a>第一种方式是直接使用锚点配合链接标签</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">h2</span> <span class="attr">id</span>=<span class="string">"h2-anchor"</span>&gt;</span>Scroll to here<span class="tag">&lt;/<span class="name">h2</span>&gt;</span>  </div><div class="line">  </div><div class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#h2-anchor"</span>&gt;</span>Jump to H2<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div></pre></td></tr></table></figure>
-<p>现在大多数实现都采用该种方式。但是这种方式没有动画效果，跳转是直接发生的。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/03/14/使用JS实现页面内跳转的两种方式/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/02/12/Ubuntu-14-04-安装LAMP开发环境/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/02/12/Ubuntu-14-04-安装LAMP开发环境/" itemprop="url">
-                  Ubuntu 14.04 安装LAMP开发环境
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-02-12T22:48:00+08:00">
-                2015-02-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
-                    <span itemprop="name">工具, 库与框架</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/LAMP/" itemprop="url" rel="index">
-                    <span itemprop="name">LAMP</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>最近工作需要用到一点PHP，因此首先了解了以下如何在Ubuntu下准备开发环境，期间查阅了不少文章，也遇到了不少问题，特记录如下，希望对其他开发人员能够有所帮助：</p>
-<h2 id="安装基础包"><a href="#安装基础包" class="headerlink" title="安装基础包"></a>安装基础包</h2><p><a href="http://howtoubuntu.org/how-to-install-lamp-on-ubuntu">http://howtoubuntu.org/how-to-install-lamp-on-ubuntu</a></p>
-<p>参照以上步骤就行。</p>
-<h2 id="将apache2的localhost默认路径指向你需要的开发路径"><a href="#将apache2的localhost默认路径指向你需要的开发路径" class="headerlink" title="将apache2的localhost默认路径指向你需要的开发路径"></a>将apache2的localhost默认路径指向你需要的开发路径</h2><p>默认路径在/var/www/html下，相信大多数开发人员都不会直接将该目录下进行开发，通过以下步骤改变该默认路径：</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/02/12/Ubuntu-14-04-安装LAMP开发环境/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/01/16/Elasticsearch-过滤查询以及聚合-Filtering-Queries-and-Aggregations/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/01/16/Elasticsearch-过滤查询以及聚合-Filtering-Queries-and-Aggregations/" itemprop="url">
-                  [Elasticsearch] 过滤查询以及聚合(Filtering Queries and Aggregations)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-16T00:15:00+08:00">
-                2015-01-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_filtering_queries_and_aggregations.html">Filtering Queries and Aggregations</a>一章。</p>
-<h2 id="过滤查询以及聚合"><a href="#过滤查询以及聚合" class="headerlink" title="过滤查询以及聚合"></a>过滤查询以及聚合</h2><p>过滤是聚合作用域的一个很自然的扩展。因为聚合工作在查询作用域的上下文中，那么适用于查询的任何过滤器也同样能够适用于聚合。</p>
-<h3 id="filtered查询"><a href="#filtered查询" class="headerlink" title="filtered查询"></a>filtered查询</h3><p>如果你想要找到所有售价高于10000美刀的车，同时也对这些车计算其平均价格，那么可以使用一个filtered查询：</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/01/16/Elasticsearch-过滤查询以及聚合-Filtering-Queries-and-Aggregations/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/01/14/Elasticsearch-聚合作用域-Scoping-Aggregations/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/01/14/Elasticsearch-聚合作用域-Scoping-Aggregations/" itemprop="url">
-                  [Elasticsearch] 聚合作用域(Scoping Aggregations)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-14T00:56:00+08:00">
-                2015-01-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="聚合作用域-Scoping-Aggregations"><a href="#聚合作用域-Scoping-Aggregations" class="headerlink" title="聚合作用域(Scoping Aggregations)"></a>聚合作用域(Scoping Aggregations)</h2><p>到现在给出的聚合例子中，你可能已经发现了在搜索请求中我们省略了query子句。整个请求只是一个简单的聚合。</p>
-<p>聚合可以和搜索请求一起运行，但是你需要理解一个新概念：作用域(Scope)。默认情况下，聚合和查询使用相同的作用域。换句话说，聚合作于匹配了查询的文档集。</p>
-<p>让我们看看之前的一个聚合例子：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">GET /cars/transactions/_search?search_type=count</div><div class="line">&#123;</div><div class="line">    "aggs" : &#123;</div><div class="line">        "colors" : &#123;</div><div class="line">            "terms" : &#123;</div><div class="line">              "field" : "color"</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/01/14/Elasticsearch-聚合作用域-Scoping-Aggregations/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/01/12/AngularJS-仿照Angular-Bootstrap-TimePicker创建一个分钟数-秒数的输入控件-minuteSecondPicker/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/01/12/AngularJS-仿照Angular-Bootstrap-TimePicker创建一个分钟数-秒数的输入控件-minuteSecondPicker/" itemprop="url">
-                  [AngularJS] 仿照Angular Bootstrap TimePicker创建一个分钟数-秒数的输入控件(minuteSecondPicker)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-12T00:34:00+08:00">
-                2015-01-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
-                    <span itemprop="name">工具, 库与框架</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/AngularJS/" itemprop="url" rel="index">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
                     <span itemprop="name">AngularJS</span>
                   </a>
                 </span>
@@ -1520,13 +414,12 @@
 
       
         
-          <p>在一个项目中需要一个用来输入分钟数和秒数的控件，然而调查了一些开源项目后并未发现合适的控件。在Angular Bootstrap UI中有一个类似的控件TimePicker，但是它并没有深入到分钟和秒的精度。</p>
-<p>因此，决定参考它的源码然后自己进行实现。</p>
-<p>最终的效果如下：</p>
-<p><img src="https://github.com/destiny1020/js-learning-notes-cn/raw/master/images/minute-second-picker.png" alt=""></p>
+          <p>本系列文章会讨论Angular框架除了提供scope等核心功能外，还提供了哪些功能。</p>
+<p>作为Angular工具库这一系列文章的开篇，首先来看看但凡程序都绕不开的一个话题 - 异常。<br>那么Angular在异常处理方面又提供了哪些工具呢？</p>
+<h2 id="引子-scope中是如何抛出异常的？"><a href="#引子-scope中是如何抛出异常的？" class="headerlink" title="引子 - scope中是如何抛出异常的？"></a>引子 - scope中是如何抛出异常的？</h2><p>首先，让我们看看在定义<code>$rootScope</code>的过程中，哪些代码和异常有关：</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2015/01/12/AngularJS-仿照Angular-Bootstrap-TimePicker创建一个分钟数-秒数的输入控件-minuteSecondPicker/#more" rel="contents">
+            <a class="btn" href="/2016/07/24/AngularJS面面观-13-Angular工具库-异常对象创建方法minErr/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1567,7 +460,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/01/11/Elasticsearch-聚合-时间数据处理-Looking-at-Time/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/22/软件设计-控制反转-Inversion-of-Control-随想/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1592,8 +485,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/11/Elasticsearch-聚合-时间数据处理-Looking-at-Time/" itemprop="url">
-                  [Elasticsearch] 聚合 - 时间数据处理(Looking at Time)
+                <a class="post-title-link" href="/2016/07/22/软件设计-控制反转-Inversion-of-Control-随想/" itemprop="url">
+                  [软件设计] 控制反转(Inversion of Control)随想
                 </a>
               
             
@@ -1609,8 +502,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-11T00:17:00+08:00">
-                2015-01-11
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-22T00:40:00+08:00">
+                2016-07-22
               </time>
             
 
@@ -1632,8 +525,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/随笔/" itemprop="url" rel="index">
+                    <span itemprop="name">随笔</span>
                   </a>
                 </span>
 
@@ -1643,8 +536,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
+                  <a href="/categories/随笔/软件设计/" itemprop="url" rel="index">
+                    <span itemprop="name">软件设计</span>
                   </a>
                 </span>
 
@@ -1679,20 +572,12 @@
 
       
         
-          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_looking_at_time.html">Looking at Time</a>一章。</p>
-<h2 id="时间数据处理-Looking-at-Time"><a href="#时间数据处理-Looking-at-Time" class="headerlink" title="时间数据处理(Looking at Time)"></a>时间数据处理(Looking at Time)</h2><p>如果在ES中，搜索是最常见的行为，那么创建日期柱状图(Date Histogram)肯定是第二常见的。为什么要使用日期柱状图呢？</p>
-<p>想象在你的数据中有一个时间戳。数据是什么不重要-Apache日志事件，股票交易日期，棒球比赛时间-任何拥有时间戳的数据都能通过日期柱状图受益。当你有时间戳时，你经常会想创建基于时间的指标信息：</p>
-<ul>
-<li><p>今年的每个月销售了多少辆车？</p>
-</li>
-<li><p>过去的12小时中，这只股票的价格是多少？</p>
-</li>
-<li><p>上周每个小时我们的网站的平均延迟是多少？</p>
-</li>
-</ul>
+          <p>写这篇文章的初衷是在写Angular中的依赖注入(Dependency Injection)的时候，想该如何解释一下依赖注入这个概念呢？<br>而提到依赖注入，控制反转这个概念就从记忆硬盘中被加载到了内存中，然后更是被放到了大脑寄存器中，不管想什么都要瞄它一眼。致使我不得不先写一篇文章来谈谈控制反转。</p>
+<p>最早接触到这个概念还是在学习Java中Spring框架的时候(估计好多开发人员都是这样的吧，来握个手)，那时候它是作为Spring框架的一大卖点来介绍的。当时普遍存在一个误解，那就是控制反转和依赖注入是一件事的两个说法。这篇文章的目的之一也是为了来阐述一下这两者的联系和区别。</p>
+<p>那么，我们来看看控制反转到底是何方神圣？</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2015/01/11/Elasticsearch-聚合-时间数据处理-Looking-at-Time/#more" rel="contents">
+            <a class="btn" href="/2016/07/22/软件设计-控制反转-Inversion-of-Control-随想/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1733,7 +618,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/01/09/Elasticsearch-聚合-创建条形图-Bar-Chart/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/17/AngularJS面面观-12-scope中的watch机制-第三种策略/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1758,8 +643,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/09/Elasticsearch-聚合-创建条形图-Bar-Chart/" itemprop="url">
-                  [Elasticsearch] 聚合 - 创建条形图(Bar Chart)
+                <a class="post-title-link" href="/2016/07/17/AngularJS面面观-12-scope中的watch机制-第三种策略/" itemprop="url">
+                  [AngularJS面面观] 12. scope中的watch机制---第三种策略
                 </a>
               
             
@@ -1775,8 +660,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-09T00:16:00+08:00">
-                2015-01-09
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-17T23:01:00+08:00">
+                2016-07-17
               </time>
             
 
@@ -1798,8 +683,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
                   </a>
                 </span>
 
@@ -1809,8 +694,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
                   </a>
                 </span>
 
@@ -1845,11 +730,1133 @@
 
       
         
-          <h2 id="创建条形图-Building-Bar-Charts"><a href="#创建条形图-Building-Bar-Charts" class="headerlink" title="创建条形图(Building Bar Charts)"></a>创建条形图(Building Bar Charts)</h2><p>聚合的一个令人激动的性质是它能够很容易地被转换为图表和图形。在本章中，我们会使用前面的样本数据集来创建出各种分析案例。我们也会展示聚合能够支持的种类。</p>
-<p>柱状图桶(Histogram Bucket)非常有用。柱状图在本质上就是条形图，如果你创建过一份报告或者分析面板(Analytics Dashboard)，毫无疑问其中会有一些条形图。柱状图通过指定一个间隔(Interval)来工作。如果我们使用柱状图来表示销售价格，你或许会指定一个值为20000的间隔。因此每20000美刀会创建一个桶。然后文档会被分配到桶中。</p>
+          <p>如果你刚刚入门angular，你或许还在惊叹于angular的双向绑定是多么的方便，你也许在庆幸未来的前端代码中再也不会出现那么多繁琐的DOM操作了。</p>
+<p>但是，一旦你的应用程序随着业务的复杂而复杂，你就会发现你手头的那些angular的知识似乎开始不够用了。为什么绑定的数据没有生效？为什么应用的速度越来越慢？为什么会出现莫名其妙的infinite digest异常？所以你开始尝试进阶，尝试弄清楚在数据绑定这个现象后面到底发生了什么。</p>
+<p>相信能顺着前面数十篇文章看到这里的同学们，一定对angular是真爱吧。我们分析了scope中的digest循环的具体逻辑和很多细节，也见识到了angular中建立在继承树型结构之上的事件机制。本文继续聊聊关于scope的最后一个话题，watch策略。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2015/01/09/Elasticsearch-聚合-创建条形图-Bar-Chart/#more" rel="contents">
+            <a class="btn" href="/2016/07/17/AngularJS面面观-12-scope中的watch机制-第三种策略/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/16/AngularJS面面观-11-scope事件机制-事件系统在Angular框架中的应用/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/07/16/AngularJS面面观-11-scope事件机制-事件系统在Angular框架中的应用/" itemprop="url">
+                  [AngularJS面面观] 11. scope事件机制 - 事件系统在Angular框架中的应用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-16T22:54:00+08:00">
+                2016-07-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>此篇文章是angular事件机制相关的最后一篇文章。<br>主要介绍一下事件系统在Angular框架本身中的一些应用场景，看看在什么场景下使用事件是比较合适的。</p>
+<h2 id="移除scope后的广播"><a href="#移除scope后的广播" class="headerlink" title="移除scope后的广播"></a>移除scope后的广播</h2><p>有过定义指令(directive)经验的同学们应该知道，很多指令都会拥有自己的scope，无论是隔离scope也好，还是原型继承的scope也好。这些指令在浏览器中也是通过对应模板(template)所表示的DOM元素来刷存在感的。而显然，伴随业务逻辑的执行，一些指令对应的DOM元素会被创建，使用和销毁。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/07/16/AngularJS面面观-11-scope事件机制-事件系统在Angular框架中的应用/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/10/AngularJS面面观-10-scope事件机制-emit-broadcast以及事件对象/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/07/10/AngularJS面面观-10-scope事件机制-emit-broadcast以及事件对象/" itemprop="url">
+                  [AngularJS面面观] 10. scope事件机制 - $emit, $broadcast以及事件对象
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-10T22:50:00+08:00">
+                2016-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>在上一篇文章中，介绍了事件机制背后的订阅-发布模式以及angular事件的生命周期。</p>
+<p>本文继续介绍和事件机制相关的几个重要组成部分：</p>
+<ol>
+<li>事件对象的组成</li>
+<li>事件与scope继承树-<code>$emit</code>以及<code>$broadcast</code> </li>
+<li>事件的停止传播以及阻止默认行为</li>
+</ol>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/07/10/AngularJS面面观-10-scope事件机制-emit-broadcast以及事件对象/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/04/AngularJS面面观-9-scope事件机制-基本概念以及生命周期/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/07/04/AngularJS面面观-9-scope事件机制-基本概念以及生命周期/" itemprop="url">
+                  [AngularJS面面观] 9. scope事件机制 - 基本概念以及生命周期
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-04T00:09:00+08:00">
+                2016-07-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>在前面的8篇文章中，已经介绍了scope的几个方面，比如digest循环，继承机制等。<br>本篇文章以及后续的两篇文章打算把这块拼图完成，讨论一下scope的另外一项重要功能：事件机制。</p>
+<p>主要分为以下6个方面进行讨论：</p>
+<ol>
+<li>发布-订阅模式(Publish-Subscribe Pattern)</li>
+<li>事件的生命周期-注册和注销</li>
+<li>事件与scope继承树-<code>$emit</code>以及<code>$broadcast</code></li>
+<li>事件对象的组成</li>
+<li>事件的停止传播以及阻止默认行为</li>
+<li>事件在angular框架中的应用</li>
+</ol>
+<p>本文首先讨论1-2。下一篇文章中讨论3-5。最后一篇文章讨论6。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/07/04/AngularJS面面观-9-scope事件机制-基本概念以及生命周期/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/03/AngularJS面面观-8-scope继承-属性覆盖，隔离scope以及指定scope的parent/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/07/03/AngularJS面面观-8-scope继承-属性覆盖，隔离scope以及指定scope的parent/" itemprop="url">
+                  [AngularJS面面观] 8. scope继承 - 属性覆盖，隔离scope以及指定scope的parent
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-03T16:47:00+08:00">
+                2016-07-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>上一节中我们探讨了遍历scope树形继承结构的过程。本节继续讨论一下在继承结构下产生的属性覆盖问题，以及scope的一些特殊情况：隔离scope以及为scope显式指定其父亲scope。</p>
+<h2 id="属性覆盖-Attribute-Shadowing"><a href="#属性覆盖-Attribute-Shadowing" class="headerlink" title="属性覆盖(Attribute Shadowing)"></a>属性覆盖(Attribute Shadowing)</h2><p>属性覆盖这个问题或许会对Angular新手造成一定的困扰，尽管从本质上而言，它的成因还是基于JavaScript中原型继承这一概念。</p>
+<p>那么让我们看看属性覆盖到底是怎么一回事：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> parent = <span class="keyword">new</span> Scope();</div><div class="line"><span class="keyword">var</span> child = parent.$<span class="keyword">new</span>();</div><div class="line"></div><div class="line">parent.name = <span class="string">'parent name'</span>;</div><div class="line">child.name = <span class="string">'child name'</span>;</div></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/07/03/AngularJS面面观-8-scope继承-属性覆盖，隔离scope以及指定scope的parent/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/06/12/AngularJS面面观-7-scope继承与digest循环-scope树结构的遍历/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/06/12/AngularJS面面观-7-scope继承与digest循环-scope树结构的遍历/" itemprop="url">
+                  [AngularJS面面观] 7. scope继承与digest循环 - scope树结构的遍历
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-12T15:53:00+08:00">
+                2016-06-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>在上一篇文章中，介绍了scope继承本质上也是基于JavaScript原型继承。同时也分析和讨论了scope生命周期中最重要的两个方法<code>$new</code>以及<code>$destroy</code>的源代码实现。</p>
+<p>而在这一篇文章中，会接着讨论digest循环是如何利用scope的树形继承结构来进行遍历的。这也解答了在<a href="http://blog.csdn.net/dm_vincent/article/details/51607018">这篇文章</a>末尾遗留下来的第一个问题。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/06/12/AngularJS面面观-7-scope继承与digest循环-scope树结构的遍历/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/06/09/AngularJS面面观-6-scope继承-基于原型继承的树形体系以及scope的生命周期/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/06/09/AngularJS面面观-6-scope继承-基于原型继承的树形体系以及scope的生命周期/" itemprop="url">
+                  [AngularJS面面观] 6. scope继承 - 基于原型继承的树形体系以及scope的生命周期
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-09T00:02:00+08:00">
+                2016-06-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>写过Angular应用的同学们或多或少都会注意到Angular框架在幕后会根据应用结构创建很多个scope，这些scope也许是继承自它的父节点的scope，也可能是隔离scope(Isolated Scope)。但是它们最终的父节点都是<code>$rootScope</code>。<code>$rootScope</code>是全局唯一的一个scope，它由Angular在应用启动之初就被创建。</p>
+<p>现在我们就来探究一下scope的树形继承结构。具体分为一下几个话题：</p>
+<ol>
+<li>scope继承的根基 - JavaScript原型继承</li>
+<li>scope的生命周期</li>
+<li>scope继承和digest循环</li>
+</ol>
+<p>本节主要聚焦于第一个和第二个话题。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/06/09/AngularJS面面观-6-scope继承-基于原型继承的树形体系以及scope的生命周期/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/06/08/AngularJS面面观-5-scope中的两个异步方法-applyAsync以及-evalAsync/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/06/08/AngularJS面面观-5-scope中的两个异步方法-applyAsync以及-evalAsync/" itemprop="url">
+                  [AngularJS面面观] 5. scope中的两个异步方法 - $applyAsync以及$evalAsync
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-08T00:32:00+08:00">
+                2016-06-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>Angular中digest循环的主干是对于watchers的若干次遍历，直到整个scope中的数据”稳定”下来，这部分实现在<a href="http://blog.csdn.net/dm_vincent/article/details/51407292">这篇</a>文章中已经进行了详尽的介绍。相关的一些细节优化也在<a href="http://blog.csdn.net/dm_vincent/article/details/51416606">这篇</a>文章中进行了分析。</p>
+<p>除了主干的内容，digest循环的内容其实还包括几个比较有趣的部分，比如这一节我们即将分析的<code>$evalAsync</code>以及<code>$applyAsync</code>，下面我们就来通过相关源代码来分析一下：</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/06/08/AngularJS面面观-5-scope中的两个异步方法-applyAsync以及-evalAsync/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1885,7 +1892,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1928,7 +1935,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">153</span>
+                <span class="site-state-item-count">177</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1937,7 +1944,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-count">26</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1946,7 +1953,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">95</span>
+                <span class="site-state-item-count">99</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

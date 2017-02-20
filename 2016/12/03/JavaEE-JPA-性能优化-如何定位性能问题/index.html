@@ -1,0 +1,837 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="优化,Performance,JPA,JavaEE," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="要想解决性能问题，首先得要有办法定位问题，明白问题究竟是什么。
+本来JPA的存在目的就是为了让开发人员能够更少地直接操作SQL，但是由于业务自身有其复杂性，如果开发人员不老练，没有踩过许许多多形形色色的坑，是很难写出高质量的JPA代码的，这也是为什么很多人说Hibernate(JPA)入门容易，精通难。实际上不是精通难，而是懒得花那么多精力去研究和发现JPA的潜在性能问题。而JPA的性能问题，可以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JavaEE - JPA] 性能优化: 如何定位性能问题">
+<meta property="og:url" content="http://rxjiang.com/2016/12/03/JavaEE-JPA-性能优化-如何定位性能问题/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="要想解决性能问题，首先得要有办法定位问题，明白问题究竟是什么。
+本来JPA的存在目的就是为了让开发人员能够更少地直接操作SQL，但是由于业务自身有其复杂性，如果开发人员不老练，没有踩过许许多多形形色色的坑，是很难写出高质量的JPA代码的，这也是为什么很多人说Hibernate(JPA)入门容易，精通难。实际上不是精通难，而是懒得花那么多精力去研究和发现JPA的潜在性能问题。而JPA的性能问题，可以">
+<meta property="og:updated_time" content="2017-02-20T11:25:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JavaEE - JPA] 性能优化: 如何定位性能问题">
+<meta name="twitter:description" content="要想解决性能问题，首先得要有办法定位问题，明白问题究竟是什么。
+本来JPA的存在目的就是为了让开发人员能够更少地直接操作SQL，但是由于业务自身有其复杂性，如果开发人员不老练，没有踩过许许多多形形色色的坑，是很难写出高质量的JPA代码的，这也是为什么很多人说Hibernate(JPA)入门容易，精通难。实际上不是精通难，而是懒得花那么多精力去研究和发现JPA的潜在性能问题。而JPA的性能问题，可以">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/12/03/JavaEE-JPA-性能优化-如何定位性能问题/"/>
+
+
+
+
+
+  <title> [JavaEE - JPA] 性能优化: 如何定位性能问题 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/12/03/JavaEE-JPA-性能优化-如何定位性能问题/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [JavaEE - JPA] 性能优化: 如何定位性能问题
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-03T19:26:00+08:00">
+                2016-12-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>要想解决性能问题，首先得要有办法定位问题，明白问题究竟是什么。</p>
+<p>本来JPA的存在目的就是为了让开发人员能够更少地直接操作SQL，但是由于业务自身有其复杂性，如果开发人员不老练，没有踩过许许多多形形色色的坑，是很难写出高质量的JPA代码的，这也是为什么很多人说Hibernate(JPA)入门容易，精通难。实际上不是精通难，而是懒得花那么多精力去研究和发现JPA的潜在性能问题。而JPA的性能问题，可以说99%都是因为JPA Provider(一般使用的都是Hibernate，或者EclipseLink)生成的SQL效率低下或者生成并执行了你意料之外的SQL。</p>
+<p>针对这个问题，其实不需要多么复杂的调试工具，一般而言JPA Provider就会提供一些基础的性能分析工具，以Hibernate为例(EclipseLink等其它JPA Provider请参考相关文档)介绍两种最常用的方法。</p>
+<a id="more"></a>
+<h2 id="打印执行的SQL"><a href="#打印执行的SQL" class="headerlink" title="打印执行的SQL"></a>打印执行的SQL</h2><p>这是最直观的方案，要想知道为什么执行效率不符合预期，直接查看执行的SQL不就行了嘛。毕竟很多大神的调试方法也就仅仅是万能的<code>printf</code>。(记得是在《编程珠玑》上看到的)<br>可以在persistence.xml中指定如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">persistence</span> </span></div><div class="line">    <span class="attr">xmlns</span>=<span class="string">"http://java.sun.com/xml/ns/persistence"</span></div><div class="line">    <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></div><div class="line">    <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://java.sun.com/xml/ns/persistence </span></div><div class="line">    http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"</div><div class="line">    <span class="attr">version</span>=<span class="string">"1.0"</span>&gt;</div><div class="line">    <span class="tag">&lt;<span class="name">persistence-unit</span> <span class="attr">name</span>=<span class="string">"&lt;PERSISTENCE UNIT NAME&gt;"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"hibernate.show_sql"</span> <span class="attr">value</span>=<span class="string">"true"</span>/&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"hibernate.format_sql"</span> <span class="attr">value</span>=<span class="string">"true"</span>/&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"hibernate.use_sql_comments"</span> <span class="attr">value</span>=<span class="string">"true"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">persistence-unit</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">persistence</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>如果你使用的是Spring Boot，那么就更简单了：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="attr">spring:</span></div><div class="line"><span class="attr">  jpa:</span></div><div class="line"><span class="attr">    properties:</span></div><div class="line">      hibernate.show_sql: <span class="literal">true</span></div><div class="line">      hibernate.format_sql: <span class="literal">true</span></div><div class="line">      hibernate.use_sql_comments: <span class="literal">true</span></div></pre></td></tr></table></figure>
+<p>注意以上使用了三个属性，分别是<code>hibernate.show_sql</code>，<code>hibernate.format_sql</code>以及<code>hibernate.use_sql_comments</code>。这三个属性是相关联的，其中<code>hibernate.show_sql</code>是最基本的，只有当它被设置成<code>true</code>的时候设置另外两个才有意义。</p>
+<p>一般而言，<code>hibernate.show_sql</code>通常都是和<code>hibernate.format_sql</code>一起设置成<code>true</code>的。这样能够保证打印出来的SQL清晰易读，毕竟打印SQL就已经很费事了，干脆再费事一点把SQL打印地工整一点不是更好吗？反正这两个配置也仅仅是在开发测试以及调优阶段使用的，在生产环境中不要忘记将它们设置成<code>false</code>就好了。</p>
+<p>那么<code>hibernate.use_sql_comments</code>又是干什么用的呢？将它设置成<code>true</code>可以打印除了实际生成执行的SQL之外的一些信息。例如下面这段打印信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">Hibernate: </div><div class="line">    /* select</div><div class="line">        generatedAlias0 </div><div class="line">    from</div><div class="line">        DeliveryCompany as generatedAlias0 </div><div class="line">    order by</div><div class="line">        generatedAlias0.sort asc */ select</div><div class="line">            deliveryco0_.name as name1_10_,</div><div class="line">            deliveryco0_.sort as sort2_10_ </div><div class="line">        from</div><div class="line">            bono_config_delivery_company deliveryco0_ </div><div class="line">        order by</div><div class="line">            deliveryco0_.sort asc</div></pre></td></tr></table></figure>
+<p>可以观察到在<code>select</code>之前有一段以<code>/*</code>和<code>*/</code>包围起来的注释信息。这段注释信息实际上就是用于生成SQL的JPQL。这是SQL为select类型的情况，如果是插入数据，显示的日志信息则是这样的结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Hibernate: </div><div class="line">    /* insert com.xxx.yyy.zzz.SampleClass</div><div class="line">        */ insert </div><div class="line">        into</div><div class="line">            xxx_sample_class</div><div class="line">            (code, icon_url, is_visible, name) </div><div class="line">        values</div><div class="line">            (?, ?, ?, ?)</div></pre></td></tr></table></figure>
+<p>注释部分会告诉你是插入的记录完整类型名称。</p>
+<p>所以使用<code>hibernate.use_sql_comments</code>可以让打印出来的信息更加充分，方便我们的调优工作。</p>
+<p>可是这还没完，有时候我们需要在打印信息中查看具体绑定的参数，而不是看到上面那样的<code>?</code>占位符。这可以通过配置相应日志级别来实现，因为参数绑定的操作在Hibernate中算是最最基本和频繁的，所以它们的默认日志级别被设置成了<code>TRACE</code>，也就是最低的日志级别。一般情况下是不会打印出来的。如果想打印它们，可以配置如下(以logback为例)：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">"org.hibernate.type"</span> <span class="attr">level</span>=<span class="string">"TRACE"</span> <span class="attr">additivity</span>=<span class="string">"false"</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"CONSOLE"</span> /&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">logger</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>以上只将日志输出到了控制台上，如果希望打印到其它的媒介上，可以进行相应配置。具体请查看你所使用日志工具的文档。</p>
+<p>配置完毕后，如果再次执行上述的插入记录的操作，打印出来的信息会是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">Hibernate: </div><div class="line">    /* insert com.xxx.yyy.zzz.SampleClass</div><div class="line">        */ insert </div><div class="line">        into</div><div class="line">            xxx_sample_class</div><div class="line">            (code, icon_url, is_visible, name) </div><div class="line">        values</div><div class="line">            (?, ?, ?, ?)</div><div class="line">2016-12-03 17:03:05.682 TRACE 39585 --- [io-19999-exec-8] o.h.type.descriptor.sql.BasicBinder      : binding parameter [1] as [VARCHAR] - [T]</div><div class="line">2016-12-03 17:03:05.682 TRACE 39585 --- [io-19999-exec-8] o.h.type.descriptor.sql.BasicBinder      : binding parameter [2] as [VARCHAR] - [null]</div><div class="line">2016-12-03 17:03:05.683 TRACE 39585 --- [io-19999-exec-8] o.h.type.descriptor.sql.BasicBinder      : binding parameter [3] as [BOOLEAN] - [true]</div><div class="line">2016-12-03 17:03:05.684 TRACE 39585 --- [io-19999-exec-8] o.h.type.descriptor.sql.BasicBinder      : binding parameter [4] as [VARCHAR] - [Testing]</div></pre></td></tr></table></figure>
+<p>可以看到每个<code>?</code>占位符都对应了一条<code>TRACE</code>级别的日志，将实际使用的值给打印了出来。</p>
+<p>这个功能在分析一些对特殊数据进行操作时所导致的性能问题是十分有用的。通过查看具体的绑定数据，进行业务逻辑的分析进而得到性能瓶颈所在。</p>
+<p>以上就是打印SQL这种方案所对应的一些配置，总结如下：</p>
+<ol>
+<li>配置<code>hibernate.show_sql=true</code>：打印执行的SQL</li>
+<li>配置<code>hibernate.format_sql=true</code>：让打印的SQL可读性更佳</li>
+<li>配置<code>hibernate.use_sql_comments=true</code>：提供更完备的信息</li>
+<li>设置<code>org.hibernate.type</code>包的日志输出级别为<code>TRACE</code>：打印出具体的数据绑定信息</li>
+</ol>
+<hr>
+<h2 id="使用Hibernate-Statistics"><a href="#使用Hibernate-Statistics" class="headerlink" title="使用Hibernate Statistics"></a>使用Hibernate Statistics</h2><p>其实在Hibernate的<code>org.hibernate.stat</code>包下还提供了一个用于输出执行时间等性能数据的模块。启用它之后也能够得到一些统计信息。启用的方法很简单，和上面启用SQL打印的类似：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">persistence.xml方式：</div><div class="line">&lt;property name=&quot;hibernate.show_sql&quot; value=&quot;true&quot;/&gt;</div><div class="line"></div><div class="line">spring boot方式：</div><div class="line">spring:</div><div class="line">  jpa:</div><div class="line">    properties:</div><div class="line">      hibernate.generate_statistics: true</div></pre></td></tr></table></figure>
+<p>相应地还需要添加日志的支持，注意这个是<code>DEBUG</code>级别的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;logger name=&quot;org.hibernate.stat&quot; level=&quot;DEBUG&quot; additivity=&quot;false&quot;&gt;</div><div class="line">	&lt;appender-ref ref=&quot;CONSOLE&quot; /&gt;</div><div class="line">&lt;/logger&gt;</div></pre></td></tr></table></figure>
+<p>然后在程序运行期间，会针对每个结束的Hibernate Session打印一些统计信息，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">2016-12-03 18:50:04.632 DEBUG 42468 --- [pool-2-thread-1] o.h.s.internal.ConcurrentStatisticsImpl  : HHH000117: HQL: select ar from AllocateRecord ar where ar.status = &apos;WAIT_RECEIVING&apos; and ar.deliveryDueTime &lt; ?1, time: 26ms, rows: 0</div><div class="line">2016-12-03 18:50:04.684  INFO 42468 --- [pool-2-thread-1] i.StatisticalLoggingSessionEventListener : Session Metrics &#123;</div><div class="line">    56094 nanoseconds spent acquiring 1 JDBC connections;</div><div class="line">    0 nanoseconds spent releasing 0 JDBC connections;</div><div class="line">    86957 nanoseconds spent preparing 1 JDBC statements;</div><div class="line">    26164521 nanoseconds spent executing 1 JDBC statements;</div><div class="line">    0 nanoseconds spent executing 0 JDBC batches;</div><div class="line">    0 nanoseconds spent performing 0 L2C puts;</div><div class="line">    0 nanoseconds spent performing 0 L2C hits;</div><div class="line">    0 nanoseconds spent performing 0 L2C misses;</div><div class="line">    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);</div><div class="line">    10698 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到统计的信息种类还是比较多的，大概解释一下：</p>
+<p>首先是一条汇总信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2016-12-03 18:50:04.632 DEBUG 42468 --- [pool-2-thread-1] o.h.s.internal.ConcurrentStatisticsImpl  : HHH000117: HQL: select ar from AllocateRecord ar where ar.status = &apos;WAIT_RECEIVING&apos; and ar.deliveryDueTime &lt; ?1, time: 26ms, rows: 0</div></pre></td></tr></table></figure></p>
+<p>它记录下了执行的JPQL(由于使用的是Hibernate，这里显示为HQL)和对应的执行时间(毫秒)以及获取的记录条数。</p>
+<p>紧接着是这26毫秒的具体时间组成，简要介绍如下：</p>
+<ol>
+<li>56094 nanoseconds spent acquiring 1 JDBC connections：获取JDBC连接的数量和时间</li>
+<li>0 nanoseconds spent releasing 0 JDBC connections：释放JDBC连接的数量和时间</li>
+<li>86957 nanoseconds spent preparing 1 JDBC statements：准备SQL的数量和时间</li>
+<li>26164521 nanoseconds spent executing 1 JDBC statements：执行SQL的数量和时间</li>
+<li>0 nanoseconds spent executing 0 JDBC batches：执行批处理操作的数量和时间</li>
+<li>0 nanoseconds spent performing 0 L2C puts：更新二级缓存的次数和时间</li>
+<li>0 nanoseconds spent performing 0 L2C hits：命中二级缓存的次数和时间</li>
+<li>0 nanoseconds spent performing 0 L2C misses：未命中二级缓存的次数和时间</li>
+<li>0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections)： flush操作的次数和时间</li>
+<li>10698 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)：partial flush操作的次数和时间</li>
+</ol>
+<p>需要留意的是使用的时间度量单位是纳秒，也就是说数字看的会比较大，1000000ns才是1ms，不要被这么大的数字吓到了。</p>
+<p>有了这么详尽的性能数据，哪里是性能瓶颈就是一清二楚的了。根据这些数据，我们就可以做到有的放矢。对于性能这个问题，一般而言它也是满足帕累托法则的，即解决掉20%的关键问题就可以提升80%的性能，所以说只要明白了性能瓶颈的所在，花费最小的代价提升最大的性能并不是不可能。</p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上列举了两则比较简单实用的用于分析和定位性能瓶颈的方案，都不需要借助多么复杂的工具，只需要使用<code>Hibernate</code>自身提供的一些配置和功能即可做到，而且效果也还不错，该有的信息都有了。</p>
+<p>如果大家有什么更好的，更神奇的用于定位JPA性能问题的方案，也可以给我留言或者发邮件，欢迎大家一起探讨。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/优化/" rel="tag"># 优化</a>
+          
+            <a href="/tags/Performance/" rel="tag"># Performance</a>
+          
+            <a href="/tags/JPA/" rel="tag"># JPA</a>
+          
+            <a href="/tags/JavaEE/" rel="tag"># JavaEE</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/27/JavaEE-JPA-性能优化-4种触发懒加载的方式/" rel="next" title="[JavaEE - JPA] 性能优化: 4种触发懒加载的方式">
+                <i class="fa fa-chevron-left"></i> [JavaEE - JPA] 性能优化: 4种触发懒加载的方式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#打印执行的SQL"><span class="nav-number">1.</span> <span class="nav-text">打印执行的SQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Hibernate-Statistics"><span class="nav-number">2.</span> <span class="nav-text">使用Hibernate Statistics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

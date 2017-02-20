@@ -302,7 +302,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/22/软件设计-控制反转-Inversion-of-Control-随想/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/12/03/JavaEE-JPA-性能优化-如何定位性能问题/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -327,8 +327,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/07/22/软件设计-控制反转-Inversion-of-Control-随想/" itemprop="url">
-                  [软件设计] 控制反转(Inversion of Control)随想
+                <a class="post-title-link" href="/2016/12/03/JavaEE-JPA-性能优化-如何定位性能问题/" itemprop="url">
+                  [JavaEE - JPA] 性能优化: 如何定位性能问题
                 </a>
               
             
@@ -344,8 +344,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-22T00:40:00+08:00">
-                2016-07-22
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-03T19:26:00+08:00">
+                2016-12-03
               </time>
             
 
@@ -367,8 +367,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/随笔/" itemprop="url" rel="index">
-                    <span itemprop="name">随笔</span>
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
                   </a>
                 </span>
 
@@ -378,8 +378,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/随笔/软件设计/" itemprop="url" rel="index">
-                    <span itemprop="name">软件设计</span>
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
                   </a>
                 </span>
 
@@ -414,12 +414,12 @@
 
       
         
-          <p>写这篇文章的初衷是在写Angular中的依赖注入(Dependency Injection)的时候，想该如何解释一下依赖注入这个概念呢？<br>而提到依赖注入，控制反转这个概念就从记忆硬盘中被加载到了内存中，然后更是被放到了大脑寄存器中，不管想什么都要瞄它一眼。致使我不得不先写一篇文章来谈谈控制反转。</p>
-<p>最早接触到这个概念还是在学习Java中Spring框架的时候(估计好多开发人员都是这样的吧，来握个手)，那时候它是作为Spring框架的一大卖点来介绍的。当时普遍存在一个误解，那就是控制反转和依赖注入是一件事的两个说法。这篇文章的目的之一也是为了来阐述一下这两者的联系和区别。</p>
-<p>那么，我们来看看控制反转到底是何方神圣？</p>
+          <p>要想解决性能问题，首先得要有办法定位问题，明白问题究竟是什么。</p>
+<p>本来JPA的存在目的就是为了让开发人员能够更少地直接操作SQL，但是由于业务自身有其复杂性，如果开发人员不老练，没有踩过许许多多形形色色的坑，是很难写出高质量的JPA代码的，这也是为什么很多人说Hibernate(JPA)入门容易，精通难。实际上不是精通难，而是懒得花那么多精力去研究和发现JPA的潜在性能问题。而JPA的性能问题，可以说99%都是因为JPA Provider(一般使用的都是Hibernate，或者EclipseLink)生成的SQL效率低下或者生成并执行了你意料之外的SQL。</p>
+<p>针对这个问题，其实不需要多么复杂的调试工具，一般而言JPA Provider就会提供一些基础的性能分析工具，以Hibernate为例(EclipseLink等其它JPA Provider请参考相关文档)介绍两种最常用的方法。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016/07/22/软件设计-控制反转-Inversion-of-Control-随想/#more" rel="contents">
+            <a class="btn" href="/2016/12/03/JavaEE-JPA-性能优化-如何定位性能问题/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -460,7 +460,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/10/AngularJS面面观-10-scope事件机制-emit-broadcast以及事件对象/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/11/27/JavaEE-JPA-性能优化-4种触发懒加载的方式/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -485,8 +485,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/07/10/AngularJS面面观-10-scope事件机制-emit-broadcast以及事件对象/" itemprop="url">
-                  [AngularJS面面观] 10. scope事件机制 - $emit, $broadcast以及事件对象
+                <a class="post-title-link" href="/2016/11/27/JavaEE-JPA-性能优化-4种触发懒加载的方式/" itemprop="url">
+                  [JavaEE - JPA] 性能优化: 4种触发懒加载的方式
                 </a>
               
             
@@ -502,8 +502,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-10T22:50:00+08:00">
-                2016-07-10
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-11-27T23:16:00+08:00">
+                2016-11-27
               </time>
             
 
@@ -525,8 +525,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
                   </a>
                 </span>
 
@@ -536,8 +536,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
-                    <span itemprop="name">AngularJS</span>
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
                   </a>
                 </span>
 
@@ -572,16 +572,338 @@
 
       
         
-          <p>在上一篇文章中，介绍了事件机制背后的订阅-发布模式以及angular事件的生命周期。</p>
-<p>本文继续介绍和事件机制相关的几个重要组成部分：</p>
+          <p>在一个JPA应用中，可以通过懒加载来提高应用的性能。这一点毋庸置疑，但是懒加载不等于不加载，在某个时刻还是需要加载这些数据的，那么如何触发这个加载的行为才能够事半功倍呢？</p>
+<p>这里我想说一点题外话，面试的时候我也会考察被面试者对于JPA/Hibernate的看法，得到的答复通常都包含了对JPA/Hibernate的一些”鄙夷”，比如JPA/Hibernate性能太菜了，现在主流的持久层框架是MyBatis云云。然后我也会试图让他们去分析一下为什么会慢，一部分人不知道如何回答，答曰感觉很慢；另外一些人可能使用的经验稍微多一些，于是答道JPA Provider(例如Hibernate)会生成非常多效率低下的SQL，于是看起来性能就不行了。如果再深究下去问如何改进这些效率低下的SQL呢？能够谈出个一二三的就更是凤毛麟角了。所以我觉得，很多人其实在没有深入调研JPA之前就给出了一个不是很恰当的结论。每种技术都有自身的优缺点，完美的技术是不存在的。具体问题具体分析，不要人云亦云是一个开发人员应该拥有的基本能力。当然我也不是JPA的卫道士，JPA在目前互联网海量数据的环境下，确实有很多的问题，最典型的比如对于数据分片，分表分库上支持的欠缺。我想正是这一点才让MyBatis成为了目前的互联网公司的主流选择。但是，并不是所有的应用都有那么大的数据量，也不是所有的项目都需要去分表分库。更多的中小型项目，如果能够合理地运用好JPA，开发效率和项目的服务性能绝对不会差。毕竟，JPA作为JavaEE标准的一部分，岂能浪得虚名？</p>
+<p>所以，这篇文章我想从触发懒加载这个角度，分析几种不同的实现方式，来看看应该如何提高应用的性能。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/11/27/JavaEE-JPA-性能优化-4种触发懒加载的方式/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/10/20/JavaEE-JPA-7-ORM的核心注解-关系类型/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/20/JavaEE-JPA-7-ORM的核心注解-关系类型/" itemprop="url">
+                  [JavaEE - JPA] 7. ORM的核心注解 - 关系类型
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-20T21:40:00+08:00">
+                2016-10-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本文继续介绍JPA ORM的核心注解中和关系映射相关的部分。</p>
+<p>关系映射的处理绝对是一个JPA应用最为重要的部分之一。关系映射处理的好，不仅仅是建模上的成功，而且在程序性能上也会更胜一筹。关系映射处理的不好很容易造成程序性能底下，各种Bug频繁出现，而且这些Bug通常还会比较隐蔽，总是在关键时刻掉链子。我想这也是为什么很多开发人员说JPA入门容易，精通难得原因之一。因为关系确实不是那么好处理的，不仅需要对业务有相当深刻的见解，更需要对JPA提供的各种关系映射类型有入木三分的理解。</p>
+<p>本文就尝试来理一理JPA中的各种关系映射类型。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/10/20/JavaEE-JPA-7-ORM的核心注解-关系类型/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/10/17/JavaEE-JPA-6-ORM的核心注解-基础类型以及嵌套类型/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/17/JavaEE-JPA-6-ORM的核心注解-基础类型以及嵌套类型/" itemprop="url">
+                  [JavaEE - JPA] 6. ORM的核心注解 - 基础类型以及嵌套类型
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-17T22:26:00+08:00">
+                2016-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本文继续介绍JPA ORM的核心注解中和基础类型映射相关的部分。</p>
+<h2 id="基础类型映射"><a href="#基础类型映射" class="headerlink" title="基础类型映射"></a>基础类型映射</h2><p>所谓的基础类型映射，实际上就是Java中定义的数据类型应该如何被JDBC转换成数据库所支持的数据类型。而这些基础类型，主要包括了以下9种：</p>
 <ol>
-<li>事件对象的组成</li>
-<li>事件与scope继承树-<code>$emit</code>以及<code>$broadcast</code> </li>
-<li>事件的停止传播以及阻止默认行为</li>
+<li>简单类型：byte，int，short，long，boolean，char，float以及double</li>
+<li>简单类型对应的包装类型：Byte，Integer，Short，Long，Boolean，Character，Float以及Double</li>
+<li>字节以及字符数组：byte[]，Byte[]，char[]以及Character[]</li>
+<li>能够表示大数值的类型：java.math.BigInteger以及java.math.BigDecimal</li>
+<li>字符串类型：String</li>
+<li>Java时间类型：java.util.Date以及java.util.Calendar</li>
+<li>JDBC时间类型：java.sql.Date，java.sql.Time以及java.sql.Timestamp</li>
+<li>枚举类型</li>
+<li>可序列化的对象(Serializable Object)</li>
 </ol>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016/07/10/AngularJS面面观-10-scope事件机制-emit-broadcast以及事件对象/#more" rel="contents">
+            <a class="btn" href="/2016/10/17/JavaEE-JPA-6-ORM的核心注解-基础类型以及嵌套类型/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -622,7 +944,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/04/AngularJS面面观-9-scope事件机制-基本概念以及生命周期/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/09/28/JavaEE-JPA-5-ORM的核心注解-访问方式，表映射以及主键生成/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -647,8 +969,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/07/04/AngularJS面面观-9-scope事件机制-基本概念以及生命周期/" itemprop="url">
-                  [AngularJS面面观] 9. scope事件机制 - 基本概念以及生命周期
+                <a class="post-title-link" href="/2016/09/28/JavaEE-JPA-5-ORM的核心注解-访问方式，表映射以及主键生成/" itemprop="url">
+                  [JavaEE - JPA] 5. ORM的核心注解 - 访问方式，表映射以及主键生成
                 </a>
               
             
@@ -664,8 +986,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-04T00:09:00+08:00">
-                2016-07-04
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-28T23:40:00+08:00">
+                2016-09-28
               </time>
             
 
@@ -687,8 +1009,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
                   </a>
                 </span>
 
@@ -698,8 +1020,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
-                    <span itemprop="name">AngularJS</span>
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
                   </a>
                 </span>
 
@@ -734,20 +1056,16 @@
 
       
         
-          <p>在前面的8篇文章中，已经介绍了scope的几个方面，比如digest循环，继承机制等。<br>本篇文章以及后续的两篇文章打算把这块拼图完成，讨论一下scope的另外一项重要功能：事件机制。</p>
-<p>主要分为以下6个方面进行讨论：</p>
+          <p>从本篇文章开始，会系统性地介绍JPA中用来实现对象关系映射(Object Relational Mapping)的核心注解，以及基础类型，关系类型，嵌套类型以及集合类型的映射方式。</p>
+<h2 id="注解种类"><a href="#注解种类" class="headerlink" title="注解种类"></a>注解种类</h2><p>在探讨实现JPA中各种映射的方式之前，可以先看看JPA中的注解类型。<br>由于ORM这一机制涉及到了两个方面：对象(内存模型)以关系数据(关系型数据库)。而显然我们在配置ORM的各种规则时，只能在Java程序中完成。数据库是不知道有JPA这种机制存在的，数据库只是单纯的执行输入的各种SQL语句而已。</p>
+<p>因此，我们可以将JPA中的注解笼统地分为两种类型：</p>
 <ol>
-<li>发布-订阅模式(Publish-Subscribe Pattern)</li>
-<li>事件的生命周期-注册和注销</li>
-<li>事件与scope继承树-<code>$emit</code>以及<code>$broadcast</code></li>
-<li>事件对象的组成</li>
-<li>事件的停止传播以及阻止默认行为</li>
-<li>事件在angular框架中的应用</li>
+<li>逻辑关系注解(Logical Annotation)</li>
+<li>物理关系注解(Physical Annotation)</li>
 </ol>
-<p>本文首先讨论1-2。下一篇文章中讨论3-5。最后一篇文章讨论6。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016/07/04/AngularJS面面观-9-scope事件机制-基本概念以及生命周期/#more" rel="contents">
+            <a class="btn" href="/2016/09/28/JavaEE-JPA-5-ORM的核心注解-访问方式，表映射以及主键生成/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -788,7 +1106,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/03/AngularJS面面观-8-scope继承-属性覆盖，隔离scope以及指定scope的parent/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/09/27/JavaEE-JPA-4-EntityManager相关核心概念/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -813,8 +1131,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/07/03/AngularJS面面观-8-scope继承-属性覆盖，隔离scope以及指定scope的parent/" itemprop="url">
-                  [AngularJS面面观] 8. scope继承 - 属性覆盖，隔离scope以及指定scope的parent
+                <a class="post-title-link" href="/2016/09/27/JavaEE-JPA-4-EntityManager相关核心概念/" itemprop="url">
+                  [JavaEE - JPA] 4. EntityManager相关核心概念
                 </a>
               
             
@@ -830,8 +1148,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-03T16:47:00+08:00">
-                2016-07-03
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-27T00:01:00+08:00">
+                2016-09-27
               </time>
             
 
@@ -853,8 +1171,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
                   </a>
                 </span>
 
@@ -864,8 +1182,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
-                    <span itemprop="name">AngularJS</span>
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
                   </a>
                 </span>
 
@@ -900,333 +1218,15 @@
 
       
         
-          <p>上一节中我们探讨了遍历scope树形继承结构的过程。本节继续讨论一下在继承结构下产生的属性覆盖问题，以及scope的一些特殊情况：隔离scope以及为scope显式指定其父亲scope。</p>
-<h2 id="属性覆盖-Attribute-Shadowing"><a href="#属性覆盖-Attribute-Shadowing" class="headerlink" title="属性覆盖(Attribute Shadowing)"></a>属性覆盖(Attribute Shadowing)</h2><p>属性覆盖这个问题或许会对Angular新手造成一定的困扰，尽管从本质上而言，它的成因还是基于JavaScript中原型继承这一概念。</p>
-<p>那么让我们看看属性覆盖到底是怎么一回事：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> parent = <span class="keyword">new</span> Scope();</div><div class="line"><span class="keyword">var</span> child = parent.$<span class="keyword">new</span>();</div><div class="line"></div><div class="line">parent.name = <span class="string">'parent name'</span>;</div><div class="line">child.name = <span class="string">'child name'</span>;</div></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/07/03/AngularJS面面观-8-scope继承-属性覆盖，隔离scope以及指定scope的parent/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/06/12/AngularJS面面观-7-scope继承与digest循环-scope树结构的遍历/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/12/AngularJS面面观-7-scope继承与digest循环-scope树结构的遍历/" itemprop="url">
-                  [AngularJS面面观] 7. scope继承与digest循环 - scope树结构的遍历
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-12T15:53:00+08:00">
-                2016-06-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
-                    <span itemprop="name">AngularJS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在上一篇文章中，介绍了scope继承本质上也是基于JavaScript原型继承。同时也分析和讨论了scope生命周期中最重要的两个方法<code>$new</code>以及<code>$destroy</code>的源代码实现。</p>
-<p>而在这一篇文章中，会接着讨论digest循环是如何利用scope的树形继承结构来进行遍历的。这也解答了在<a href="http://blog.csdn.net/dm_vincent/article/details/51607018">这篇文章</a>末尾遗留下来的第一个问题。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/06/12/AngularJS面面观-7-scope继承与digest循环-scope树结构的遍历/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/06/09/AngularJS面面观-6-scope继承-基于原型继承的树形体系以及scope的生命周期/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/09/AngularJS面面观-6-scope继承-基于原型继承的树形体系以及scope的生命周期/" itemprop="url">
-                  [AngularJS面面观] 6. scope继承 - 基于原型继承的树形体系以及scope的生命周期
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-09T00:02:00+08:00">
-                2016-06-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
-                    <span itemprop="name">AngularJS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>写过Angular应用的同学们或多或少都会注意到Angular框架在幕后会根据应用结构创建很多个scope，这些scope也许是继承自它的父节点的scope，也可能是隔离scope(Isolated Scope)。但是它们最终的父节点都是<code>$rootScope</code>。<code>$rootScope</code>是全局唯一的一个scope，它由Angular在应用启动之初就被创建。</p>
-<p>现在我们就来探究一下scope的树形继承结构。具体分为一下几个话题：</p>
+          <p>前三篇文章花了一些笔墨介绍了事务的概念以及在EJB和Spring Framework中分别是如何完成事务管理的。之所谓花了比较大的代价来介绍事务主要也是因为不管在什么类型的持久化应用中，都包含下面两个关键点：</p>
 <ol>
-<li>scope继承的根基 - JavaScript原型继承</li>
-<li>scope的生命周期</li>
-<li>scope继承和digest循环</li>
+<li>事务管理</li>
+<li>对象关系映射(ORM)</li>
 </ol>
-<p>本节主要聚焦于第一个和第二个话题。</p>
+<p>而JPA主要定义的就是和对象关系映射(ORM)相关的内容。从本篇文章开始，会系统性地介绍JPA的方方面面。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016/06/09/AngularJS面面观-6-scope继承-基于原型继承的树形体系以及scope的生命周期/#more" rel="contents">
+            <a class="btn" href="/2016/09/27/JavaEE-JPA-4-EntityManager相关核心概念/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1267,7 +1267,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/06/08/AngularJS面面观-5-scope中的两个异步方法-applyAsync以及-evalAsync/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/09/23/JavaEE-JPA-3-Spring-Framework中的事务管理/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1292,8 +1292,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/06/08/AngularJS面面观-5-scope中的两个异步方法-applyAsync以及-evalAsync/" itemprop="url">
-                  [AngularJS面面观] 5. scope中的两个异步方法 - $applyAsync以及$evalAsync
+                <a class="post-title-link" href="/2016/09/23/JavaEE-JPA-3-Spring-Framework中的事务管理/" itemprop="url">
+                  [JavaEE - JPA] 3. Spring Framework中的事务管理
                 </a>
               
             
@@ -1309,8 +1309,490 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-08T00:32:00+08:00">
-                2016-06-08
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-23T23:05:00+08:00">
+                2016-09-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>前文讨论了事务划分(Transaction Demarcation)在EJB中是如何实现的，本文继续介绍在Spring Framework中是如何完成事务划分的。</p>
+<p>我们已经知道了当采用Container事务类型的时候，事务划分主要有以下两种方案(参考<a href="http://blog.csdn.net/dm_vincent/article/details/52566964">这里</a>)：</p>
+<ol>
+<li>使用JTA接口在应用中编码完成显式划分</li>
+<li>在容器的帮助下完成自动划分</li>
+</ol>
+<p>在使用JavaEE的EJB规范时，这两种方案分别被实现为BMT以及CMT，关于BMT和CMT在上一篇文章中有比较详尽的讨论(参考<a href="http://blog.csdn.net/dm_vincent/article/details/52579719">这里</a>)。</p>
+<p>那么对于Spring Framework而言，又是如何来实现上述两种方案的呢。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/09/23/JavaEE-JPA-3-Spring-Framework中的事务管理/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/09/19/JavaEE-JPA-2-EJB中的事务管理/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/19/JavaEE-JPA-2-EJB中的事务管理/" itemprop="url">
+                  [JavaEE - JPA] 2. EJB中的事务管理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-19T00:35:00+08:00">
+                2016-09-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>在上一篇文章中介绍了事务的基本概念，包括事务的ACID性质，以及事务的类型并且稍微提到了事务划分。</p>
+<p>对于任何一个需要持久化数据的应用而言，事务划分(Transaction Demarcation)的规划都是非常重要的一环。如果规划的不好，轻则影响性能，重则会导致在某些情况下数据发生不一致，从而严重影响业务逻辑的顺利进行。</p>
+<p>本文继续介绍事务划分在当前JavaEE技术体系下基于EJB的实现方案。虽然EJB算是JavaEE的亲儿子，但是它的境遇却不怎么好，主要是被EJB 2.x给坑过的开发人员都对他失去了兴趣。加上同时代兴起的Spring Framework等轻量级的JavaEE解决方案，就算到了如今EJB 3.x时代，各方面都进步了不少，但还是有不少人拿有色眼睛看待它的。不过，作为JavaEE的正统，还是有必要看看它是如何处理事务划分这一问题的。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/09/19/JavaEE-JPA-2-EJB中的事务管理/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/09/17/JavaEE-JPA-1-事务的基础概念/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/17/JavaEE-JPA-1-事务的基础概念/" itemprop="url">
+                  [JavaEE - JPA] 1. 事务的基础概念
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-17T23:34:00+08:00">
+                2016-09-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>现在任何应用都需要数据持久化。否则就不算是一个完整的应用。那么对于一个数据持久化而言，最重要的无外乎两方面：</p>
+<ol>
+<li>事务管理(Transaction Management)</li>
+<li>对象关系映射(Object Relational Mapping)</li>
+</ol>
+<p>本文作为JPA(Java Persistence API)这一系列文章的首篇，就来先谈谈事物管理相关的一些概念和基础。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/09/17/JavaEE-JPA-1-事务的基础概念/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/" itemprop="url">
+                  [AngularJS面面观] 24. 依赖注入 --- Value以及Decorator
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-28T18:55:00+08:00">
+                2016-08-28
               </time>
             
 
@@ -1379,483 +1861,13 @@
 
       
         
-          <p>Angular中digest循环的主干是对于watchers的若干次遍历，直到整个scope中的数据”稳定”下来，这部分实现在<a href="http://blog.csdn.net/dm_vincent/article/details/51407292">这篇</a>文章中已经进行了详尽的介绍。相关的一些细节优化也在<a href="http://blog.csdn.net/dm_vincent/article/details/51416606">这篇</a>文章中进行了分析。</p>
-<p>除了主干的内容，digest循环的内容其实还包括几个比较有趣的部分，比如这一节我们即将分析的<code>$evalAsync</code>以及<code>$applyAsync</code>，下面我们就来通过相关源代码来分析一下：</p>
+          <p>module中定义的高层API现在已经介绍的差不多了，本文就把后面剩下的几个能介绍的先介绍了(不能介绍的还有蛮多的，比如filter，controller，directive，这些使我们后面讨论的内容，敬请期待 :) )。</p>
+<p>和依赖注入关系比较紧密的剩下2个方法分别是value和decorator。</p>
+<h2 id="Value"><a href="#Value" class="headerlink" title="Value"></a>Value</h2><p>在angular中，比较常见的问题除了service，factory和provider三者之间有何区别和联系之外(想知道答案就去看<a href="http://blog.csdn.net/dm_vincent/article/details/52200952">依赖注入 — Factory vs Service</a>)，还有一个问题也算比较热门。那就是constant和value有什么区别？</p>
+<p>光从定义方式上看，它们两者好像是没有什么区别：</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2016/06/08/AngularJS面面观-5-scope中的两个异步方法-applyAsync以及-evalAsync/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/06/07/AngularJS面面观-4-scope中的-apply方法-Digest-Cycle的触发者/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/07/AngularJS面面观-4-scope中的-apply方法-Digest-Cycle的触发者/" itemprop="url">
-                  [AngularJS面面观] 4. scope中的$apply方法 - Digest Cycle的触发者
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-07T18:49:00+08:00">
-                2016-06-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
-                    <span itemprop="name">AngularJS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>本文介绍scope对象中<code>$apply</code>方法的实现。关于<code>$apply</code>和<code>$digest</code>方法，就像是一枚硬币的两面，它们之间的区别和联系，在<a href="http://www.rxjiang.com/2014/08/20/%E7%90%86%E8%A7%A3Angular%E4%B8%AD%E7%9A%84-apply-%E4%BB%A5%E5%8F%8A-digest/">这篇译文</a>中做出了解答，有兴趣的同学可以看看。</p>
-<p>当然，本文的重点还是在于该方法是如何实现的。下面言归正传，来看看相关源代码：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$apply: <span class="function"><span class="keyword">function</span>(<span class="params">expr</span>) </span>&#123;</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    beginPhase(<span class="string">'$apply'</span>);</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">this</span>.$<span class="built_in">eval</span>(expr);</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      clearPhase();</div><div class="line">    &#125;</div><div class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">    $exceptionHandler(e);</div><div class="line">  &#125; <span class="keyword">finally</span> &#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      $rootScope.$digest();</div><div class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">      $exceptionHandler(e);</div><div class="line">      <span class="keyword">throw</span> e;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/06/07/AngularJS面面观-4-scope中的-apply方法-Digest-Cycle的触发者/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/05/15/AngularJS面面观-3-scope中的Dirty-Checking-脏数据检查-Digest-Cycle中的优化和细节/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/05/15/AngularJS面面观-3-scope中的Dirty-Checking-脏数据检查-Digest-Cycle中的优化和细节/" itemprop="url">
-                  [AngularJS面面观] 3. scope中的Dirty Checking(脏数据检查) --- Digest Cycle中的优化和细节
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-15T15:04:00+08:00">
-                2016-05-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
-                    <span itemprop="name">AngularJS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Digest-Cycle中的优化"><a href="#Digest-Cycle中的优化" class="headerlink" title="Digest Cycle中的优化"></a>Digest Cycle中的优化</h2><p>在<a href="http://blog.csdn.net/dm_vincent/article/details/51407292">上一篇文章</a>中，介绍了Digest Cycle的实现方法\$digest的大概逻辑。但是离真正的实现还有相当大的差距，具体的实现比较长，而且其中有很多细节在本篇文章还不会介绍，所以就不贴在这里了，有兴趣的可以去看<a href="https://github.com/angular/angular.js/blob/v1.5.5/src/ng/rootScope.js#L746">源码</a>。</p>
-<p>现在<code>$digest</code>方法的实现逻辑是这样的：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> ttl = <span class="number">10</span>;</div><div class="line"><span class="keyword">do</span> &#123;</div><div class="line">  <span class="keyword">var</span> dirty = <span class="literal">false</span>;</div><div class="line">  <span class="keyword">var</span> length = $$watchers.length;</div><div class="line">  <span class="keyword">var</span> watcher;</div><div class="line">  <span class="keyword">for</span>(<span class="keyword">var</span> idx = <span class="number">0</span>; idx &lt; length; idx++) &#123;</div><div class="line">    watcher = $$watchers[idx];</div><div class="line">    newVal = watcher.watchFn(scope);</div><div class="line">    oldVal = watcher.last;</div><div class="line">    <span class="keyword">if</span> (!newVal.equals(oldVal)) &#123;</div><div class="line">      watcher.last = newVal;</div><div class="line">      watcher.listener(newVal, oldVal, scope);</div><div class="line">      dirty = <span class="literal">true</span>;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  ttl -= <span class="number">1</span>;</div><div class="line">  <span class="keyword">if</span> (dirty &amp;&amp; ttl === <span class="number">0</span>) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="string">'10 $digest() iterations reached. Aborting!'</span>;</div><div class="line">  &#125;</div><div class="line">&#125; <span class="keyword">while</span> (dirty);</div></pre></td></tr></table></figure></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/05/15/AngularJS面面观-3-scope中的Dirty-Checking-脏数据检查-Digest-Cycle中的优化和细节/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/" itemprop="url">
-                  [AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-15T00:45:00+08:00">
-                2016-05-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
-                    <span itemprop="name">AngularJS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Dirty-Checking的实现方式"><a href="#Dirty-Checking的实现方式" class="headerlink" title="Dirty Checking的实现方式"></a>Dirty Checking的实现方式</h2><p>了解Angular的开发人员都知道，是一种叫做脏数据检查(Dirty Checking)的机制实现了双向绑定这一前端开发中的黑科技。那么在Angular中到底是如何实现它的呢？本文就一一来揭开它的神秘面纱。</p>
-<p>一言以蔽之，在angular中是通过Digest Cycle来完成脏数据检查从而完成双向绑定进而实现scope和view的同步的。下面分几个方面来介绍一下什么是Digest Cycle(DC)：</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/#more" rel="contents">
+            <a class="btn" href="/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1891,7 +1903,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1934,7 +1946,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">153</span>
+                <span class="site-state-item-count">177</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1943,7 +1955,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-count">26</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1952,7 +1964,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">95</span>
+                <span class="site-state-item-count">99</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

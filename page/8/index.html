@@ -302,7 +302,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/15/Effective-JavaScript-Item-62-在异步调用中使用嵌套或者命名的回调函数/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/11/Elasticsearch-多字段搜索-四-跨字段实体搜索/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -327,8 +327,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/15/Effective-JavaScript-Item-62-在异步调用中使用嵌套或者命名的回调函数/" itemprop="url">
-                  [Effective JavaScript] Item 62 在异步调用中使用嵌套或者命名的回调函数
+                <a class="post-title-link" href="/2014/12/11/Elasticsearch-多字段搜索-四-跨字段实体搜索/" itemprop="url">
+                  [Elasticsearch] 多字段搜索 (四) - 跨字段实体搜索
                 </a>
               
             
@@ -344,8 +344,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-15T09:40:00+08:00">
-                2014-11-15
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-11T10:09:00+08:00">
+                2014-12-11
               </time>
             
 
@@ -367,8 +367,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
                   </a>
                 </span>
 
@@ -378,8 +378,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaScript</span>
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
 
@@ -414,12 +414,13 @@
 
       
         
-          <p>在一开始，理解异步程序的调用顺序会有些困难。比如，下面的程序中，starting会先被打印出来，然后才是finished：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">downloadAsync(<span class="string">"file.txt"</span>, <span class="function"><span class="keyword">function</span>(<span class="params">file</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"finished"</span>);</div><div class="line">&#125;);</div><div class="line"><span class="built_in">console</span>.log(<span class="string">"starting"</span>);</div></pre></td></tr></table></figure>
-<p>downloadAsync方法在执行之后会立即返回，它只是为下载这个行为注册了一个回调函数而已。 由于JavaScript”运行到完成(Run-to-completion)”的特点，当前执行的代码不会被中断，因此会先打印出starting。直到下载完成之后，JavaScript从事件队列中拿到下载对应的回调函数并执行后，finished才会被输出。</p>
+          <h2 id="跨字段实体搜索-Cross-fields-Entity-Search"><a href="#跨字段实体搜索-Cross-fields-Entity-Search" class="headerlink" title="跨字段实体搜索(Cross-fields Entity Search)"></a>跨字段实体搜索(Cross-fields Entity Search)</h2><p>现在让我们看看一个常见的模式：跨字段实体搜索。类似person，product或者address这样的实体，它们的信息会分散到多个字段中。我们或许有一个person实体被索引如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"firstname"</span>:  <span class="string">"Peter"</span>,</div><div class="line">    <span class="attr">"lastname"</span>:   <span class="string">"Smith"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>而address实体则是像下面这样：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"street"</span>:   <span class="string">"5 Poland Street"</span>,</div><div class="line">    <span class="attr">"city"</span>:     <span class="string">"London"</span>,</div><div class="line">    <span class="attr">"country"</span>:  <span class="string">"United Kingdom"</span>,</div><div class="line">    <span class="attr">"postcode"</span>: <span class="string">"W1V 3DG"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/11/15/Effective-JavaScript-Item-62-在异步调用中使用嵌套或者命名的回调函数/#more" rel="contents">
+            <a class="btn" href="/2014/12/11/Elasticsearch-多字段搜索-四-跨字段实体搜索/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -460,7 +461,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/14/Effective-JavaScript-Item-61-不要阻塞事件队列/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/10/Elasticsearch-多字段搜索-三-multi-match查询和多数字段/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -485,8 +486,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/14/Effective-JavaScript-Item-61-不要阻塞事件队列/" itemprop="url">
-                  [Effective JavaScript] Item 61 不要阻塞事件队列
+                <a class="post-title-link" href="/2014/12/10/Elasticsearch-多字段搜索-三-multi-match查询和多数字段/" itemprop="url">
+                  [Elasticsearch] 多字段搜索 (三) - multi_match查询和多数字段
                 </a>
               
             
@@ -502,8 +503,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-14T12:32:00+08:00">
-                2014-11-14
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-10T09:59:00+08:00">
+                2014-12-10
               </time>
             
 
@@ -525,8 +526,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
                   </a>
                 </span>
 
@@ -536,8 +537,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaScript</span>
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
 
@@ -572,11 +573,14 @@
 
       
         
-          <p>JavaScript处理并发事件的机制是十分友好和强大的，它结合了事件队列(Event Queue)/事件循环并发(Event-loop Concurrency)和一套异步调用API。这因为这一点，JavaScript不仅可以在浏览器环境中运行，还可以在桌面应用和服务器应用中运行，如Node.js。</p>
-<p>令人奇怪的是，ECMAScript标准时至今日对并发这个问题还是只字未提。所以以下提到的各种并发方面的注意事项只是基于JavaScript本身语言特性总结得到的。</p>
+          <h2 id="multi-match查询"><a href="#multi-match查询" class="headerlink" title="multi_match查询"></a>multi_match查询</h2><p>multi_match查询提供了一个简便的方法用来对多个字段执行相同的查询。</p>
+<blockquote>
+<p>NOTE</p>
+<p>存在几种类型的multi_match查询，其中的3种正好和在”<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_single_query_string.html#know-your-data">了解你的数据</a>“一节中提到的几种类型相同：best_fields，most_fields以及cross_fields。</p>
+</blockquote>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/11/14/Effective-JavaScript-Item-61-不要阻塞事件队列/#more" rel="contents">
+            <a class="btn" href="/2014/12/10/Elasticsearch-多字段搜索-三-multi-match查询和多数字段/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -617,7 +621,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/13/Java-并发-Java并发编程实践-思维导图-第三章-对象的共享/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/09/Elasticsearch-多字段搜索-二-最佳字段查询及其调优/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -642,8 +646,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/13/Java-并发-Java并发编程实践-思维导图-第三章-对象的共享/" itemprop="url">
-                  [Java 并发] Java并发编程实践 思维导图 - 第三章 对象的共享
+                <a class="post-title-link" href="/2014/12/09/Elasticsearch-多字段搜索-二-最佳字段查询及其调优/" itemprop="url">
+                  [Elasticsearch] 多字段搜索 (二) - 最佳字段查询及其调优
                 </a>
               
             
@@ -659,8 +663,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-13T10:11:00+08:00">
-                2014-11-13
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-09T10:23:00+08:00">
+                2014-12-09
               </time>
             
 
@@ -682,8 +686,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
                   </a>
                 </span>
 
@@ -693,8 +697,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
 
@@ -729,11 +733,11 @@
 
       
         
-          <p>根据《Java并发编程实践》一书整理的思维导图。</p>
-<h2 id="第一部分"><a href="#第一部分" class="headerlink" title="第一部分"></a>第一部分</h2><p><img src="http://img.blog.csdn.net/20141113100959789?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+          <h2 id="最佳字段-Best-Fields"><a href="#最佳字段-Best-Fields" class="headerlink" title="最佳字段(Best Fields)"></a>最佳字段(Best Fields)</h2><p>假设我们有一个让用户搜索博客文章的网站，就像这两份文档一样：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">PUT /my_index/my_type/1</div><div class="line">&#123;</div><div class="line">    "title": "Quick brown rabbits",</div><div class="line">    "body":  "Brown rabbits are commonly seen."</div><div class="line">&#125;</div><div class="line"></div><div class="line">PUT /my_index/my_type/2</div><div class="line">&#123;</div><div class="line">    "title": "Keeping pets healthy",</div><div class="line">    "body":  "My quick brown fox eats rabbits on a regular basis."</div><div class="line">&#125;</div></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/11/13/Java-并发-Java并发编程实践-思维导图-第三章-对象的共享/#more" rel="contents">
+            <a class="btn" href="/2014/12/09/Elasticsearch-多字段搜索-二-最佳字段查询及其调优/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -774,7 +778,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/12/Effective-JavaScript-Item-51-在类数组对象上重用数组方法/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/08/Elasticsearch-多字段搜索-一-多个及单个查询字符串/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -799,8 +803,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/12/Effective-JavaScript-Item-51-在类数组对象上重用数组方法/" itemprop="url">
-                  [Effective JavaScript] Item 51 在类数组对象上重用数组方法
+                <a class="post-title-link" href="/2014/12/08/Elasticsearch-多字段搜索-一-多个及单个查询字符串/" itemprop="url">
+                  [Elasticsearch] 多字段搜索 (一) - 多个及单个查询字符串
                 </a>
               
             
@@ -816,8 +820,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-12T16:52:00+08:00">
-                2014-11-12
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-08T10:19:00+08:00">
+                2014-12-08
               </time>
             
 
@@ -839,8 +843,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
                   </a>
                 </span>
 
@@ -850,8 +854,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaScript</span>
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
 
@@ -886,12 +890,13 @@
 
       
         
-          <h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>Array.prototype对象上的标准方法被设计为也可以在其它对象上重用 - 即使不是继承自Array的对象。因此，在JavaScript中存折一些类数组对象(Array-like Objects)。</p>
-<p>一个典型的例子是函数的arguments对象，在Item 22中对它进行过介绍。该对象并不继承自Array.prototype，所以我们不能直接调用arguments.forEach来对其中的元素进行遍历。但是，我们可以通过首先得到forEach方法的对象，然后调用call方法(可以参考Item 20)：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">highlight</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    [].forEach.call(<span class="built_in">arguments</span>, <span class="function"><span class="keyword">function</span>(<span class="params">widget</span>) </span>&#123;</div><div class="line">        widget.setBackground(<span class="string">"yellow"</span>);</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+          <h1 id="多字段搜索-Multifield-Search"><a href="#多字段搜索-Multifield-Search" class="headerlink" title="多字段搜索(Multifield Search)"></a>多字段搜索(Multifield Search)</h1><p>本文翻译自官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/multi-field-search.html">Multifield Search</a>一章。</p>
+<p>查询很少是只拥有一个match查询子句的查询。我们经常需要对一个或者多个字段使用相同或者不同的查询字符串进行搜索，这意味着我们需要将多个查询子句和它们得到的相关度分值以一种有意义的方式进行合并。</p>
+<p>也许我们正在寻找一本名为战争与和平的书，它的作者是Leo Tolstoy。也许我们正在使用”最少应该匹配(Minimum Should Match)”来搜索ES中的文档。另外我们也可能会寻找拥有名为John而姓为Smith的用户。</p>
+<p>在本章中我们会讨论一些构建多字段搜索的工具，以及如何根据你的实际情况来决定使用哪种方案。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/11/12/Effective-JavaScript-Item-51-在类数组对象上重用数组方法/#more" rel="contents">
+            <a class="btn" href="/2014/12/08/Elasticsearch-多字段搜索-一-多个及单个查询字符串/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -932,7 +937,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/12/Effective-JavaScript-Item-50-优先使用遍历方法而非循环/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/06/Elasticsearch-全文搜索-四-控制分析及相关度/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -957,8 +962,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/12/Effective-JavaScript-Item-50-优先使用遍历方法而非循环/" itemprop="url">
-                  [Effective JavaScript] Item 50 优先使用遍历方法而非循环
+                <a class="post-title-link" href="/2014/12/06/Elasticsearch-全文搜索-四-控制分析及相关度/" itemprop="url">
+                  [Elasticsearch] 全文搜索 (四) - 控制分析及相关度
                 </a>
               
             
@@ -974,8 +979,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-12T10:06:00+08:00">
-                2014-11-12
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-06T10:38:00+08:00">
+                2014-12-06
               </time>
             
 
@@ -997,8 +1002,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
                   </a>
                 </span>
 
@@ -1008,8 +1013,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaScript</span>
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
 
@@ -1044,12 +1049,11 @@
 
       
         
-          <h2 id="优先使用遍历方法而非循环"><a href="#优先使用遍历方法而非循环" class="headerlink" title="优先使用遍历方法而非循环"></a>优先使用遍历方法而非循环</h2><p>在使用循环的时候，很容易违反DRY(Don’t Repeat Yourself)原则。这是因为我们通常会选择复制粘贴的方法来避免手写一段段的循环语句。但是这样做回让代码中出现大量重复代码，开发人员也在没有意义地”重复造轮子”。更重要的是，在复制粘贴的时候很容易忽视循环中的那些细节，比如起始索引值，终止判断条件等。</p>
-<p>比如以下的for循环就存在这个问题，假设n是集合对象的长度：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt;= n; i++) &#123; ... &#125;</div><div class="line"><span class="comment">// 终止条件错误，应该是i &lt; n</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">1</span>; i &lt; n; i++) &#123; ... &#125;</div><div class="line"><span class="comment">// 起始变量错误，应该是i = 0</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = n; i &gt;= <span class="number">0</span>; i--) &#123; ... &#125;</div><div class="line"><span class="comment">// 起始变量错误，应该是i = n - 1</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = n - <span class="number">1</span>; i &gt; <span class="number">0</span>; i--) &#123; ... &#125;</div><div class="line"><span class="comment">// 终止条件错误，应该是i &gt;= 0</span></div></pre></td></tr></table></figure>
+          <h2 id="控制分析-Controlling-Analysis"><a href="#控制分析-Controlling-Analysis" class="headerlink" title="控制分析(Controlling Analysis)"></a>控制分析(Controlling Analysis)</h2><p>查询只能摘到真实存在于倒排索引(Inverted Index)中的词条(Term)，因此确保相同的分析过程会被适用于文档的索引阶段和搜索阶段的查询字符串是很重要的，这样才能够让查询中的词条能够和倒排索引中的词条匹配。</p>
+<p>尽管我们说的是文档(Document)，解析器(Analyzer)是因字段而异的(Determined per Field)。每个字段都能够拥有一个不同的解析器，通过为该字段配置一个特定的解析器或者通过依赖类型(Type)，索引(Index)或者节点(Node)的默认解析器。在索引时，一个字段的值会被该字段的解析器解析。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/11/12/Effective-JavaScript-Item-50-优先使用遍历方法而非循环/#more" rel="contents">
+            <a class="btn" href="/2014/12/06/Elasticsearch-全文搜索-四-控制分析及相关度/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1090,7 +1094,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/11/Effective-JavaScript-Item-49-对于数组遍历，优先使用for循环，而不是for-in循环/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/05/Elasticsearch-全文搜索-三-match查询和bool查询的关系，提升查询子句/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1115,8 +1119,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/11/Effective-JavaScript-Item-49-对于数组遍历，优先使用for循环，而不是for-in循环/" itemprop="url">
-                  [Effective JavaScript] Item 49 对于数组遍历，优先使用for循环，而不是for..in循环
+                <a class="post-title-link" href="/2014/12/05/Elasticsearch-全文搜索-三-match查询和bool查询的关系，提升查询子句/" itemprop="url">
+                  [Elasticsearch] 全文搜索 (三) - match查询和bool查询的关系，提升查询子句
                 </a>
               
             
@@ -1132,8 +1136,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-11T09:49:00+08:00">
-                2014-11-11
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-05T10:08:00+08:00">
+                2014-12-05
               </time>
             
 
@@ -1155,8 +1159,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
                   </a>
                 </span>
 
@@ -1166,8 +1170,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaScript</span>
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
 
@@ -1202,13 +1206,11 @@
 
       
         
-          <p>本系列作为Effective JavaScript的读书笔记。</p>
-<h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>对于下面这段代码，能看出最后的平均数是多少吗？</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> scores = [<span class="number">98</span>, <span class="number">74</span>, <span class="number">85</span>, <span class="number">77</span>, <span class="number">93</span>, <span class="number">100</span>, <span class="number">89</span>];  </div><div class="line"><span class="keyword">var</span> total = <span class="number">0</span>;  </div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> score <span class="keyword">in</span> scores) &#123;  </div><div class="line">    total += score;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> mean = total / scores.length;  </div><div class="line">mean; <span class="comment">// ?</span></div></pre></td></tr></table></figure>
-<p>通过计算，最后的结果应该是88。</p>
+          <h2 id="match查询是如何使用bool查询的"><a href="#match查询是如何使用bool查询的" class="headerlink" title="match查询是如何使用bool查询的"></a>match查询是如何使用bool查询的</h2><p>现在，你也许意识到了使用了<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/match-multi-word.html">match查询的多词查询</a>只是简单地将生成的term查询包含在了一个bool查询中。通过默认的or操作符，每个term查询都以一个语句被添加，所以至少一个should语句需要被匹配。以下两个查询是等价的：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"match"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"brown fox"</span>&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">&#123;</div><div class="line">  <span class="attr">"bool"</span>: &#123;</div><div class="line">    <span class="attr">"should"</span>: [</div><div class="line">      &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"brown"</span> &#125;&#125;,</div><div class="line">      &#123; <span class="attr">"term"</span>: &#123; <span class="attr">"title"</span>: <span class="string">"fox"</span>   &#125;&#125;</div><div class="line">    ]</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/11/11/Effective-JavaScript-Item-49-对于数组遍历，优先使用for循环，而不是for-in循环/#more" rel="contents">
+            <a class="btn" href="/2014/12/05/Elasticsearch-全文搜索-三-match查询和bool查询的关系，提升查询子句/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1249,7 +1251,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/10/Effective-JavaScript-Item-47-绝不要向Object-prototype中添加可列举的-Enumerable-属性/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/04/Elasticsearch-全文搜索-二-多词查询及查询的合并/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1274,8 +1276,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/10/Effective-JavaScript-Item-47-绝不要向Object-prototype中添加可列举的-Enumerable-属性/" itemprop="url">
-                  [Effective JavaScript] Item 47 绝不要向Object.prototype中添加可列举的(Enumerable)属性
+                <a class="post-title-link" href="/2014/12/04/Elasticsearch-全文搜索-二-多词查询及查询的合并/" itemprop="url">
+                  [Elasticsearch] 全文搜索 (二) - 多词查询及查询的合并
                 </a>
               
             
@@ -1291,8 +1293,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-10T10:02:00+08:00">
-                2014-11-10
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-04T10:08:00+08:00">
+                2014-12-04
               </time>
             
 
@@ -1314,8 +1316,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
                   </a>
                 </span>
 
@@ -1325,8 +1327,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaScript</span>
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
 
@@ -1361,13 +1363,11 @@
 
       
         
-          <p>本系列作为Effective JavaScript的读书笔记。</p>
-<h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>如果你的代码中依赖于for..in循环来遍历Object类型中的属性的话，不要向Object.prototype中添加任何可列举的属性。</p>
-<p>但是在对JavaScript执行环境进行增强的时候，往往都需要向Object.prototype对象添加新的属性或者方法。比如可以添加一个方法用于得到某个对象中的所有的属性名：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Object</span>.prototype.allKeys = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> result = [];  </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> <span class="keyword">this</span>) &#123;  </div><div class="line">        result.push(key);  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+          <h2 id="多词查询-Multi-word-Queries"><a href="#多词查询-Multi-word-Queries" class="headerlink" title="多词查询(Multi-word Queries)"></a>多词查询(Multi-word Queries)</h2><p>如果我们一次只能搜索一个词，那么全文搜索就会显得相当不灵活。幸运的是，通过match查询来实现多词查询也同样简单：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">GET /my_index/my_type/_search</div><div class="line">&#123;</div><div class="line">    "query": &#123;</div><div class="line">        "match": &#123;</div><div class="line">            "title": "BROWN DOG!"</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/11/10/Effective-JavaScript-Item-47-绝不要向Object-prototype中添加可列举的-Enumerable-属性/#more" rel="contents">
+            <a class="btn" href="/2014/12/04/Elasticsearch-全文搜索-二-多词查询及查询的合并/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1408,7 +1408,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/09/Java-并发-Java并发编程实践-思维导图-第二章-线程安全性/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/03/Elasticsearch-全文搜索-一-基础概念和match查询/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1433,8 +1433,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/09/Java-并发-Java并发编程实践-思维导图-第二章-线程安全性/" itemprop="url">
-                  [Java 并发] Java并发编程实践 思维导图 - 第二章 线程安全性
+                <a class="post-title-link" href="/2014/12/03/Elasticsearch-全文搜索-一-基础概念和match查询/" itemprop="url">
+                  [Elasticsearch] 全文搜索 (一) - 基础概念和match查询
                 </a>
               
             
@@ -1450,8 +1450,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-09T11:25:00+08:00">
-                2014-11-09
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-03T10:04:00+08:00">
+                2014-12-03
               </time>
             
 
@@ -1473,8 +1473,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
                   </a>
                 </span>
 
@@ -1484,8 +1484,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
 
@@ -1520,11 +1520,12 @@
 
       
         
-          <p>根据《Java并发编程实践》一书整理的思维导图。</p>
-<h2 id="第一部分"><a href="#第一部分" class="headerlink" title="第一部分"></a>第一部分</h2><p><img src="http://img.blog.csdn.net/20141109112454296?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+          <p>翻译自官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/full-text-search.html">全文搜索</a>一章。</p>
+<h2 id="全文搜索-Full-Text-Search"><a href="#全文搜索-Full-Text-Search" class="headerlink" title="全文搜索(Full Text Search)"></a>全文搜索(Full Text Search)</h2><p>现在我们已经讨论了搜索结构化数据的一些简单用例，是时候开始探索全文搜索了 - 如何在全文字段中搜索来找到最相关的文档。</p>
+<p>对于全文搜索而言，最重要的两个方面是：</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/11/09/Java-并发-Java并发编程实践-思维导图-第二章-线程安全性/#more" rel="contents">
+            <a class="btn" href="/2014/12/03/Elasticsearch-全文搜索-一-基础概念和match查询/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1565,7 +1566,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/08/Java-并发-Java并发编程实践-思维导图-第一章-简介/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/02/AngularJS-Elasticsearch-使用AngularJS为基于Elasticsearch的应用创建前端/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1590,8 +1591,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/08/Java-并发-Java并发编程实践-思维导图-第一章-简介/" itemprop="url">
-                  [Java 并发] Java并发编程实践 思维导图 - 第一章 简介
+                <a class="post-title-link" href="/2014/12/02/AngularJS-Elasticsearch-使用AngularJS为基于Elasticsearch的应用创建前端/" itemprop="url">
+                  [AngularJS/Elasticsearch] 使用AngularJS为基于Elasticsearch的应用创建前端
                 </a>
               
             
@@ -1607,8 +1608,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-08T10:08:00+08:00">
-                2014-11-08
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-02T10:10:00+08:00">
+                2014-12-02
               </time>
             
 
@@ -1630,8 +1631,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
                   </a>
                 </span>
 
@@ -1641,8 +1642,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
+                  <a href="/categories/工具-库与框架/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
                   </a>
                 </span>
 
@@ -1677,11 +1678,15 @@
 
       
         
-          
-            <p>阅读《Java并发编程实践》一书后整理的思维导图。</p>
-<p><img src="http://img.blog.csdn.net/20141108100742634?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
-
-          
+          <h1 id="使用AngularJS为基于Elasticsearch的应用创建前端"><a href="#使用AngularJS为基于Elasticsearch的应用创建前端" class="headerlink" title="使用AngularJS为基于Elasticsearch的应用创建前端"></a>使用AngularJS为基于Elasticsearch的应用创建前端</h1><p>如果使用Elasticsearch使用应用的数据源，我们可以很方便的使用AngularJS结合Elasticsearch提供的相关模块为它创建一个前端。</p>
+<p>以创建一个简单的员工信息花名册为例。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/12/02/AngularJS-Elasticsearch-使用AngularJS为基于Elasticsearch的应用创建前端/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1718,7 +1723,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/07/Java-8-11-使用Lambda的原则/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/01/Elasticsearch-索引管理-五-默认映射，重索引，索引别名/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -1743,8 +1748,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/11/07/Java-8-11-使用Lambda的原则/" itemprop="url">
-                  [Java 8] (11) 使用Lambda的原则
+                <a class="post-title-link" href="/2014/12/01/Elasticsearch-索引管理-五-默认映射，重索引，索引别名/" itemprop="url">
+                  [Elasticsearch] 索引管理 (五) - 默认映射，重索引，索引别名
                 </a>
               
             
@@ -1760,8 +1765,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-07T10:16:00+08:00">
-                2014-11-07
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-01T10:13:00+08:00">
+                2014-12-01
               </time>
             
 
@@ -1783,8 +1788,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
                   </a>
                 </span>
 
@@ -1794,8 +1799,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
                   </a>
                 </span>
 
@@ -1830,12 +1835,10 @@
 
       
         
-          <p>要想更好的使用函数式编程，仅仅熟悉其语法结构是远远不够的。必须从思想和设计层面，去考虑它，去接纳它。这种编程范式和大多数开发人员所熟知的面向对象编程范式是不同的。</p>
-<p>下面我们从以下几个方面来回顾一下使用函数式编程的要点：</p>
-<h2 id="多用声明式，少用命令式"><a href="#多用声明式，少用命令式" class="headerlink" title="多用声明式，少用命令式"></a>多用声明式，少用命令式</h2><p>要想更好的使用函数式编程，首先必须要提升代码的抽象程度。之所以使用函数式编程在完成同样任务时需要的代码量比命令式要少，很大程度上就是源于函数式风格的代码的抽象程度更高，能够表达的语义也就更丰富。</p>
+          <h2 id="默认映射-Default-Mapping"><a href="#默认映射-Default-Mapping" class="headerlink" title="默认映射(Default Mapping)"></a>默认映射(Default Mapping)</h2><p>一般情况下，索引中的所有类型都会有相似的字段和设置。因此将这些常用设置在_default映射中指定会更加方便，这样就不需要在每次创建新类型的时候都重复设置。_default映射的角色是新类型的模板。所有在_default映射之后创建的类型都会包含所有的默认设置，除非显式地在类型映射中进行覆盖。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/11/07/Java-8-11-使用Lambda的原则/#more" rel="contents">
+            <a class="btn" href="/2014/12/01/Elasticsearch-索引管理-五-默认映射，重索引，索引别名/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1871,7 +1874,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1914,7 +1917,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">153</span>
+                <span class="site-state-item-count">177</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1923,7 +1926,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-count">26</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1932,7 +1935,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">95</span>
+                <span class="site-state-item-count">99</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

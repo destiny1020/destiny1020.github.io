@@ -1,0 +1,830 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,源码分析,依赖管理," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="module中定义的高层API现在已经介绍的差不多了，本文就把后面剩下的几个能介绍的先介绍了(不能介绍的还有蛮多的，比如filter，controller，directive，这些使我们后面讨论的内容，敬请期待 :) )。
+和依赖注入关系比较紧密的剩下2个方法分别是value和decorator。
+Value在angular中，比较常见的问题除了service，factory和provider三者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS面面观] 24. 依赖注入 --- Value以及Decorator">
+<meta property="og:url" content="http://rxjiang.com/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="module中定义的高层API现在已经介绍的差不多了，本文就把后面剩下的几个能介绍的先介绍了(不能介绍的还有蛮多的，比如filter，controller，directive，这些使我们后面讨论的内容，敬请期待 :) )。
+和依赖注入关系比较紧密的剩下2个方法分别是value和decorator。
+Value在angular中，比较常见的问题除了service，factory和provider三者">
+<meta property="og:updated_time" content="2017-02-20T10:50:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS面面观] 24. 依赖注入 --- Value以及Decorator">
+<meta name="twitter:description" content="module中定义的高层API现在已经介绍的差不多了，本文就把后面剩下的几个能介绍的先介绍了(不能介绍的还有蛮多的，比如filter，controller，directive，这些使我们后面讨论的内容，敬请期待 :) )。
+和依赖注入关系比较紧密的剩下2个方法分别是value和decorator。
+Value在angular中，比较常见的问题除了service，factory和provider三者">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/"/>
+
+
+
+
+
+  <title> [AngularJS面面观] 24. 依赖注入 --- Value以及Decorator | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS面面观] 24. 依赖注入 --- Value以及Decorator
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-28T18:55:00+08:00">
+                2016-08-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>module中定义的高层API现在已经介绍的差不多了，本文就把后面剩下的几个能介绍的先介绍了(不能介绍的还有蛮多的，比如filter，controller，directive，这些使我们后面讨论的内容，敬请期待 :) )。</p>
+<p>和依赖注入关系比较紧密的剩下2个方法分别是value和decorator。</p>
+<h2 id="Value"><a href="#Value" class="headerlink" title="Value"></a>Value</h2><p>在angular中，比较常见的问题除了service，factory和provider三者之间有何区别和联系之外(想知道答案就去看<a href="http://blog.csdn.net/dm_vincent/article/details/52200952" target="_blank" rel="external">依赖注入 — Factory vs Service</a>)，还有一个问题也算比较热门。那就是constant和value有什么区别？</p>
+<p>光从定义方式上看，它们两者好像是没有什么区别：</p>
+<a id="more"></a>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">module</span>.constant(<span class="string">'a'</span>, <span class="string">'aConstant'</span>);</div><div class="line"><span class="built_in">module</span>.value(<span class="string">'b'</span>, <span class="string">'bValue'</span>);</div></pre></td></tr></table></figure>
+<p>它们的定义方式都很简单，就是一个键值对。然而angular为什么要弄两个API出来呢？让我们从代码层面上看看：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// value在module中的定义</span></div><div class="line">value: invokeLater(<span class="string">'$provide'</span>, <span class="string">'value'</span>),</div><div class="line"></div><div class="line"><span class="comment">// constant在module中的定义</span></div><div class="line">constant: invokeLater(<span class="string">'$provide'</span>, <span class="string">'constant'</span>, <span class="string">'unshift'</span>)</div></pre></td></tr></table></figure>
+<p>可以发现，它们的区别在于一个对应注入器内部的value函数，另一个对应constant函数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">value</span>(<span class="params">name, val</span>) </span>&#123; </div><div class="line">  <span class="keyword">return</span> factory(name, valueFn(val), <span class="literal">false</span>); </div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// factory函数的定义</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">factory</span>(<span class="params">name, factoryFn, enforce</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> provider(name, &#123;</div><div class="line">    <span class="attr">$get</span>: enforce !== <span class="literal">false</span> ? enforceReturnValue(name, factoryFn) : factoryFn</div><div class="line">  &#125;);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// valueFn的定义</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">valueFn</span>(<span class="params">value</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">valueRef</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> value;</div><div class="line">  &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>所以value本质上也是基于factory来实现的，通过valueFn将一个值封装成一个返回它自身的函数。而这里也利用到了factory函数的第三个参数：enforce。将它设置为false表示value可以被定义为undefined，也就是说下面的定义是合法的，尽管我们不会无聊到去这样做：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">module</span>.value(<span class="string">'a'</span>, <span class="literal">undefined</span>);</div></pre></td></tr></table></figure>
+<p>正式因为value本质上也是依赖于factory的，所以value和constant的区别也就一目了然了。constant对于两个注入器都是可见的，因为在constant的实现中将constant的值同时放入到了两个注入器的缓存中。而value则不然，它的值仅对于实例注入器可见。所以在provider的构造函数以及config队列定义的任务中可以将constant声明为依赖，但是不可将value声明为依赖。因为provider的构造函数以及config队列是通过provider注入器来调用的。</p>
+<p>但是在实际开发中，用到value的场合并不太多。至少对于我而言很少用到它，因为value提供的功能用constant基本上都能够满足。而constant由于其对两个注入器都是可见的，所以使用起来更方便，只要支持依赖注入的地方就可以使用，不用区分实例注入器和provider注入器。</p>
+<h2 id="Decorator"><a href="#Decorator" class="headerlink" title="Decorator"></a>Decorator</h2><p>装饰器算是依赖注入部分最后一个要介绍的概念。顾名思义，装饰器实现了<a href="https://en.wikipedia.org/wiki/Decorator_pattern" target="_blank" rel="external">装饰器模式(Decorator Pattern)</a>。利用这种模式能够给已经存在的对象附加一些额外的功能或者改变现有的功能，也就是”装饰”它。</p>
+<p>那么在angular依赖注入这一上下文环境中，装饰器的作用又是什么呢？</p>
+<p>在开发angular应用的时候，我们都引用过其它的第三方模块。引入第三方模块，从依赖注入的观点来看，就是将第三方模块中定义的各种服务都注册一遍，然后在需要的时候将这些服务实例化，放到注入器的缓存中保管并将它们注入到被需要的地方。绝大多数时候第三方的服务都能够很好的工作，但是偶尔我们也想改动一下它们使之能够更好的契合业务需求。这个时候有两条路可以选：</p>
+<ol>
+<li>fork这个第三方模块然后直接改动其源代码</li>
+<li>使用decorator对它进行改动</li>
+</ol>
+<p>毫无疑问，使用第一种方式在多数情况下并不可取，fork一个模块的代价可能是放弃这个模块后续的版本，毕竟你的改动让这个模块和它后续的版本可能不再兼容。所以为了解决这个问题，angular也提供了装饰器模式的实现decorator：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">decorator: invokeLaterAndSetModuleName(<span class="string">'$provide'</span>, <span class="string">'decorator'</span>)</div></pre></td></tr></table></figure>
+<p>可见decorator在定义方式上和其它的factory，service并没有什么本质区别。唯一的区别就是它的”蓝图”是<code>$provide</code>中的decorator函数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">decorator</span>(<span class="params">serviceName, decorFn</span>) </span>&#123;</div><div class="line">  <span class="comment">// 直接从provider注入器的缓存中取得相应provider</span></div><div class="line">  <span class="keyword">var</span> origProvider = providerInjector.get(serviceName + providerSuffix),</div><div class="line">      orig$get = origProvider.$get;  <span class="comment">// 将原$get方法保存起来，准备覆盖</span></div><div class="line"></div><div class="line">  <span class="comment">// 覆盖$get方法</span></div><div class="line">  origProvider.$get = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="comment">// 得到未经装饰的实例对象</span></div><div class="line">    <span class="keyword">var</span> origInstance = instanceInjector.invoke(orig$get, origProvider);</div><div class="line"></div><div class="line">    <span class="comment">// 利用实例注入器调用装饰器函数，未经装饰的实例以$delegate参数传入</span></div><div class="line">    <span class="keyword">return</span> instanceInjector.invoke(decorFn, <span class="literal">null</span>, &#123;<span class="attr">$delegate</span>: origInstance&#125;);</div><div class="line">  &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先来看看函数的参数是什么意思：</p>
+<p>serviceName：表示的是需要装饰的服务名字。<br>decorFn：装饰函数，用以实现具体的装饰行为。</p>
+<p>从decorator函数的实现来看，需要明确两个问题：</p>
+<ol>
+<li>为什么可以直接拿到service相对应的provider？</li>
+<li>invoke方法的第三个参数如何工作？</li>
+</ol>
+<p>先来回答第一个问题。</p>
+<p>decorator函数的第一个参数serviceName其实是一个泛指，并不一定非要是一个service，其实factory，value等等都是可以的(因为它们都有对应的provider；而constant不行，因为它并没有对应的provider)。而我们知道不管是service也好，factory也好，还是value也好。它们最终都是依赖于provider的，而注入器内部的provider函数实现如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">provider</span>(<span class="params">name, provider_</span>) </span>&#123;</div><div class="line">  assertNotHasOwnProperty(name, <span class="string">'service'</span>);</div><div class="line">  <span class="keyword">if</span> (isFunction(provider_) || isArray(provider_)) &#123;</div><div class="line">    provider_ = providerInjector.instantiate(provider_);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span> (!provider_.$get) &#123;</div><div class="line">    <span class="keyword">throw</span> $injectorMinErr(<span class="string">'pget'</span>, <span class="string">"Provider '&#123;0&#125;' must define $get factory method."</span>, name);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// 将创建得到的provider以name + "Provider"的键值命名方式存入到provider注入器缓存中</span></div><div class="line">  <span class="keyword">return</span> providerCache[name + providerSuffix] = provider_;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该函数的最后一行是关键：将创建得到的provider以name + “Provider”的键值命名方式存入到provider注入器缓存中。所以<code>origProvider = providerInjector.get(serviceName + providerSuffix)</code>是可以正常工作的。</p>
+<p>下面回答第二个问题。其实这个问题在以前介绍注入器的基础知识的时候就已经讨论过了，这个参数的名字叫做locals，它用来提供额外的依赖或者是覆盖现有的依赖。下面再回顾一下invoke的调用过程就算是加深印象吧。</p>
+<p>拿到了provider，就相当于拿到了创建一个依赖对象的”蓝图”，在装饰器中就可以先将它创建出来，然后再随心所欲的修改它了。修改时调用的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 第三个参数是locals</span></div><div class="line">instanceInjector.invoke(decorFn, <span class="literal">null</span>, &#123;<span class="attr">$delegate</span>: origInstance&#125;)</div><div class="line"></div><div class="line"><span class="comment">// 注入器的invoke函数实现</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">invoke</span>(<span class="params">fn, self, locals, serviceName</span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> locals === <span class="string">'string'</span>) &#123;</div><div class="line">    serviceName = locals;</div><div class="line">    locals = <span class="literal">null</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// 将声明的参数注入到函数中</span></div><div class="line">  <span class="keyword">var</span> args = injectionArgs(fn, locals, serviceName);</div><div class="line">  <span class="keyword">if</span> (isArray(fn)) &#123;</div><div class="line">    fn = fn[fn.length - <span class="number">1</span>];</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (!isClass(fn)) &#123;</div><div class="line">    <span class="keyword">return</span> fn.apply(self, args);</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    args.unshift(<span class="literal">null</span>);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> (<span class="built_in">Function</span>.prototype.bind.apply(fn, args))();</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 准备依赖对象</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">injectionArgs</span>(<span class="params">fn, locals, serviceName</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> args = [],</div><div class="line">      $inject = createInjector.$$annotate(fn, strictDi, serviceName);</div><div class="line"></div><div class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, length = $inject.length; i &lt; length; i++) &#123;</div><div class="line">    <span class="keyword">var</span> key = $inject[i];</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> key !== <span class="string">'string'</span>) &#123;</div><div class="line">      <span class="keyword">throw</span> $injectorMinErr(<span class="string">'itkn'</span>,</div><div class="line">              <span class="string">'Incorrect injection token! Expected service name as string, got &#123;0&#125;'</span>, key);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 如果locals中含有key相同的属性，就使用locals中的属性作为依赖</span></div><div class="line">    args.push(locals &amp;&amp; locals.hasOwnProperty(key) ? locals[key] :</div><div class="line">                                                     getService(key, serviceName));</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> args;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里完成了将未经修改的实例以<code>$delegate</code>传入到装饰器函数中。比如下面这段代码就实现了一个简单的装饰，给一个factory的返回实例增加了一个字段：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">module</span>.factory(<span class="string">'aFactory'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> &#123;</div><div class="line">    <span class="attr">a</span>: <span class="string">'aConstant'</span></div><div class="line">  &#125;;</div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="built_in">module</span>.decorator(<span class="string">'aFactory'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">$delegate</span>) </span>&#123;</div><div class="line">  $delegate.b = <span class="string">'bConstant'</span>;</div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="built_in">module</span>.run(<span class="function"><span class="keyword">function</span>(<span class="params">aFactory</span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(aFactory.a);  <span class="comment">// 输出：aConstant</span></div><div class="line">  <span class="built_in">console</span>.log(aFactory.b);  <span class="comment">// 输出：bConstant</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>decorator使用的场合并不是那么多，但是了解它的用法有时候能够帮上大忙。</p>
+<hr>
+<p>至此，angular中有关依赖注入的讨论就告一段落了。一共有好些篇文章来介绍这个特性，毕竟这个特性是angular中一个不可或缺同时也是非常吸引人的特性。它可以说是angular框架的中枢神经，在它的帮助下，才得以实现诸多强大的特性，比如前面介绍过的scope，以及未来要介绍的directive等等。</p>
+<p>文章写的可能存在一些问题，如果有任何疑问欢迎提出来一起探讨。</p>
+<p>谢谢。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/依赖管理/" rel="tag"># 依赖管理</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/26/AngularJS面面观-23-依赖注入-Factory-vs-Service/" rel="next" title="[AngularJS面面观] 23. 依赖注入 --- Factory vs Service">
+                <i class="fa fa-chevron-left"></i> [AngularJS面面观] 23. 依赖注入 --- Factory vs Service
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/17/JavaEE-JPA-1-事务的基础概念/" rel="prev" title="[JavaEE - JPA] 1. 事务的基础概念">
+                [JavaEE - JPA] 1. 事务的基础概念 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Value"><span class="nav-number">1.</span> <span class="nav-text">Value</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Decorator"><span class="nav-number">2.</span> <span class="nav-text">Decorator</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

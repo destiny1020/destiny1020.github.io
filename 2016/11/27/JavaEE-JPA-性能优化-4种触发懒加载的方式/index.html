@@ -1,0 +1,834 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="优化,Performance,JPA,JavaEE," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在一个JPA应用中，可以通过懒加载来提高应用的性能。这一点毋庸置疑，但是懒加载不等于不加载，在某个时刻还是需要加载这些数据的，那么如何触发这个加载的行为才能够事半功倍呢？
+这里我想说一点题外话，面试的时候我也会考察被面试者对于JPA/Hibernate的看法，得到的答复通常都包含了对JPA/Hibernate的一些”鄙夷”，比如JPA/Hibernate性能太菜了，现在主流的持久层框架是MyBat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JavaEE - JPA] 性能优化: 4种触发懒加载的方式">
+<meta property="og:url" content="http://rxjiang.com/2016/11/27/JavaEE-JPA-性能优化-4种触发懒加载的方式/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="在一个JPA应用中，可以通过懒加载来提高应用的性能。这一点毋庸置疑，但是懒加载不等于不加载，在某个时刻还是需要加载这些数据的，那么如何触发这个加载的行为才能够事半功倍呢？
+这里我想说一点题外话，面试的时候我也会考察被面试者对于JPA/Hibernate的看法，得到的答复通常都包含了对JPA/Hibernate的一些”鄙夷”，比如JPA/Hibernate性能太菜了，现在主流的持久层框架是MyBat">
+<meta property="og:updated_time" content="2017-02-20T11:25:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JavaEE - JPA] 性能优化: 4种触发懒加载的方式">
+<meta name="twitter:description" content="在一个JPA应用中，可以通过懒加载来提高应用的性能。这一点毋庸置疑，但是懒加载不等于不加载，在某个时刻还是需要加载这些数据的，那么如何触发这个加载的行为才能够事半功倍呢？
+这里我想说一点题外话，面试的时候我也会考察被面试者对于JPA/Hibernate的看法，得到的答复通常都包含了对JPA/Hibernate的一些”鄙夷”，比如JPA/Hibernate性能太菜了，现在主流的持久层框架是MyBat">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/11/27/JavaEE-JPA-性能优化-4种触发懒加载的方式/"/>
+
+
+
+
+
+  <title> [JavaEE - JPA] 性能优化: 4种触发懒加载的方式 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/11/27/JavaEE-JPA-性能优化-4种触发懒加载的方式/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [JavaEE - JPA] 性能优化: 4种触发懒加载的方式
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-11-27T23:16:00+08:00">
+                2016-11-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/JPA/" itemprop="url" rel="index">
+                    <span itemprop="name">JPA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在一个JPA应用中，可以通过懒加载来提高应用的性能。这一点毋庸置疑，但是懒加载不等于不加载，在某个时刻还是需要加载这些数据的，那么如何触发这个加载的行为才能够事半功倍呢？</p>
+<p>这里我想说一点题外话，面试的时候我也会考察被面试者对于JPA/Hibernate的看法，得到的答复通常都包含了对JPA/Hibernate的一些”鄙夷”，比如JPA/Hibernate性能太菜了，现在主流的持久层框架是MyBatis云云。然后我也会试图让他们去分析一下为什么会慢，一部分人不知道如何回答，答曰感觉很慢；另外一些人可能使用的经验稍微多一些，于是答道JPA Provider(例如Hibernate)会生成非常多效率低下的SQL，于是看起来性能就不行了。如果再深究下去问如何改进这些效率低下的SQL呢？能够谈出个一二三的就更是凤毛麟角了。所以我觉得，很多人其实在没有深入调研JPA之前就给出了一个不是很恰当的结论。每种技术都有自身的优缺点，完美的技术是不存在的。具体问题具体分析，不要人云亦云是一个开发人员应该拥有的基本能力。当然我也不是JPA的卫道士，JPA在目前互联网海量数据的环境下，确实有很多的问题，最典型的比如对于数据分片，分表分库上支持的欠缺。我想正是这一点才让MyBatis成为了目前的互联网公司的主流选择。但是，并不是所有的应用都有那么大的数据量，也不是所有的项目都需要去分表分库。更多的中小型项目，如果能够合理地运用好JPA，开发效率和项目的服务性能绝对不会差。毕竟，JPA作为JavaEE标准的一部分，岂能浪得虚名？</p>
+<p>所以，这篇文章我想从触发懒加载这个角度，分析几种不同的实现方式，来看看应该如何提高应用的性能。</p>
+<a id="more"></a>
+<h2 id="数据关联关系的假设"><a href="#数据关联关系的假设" class="headerlink" title="数据关联关系的假设"></a>数据关联关系的假设</h2><p>在具体分析4种触发方式之前，我们先来假设一组关联关系：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Entity</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Department</span> </span>&#123;</div><div class="line">	<span class="comment">// 主键等字段</span></div><div class="line">	<span class="comment">// ......</span></div><div class="line"></div><div class="line">	<span class="meta">@OneToMany</span>(mappedBy = <span class="string">"department"</span>)</div><div class="line">	<span class="keyword">private</span> List&lt;Employee&gt; employees;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="通过方法调用触发"><a href="#通过方法调用触发" class="headerlink" title="通过方法调用触发"></a>通过方法调用触发</h2><p>这是使用频率最高的一种触发方式，几乎所有JPA开发人员一般情况下都会使用这种方式。甚至在任何场合下都使用这种方式的开发人员也不在少数。</p>
+<p>顾名思义，这种方式通过在employee集合对象上调用方法来完成触发，比如下面的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Department dept = em.find(Department.class, deptId);</div><div class="line"><span class="keyword">int</span> count = dept.getEmployees().size();</div><div class="line"><span class="comment">// ......</span></div></pre></td></tr></table></figure>
+<p>通过调用size方法来触发懒加载，这个size的执行会让JPA的Provider生成具体去获取集合数据的SQL并执行之。这种方法看似没什么问题，在很多场景下确实也非常好用。但是它太简单粗暴了。在下面两种情况下，都会造成较为严重的性能问题：</p>
+<ol>
+<li>集合数据量大。比如关联数据有上成百上千条记录时。</li>
+<li>一个实体类型需要触发懒加载的关系很多。比如当上述Department类型还需要加载更多一对多的关系时。</li>
+</ol>
+<p>第一种情况很好理解，数据量越大，SQL执行的时间越久，这一点毫无疑问。<br>第二种情况，假设Department类型有10个一对多关系，现在都需要触发懒加载行为来得到完整的数据。那么针对每个关系都会产生一条SQL命令。加上它自身的，一共就是11条命令。当然你的应用往往不会只有一个用户在使用，假设有100个用户同时使用，那么就是1100条SQL会被执行！这能不慢吗？</p>
+<p>所以对于这种触发方式，在确定不会发生上述两种情况时，是可以使用的。一旦有发生它们的风险，就不要使用了。</p>
+<h2 id="通过Join-Fetch触发"><a href="#通过Join-Fetch触发" class="headerlink" title="通过Join Fetch触发"></a>通过Join Fetch触发</h2><p>这种方式通过在JPQL中添加JOIN FETCH来完成关联关系的获取：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Query q = em.createQuery(<span class="string">"SELECT d FROM Department d JOIN FETCH d.employees e WHERE d.id = :id"</span>);</div><div class="line">q.setParameter(<span class="string">"id"</span>, deptId);</div><div class="line">Department dept = (Department) q.getSingleResult();</div></pre></td></tr></table></figure>
+<p>这种方式，主要解决了在通过方法调用触发时面临的第二个问题：执行的SQL命令数量过多。<br>使用JOIN FETCH时，执行的SQL命令只有一条。因此，需要触发加载行为的关系越多，使用JOIN FETCH带来的性能优势就越明显。</p>
+<p>但是这种方式并非一本万利，如果不同业务场景下需要触发加载的关系不一样，就会产生非常多的组合。而每种组合的JPQL都是不一样的。此时可以结合实际的业务需求通过字符串的拼接操作完成JPQL的准备工作。而这个准备工作在组合情况很多的情况下，往往会十分复杂。不过相比它能够带来的性能提升，这些麻烦都是可以克服的。</p>
+<p>除了直接提供JPQL，在Criteria API中也能使用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">CriteriaBuilder cb = em.getCriteriaBuilder();</div><div class="line">CriteriaQuery q = cb.createQuery(Department.class);</div><div class="line">Root d = q.from(Department.class);</div><div class="line">d.fetch(<span class="string">"employees"</span>, JoinType.INNER);</div><div class="line">q.select(d);</div><div class="line">q.where(cb.equal(d.get(<span class="string">"id"</span>), deptId));</div><div class="line">Department dept = (Department)em.createQuery(q).getSingleResult();</div></pre></td></tr></table></figure>
+<p>这种方式只是定义查询的方式不同而已，在性能层面上和直接写JPQL是一样的。</p>
+<h2 id="通过NamedEntityGraph触发"><a href="#通过NamedEntityGraph触发" class="headerlink" title="通过NamedEntityGraph触发"></a>通过NamedEntityGraph触发</h2><p>这种方式实际上是JPA 2.1中新增的一项特性。借助它也能够完成懒加载的触发。我们先来看看如何定义一个命名的EntityGraph，即NamedEntityGraph。从命名方式上看，是不是很接近于NamedEntityQuery？所以引申到定义方式而言，它们也是很接近的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Entity</span></div><div class="line"><span class="meta">@NamedEntityGraph</span>(name = <span class="string">"graph.Department.employees"</span>, </div><div class="line">      attributeNodes = <span class="meta">@NamedAttributeNode</span>(<span class="string">"employees"</span>))</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Department</span> </span>&#123;</div><div class="line">	<span class="comment">// ......</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>使用它进行关系的加载：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">EntityGraph graph = em.getEntityGraph(<span class="string">"graph.Department.employees"</span>);</div><div class="line">Map&lt;String, Object&gt; props = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">props.put(<span class="string">"javax.persistence.fetchgraph"</span>, graph);</div><div class="line">Department dept = em.find(Department.class, deptId, props);</div></pre></td></tr></table></figure>
+<p>此时查询得到的Department对象就包含了我们需要的Employee集合。同样地，使用这种方式的时候也只会生成并执行一条SQL命令。</p>
+<p>但是在组合情况比较多的时候，和使用Join Fetch一样，也是需要根据业务场景进行一些准备工作的，只不过这个准备工作更加麻烦，每个组合都需要添加一个专门的@NamedEntityGraph注解用来定义。所以，在组合关系很多的时候，使用@NamedEntityGraph是很不划算的。因此也就有了下面的动态EntityGraph。</p>
+<h2 id="通过动态的EntityGraph触发"><a href="#通过动态的EntityGraph触发" class="headerlink" title="通过动态的EntityGraph触发"></a>通过动态的EntityGraph触发</h2><p>动态EntityGraph的定义方式更加灵活：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">EntityGraph graph = <span class="keyword">this</span>.em.createEntityGraph(Department.class);</div><div class="line">Subgraph employeesGraph = graph.addSubgraph(<span class="string">"employees"</span>);</div><div class="line">Map&lt;String, Object&gt; props = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">props.put(<span class="string">"javax.persistence.loadgraph"</span>, graph);</div><div class="line">Department dept = em.find(Department.class, deptId, props);</div></pre></td></tr></table></figure>
+<p>动态EntityGraph根据需要加载的关系，通过addSubgraph方法进行指定。</p>
+<h2 id="EntityGraph与JOIN-FETCH是一样的？"><a href="#EntityGraph与JOIN-FETCH是一样的？" class="headerlink" title="EntityGraph与JOIN FETCH是一样的？"></a>EntityGraph与JOIN FETCH是一样的？</h2><p>细心的同学看到这里，也许会发现目前介绍的所谓EntityGraph，怎么跟JOIN FETCH那么那么像呢？难道只是换了个马甲？</p>
+<p>很显然，并没有这么简单。</p>
+<p>注意一下上面的这两行代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// #1 loadgraph</span></div><div class="line">props.put(<span class="string">"javax.persistence.loadgraph"</span>, graph);</div><div class="line"></div><div class="line"><span class="comment">// #2 fetchgraph</span></div><div class="line">props.put(<span class="string">"javax.persistence.fetchgraph"</span>, graph);</div></pre></td></tr></table></figure>
+<p>这两者有什么具体的区别呢？这里我不打算长篇累牍地介绍。捡重点说就是：</p>
+<ol>
+<li>loadgraph：在原有Entity的定义的基础上，定义<strong>还</strong>需要获取什么字段/关系</li>
+<li>fetchgraph：完全放弃原有Entity的定义，定义<strong>仅</strong>需要获取什么字段/关系</li>
+</ol>
+<p>注意上面的”还”和”仅”，表达了两者最大的不同点。</p>
+<p>举个例子，如果我们的Department类型中还有一个name字段：</p>
+<ol>
+<li>loadgraph：被加载的数据为name以及employees</li>
+<li>fetchgraph：被加载的数据仅为employees</li>
+</ol>
+<p>所以，在使用EntityGraph的时候配合fetchgraph，可以精准的完成所需要数据的加载，可谓是指哪打哪。在一些对性能尤其敏感的业务场景，不妨来试试看仅仅加载所需要的数据的那种酸爽吧。</p>
+<p>关于此话题的更多资源，可以参考<a href="https://docs.oracle.com/javaee/7/tutorial/persistence-entitygraphs001.htm" target="_blank" rel="external">官方文档</a></p>
+<hr>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>分析比较了以上这4种用于触发懒加载的方式，我们应该有能力辨别出在什么场景下使用哪种方式更适合了。还不快去在你的工程中尝尝鲜？</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/优化/" rel="tag"># 优化</a>
+          
+            <a href="/tags/Performance/" rel="tag"># Performance</a>
+          
+            <a href="/tags/JPA/" rel="tag"># JPA</a>
+          
+            <a href="/tags/JavaEE/" rel="tag"># JavaEE</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/20/JavaEE-JPA-7-ORM的核心注解-关系类型/" rel="next" title="[JavaEE - JPA] 7. ORM的核心注解 - 关系类型">
+                <i class="fa fa-chevron-left"></i> [JavaEE - JPA] 7. ORM的核心注解 - 关系类型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/03/JavaEE-JPA-性能优化-如何定位性能问题/" rel="prev" title="[JavaEE - JPA] 性能优化: 如何定位性能问题">
+                [JavaEE - JPA] 性能优化: 如何定位性能问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据关联关系的假设"><span class="nav-number">1.</span> <span class="nav-text">数据关联关系的假设</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通过方法调用触发"><span class="nav-number">2.</span> <span class="nav-text">通过方法调用触发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通过Join-Fetch触发"><span class="nav-number">3.</span> <span class="nav-text">通过Join Fetch触发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通过NamedEntityGraph触发"><span class="nav-number">4.</span> <span class="nav-text">通过NamedEntityGraph触发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通过动态的EntityGraph触发"><span class="nav-number">5.</span> <span class="nav-text">通过动态的EntityGraph触发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EntityGraph与JOIN-FETCH是一样的？"><span class="nav-number">6.</span> <span class="nav-text">EntityGraph与JOIN FETCH是一样的？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结语"><span class="nav-number">7.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

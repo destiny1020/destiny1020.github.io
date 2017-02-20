@@ -1,0 +1,805 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,源码分析,依赖管理," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本文就来解答上一篇文章留下的疑问，为什么在注入器也分成了instance注入器和provider注入器。这两种注入器的工作原理是怎么样的。
+总体结构为此我特别准备了一张图来描述一下angular注入器的工作流程和原理，如下所示。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS面面观] 20. 依赖注入 --- instance注入器以及provider注入器">
+<meta property="og:url" content="http://rxjiang.com/2016/08/13/AngularJS面面观-20-依赖注入-instance注入器以及provider注入器/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="本文就来解答上一篇文章留下的疑问，为什么在注入器也分成了instance注入器和provider注入器。这两种注入器的工作原理是怎么样的。
+总体结构为此我特别准备了一张图来描述一下angular注入器的工作流程和原理，如下所示。">
+<meta property="og:image" content="http://img.blog.csdn.net/20160807001803717">
+<meta property="og:updated_time" content="2017-02-20T10:44:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS面面观] 20. 依赖注入 --- instance注入器以及provider注入器">
+<meta name="twitter:description" content="本文就来解答上一篇文章留下的疑问，为什么在注入器也分成了instance注入器和provider注入器。这两种注入器的工作原理是怎么样的。
+总体结构为此我特别准备了一张图来描述一下angular注入器的工作流程和原理，如下所示。">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160807001803717">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/08/13/AngularJS面面观-20-依赖注入-instance注入器以及provider注入器/"/>
+
+
+
+
+
+  <title> [AngularJS面面观] 20. 依赖注入 --- instance注入器以及provider注入器 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/08/13/AngularJS面面观-20-依赖注入-instance注入器以及provider注入器/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS面面观] 20. 依赖注入 --- instance注入器以及provider注入器
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-13T22:08:00+08:00">
+                2016-08-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文就来解答上一篇文章留下的疑问，为什么在注入器也分成了<code>instance</code>注入器和<code>provider</code>注入器。这两种注入器的工作原理是怎么样的。</p>
+<h2 id="总体结构"><a href="#总体结构" class="headerlink" title="总体结构"></a>总体结构</h2><p>为此我特别准备了一张图来描述一下angular注入器的工作流程和原理，如下所示。</p>
+<p><img src="http://img.blog.csdn.net/20160807001803717" alt="angular注入器工作流程和原理"></p>
+<a id="more"></a>
+<p>这张图的顶部是外部调用的入口，即通过angular暴露给外部的<code>$injector</code>服务。关于<code>$injector</code>服务中含有的五个方法，在<a href="http://blog.csdn.net/dm_vincent/article/details/52076335" target="_blank" rel="external">$injector服务</a>中已经介绍过了，在本文中就不再赘述了。还不清楚<code>$injector</code>服务是个啥的同学可以先去看看那篇文章。</p>
+<p>那么暴露给外部使用的<code>$injector</code>是哪种注入器呢？从图中可以很清晰的看出，暴露的是实例注入器(Instance Injector)。所谓的实例注入器，就是用来保存各种被实例化了的托管对象。这些实例在实例化之后会被保存在它对应的一个叫做实例注入器缓存的地方，也就是图中的cache(instanceCache)所指向的区域。下面我们就来看看实例注入器的相关代码。</p>
+<h3 id="instance注入器"><a href="#instance注入器" class="headerlink" title="instance注入器"></a>instance注入器</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">instanceCache = &#123;&#125;,</div><div class="line">protoInstanceInjector =</div><div class="line">    createInternalInjector(instanceCache, <span class="function"><span class="keyword">function</span>(<span class="params">serviceName, caller</span>) </span>&#123;</div><div class="line">      <span class="keyword">var</span> provider = providerInjector.get(serviceName + providerSuffix, caller);</div><div class="line">      <span class="keyword">return</span> instanceInjector.invoke(</div><div class="line">          provider.$get, provider, <span class="literal">undefined</span>, serviceName);</div><div class="line">    &#125;),</div><div class="line">instanceInjector = protoInstanceInjector;</div><div class="line"></div><div class="line"><span class="comment">// createInternalInjector的函数签名</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">createInternalInjector</span>(<span class="params">cache, factory</span>) </span>&#123; </div><div class="line">  <span class="comment">// ......</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// factory在getService函数中被用到</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getService</span>(<span class="params">serviceName, caller</span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (cache.hasOwnProperty(serviceName)) &#123;</div><div class="line">    <span class="keyword">if</span> (cache[serviceName] === INSTANTIATING) &#123;</div><div class="line">      <span class="keyword">throw</span> $injectorMinErr(<span class="string">'cdep'</span>, <span class="string">'Circular dependency found: &#123;0&#125;'</span>,</div><div class="line">                serviceName + <span class="string">' &lt;- '</span> + path.join(<span class="string">' &lt;- '</span>));</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> cache[serviceName];</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      path.unshift(serviceName);</div><div class="line">      cache[serviceName] = INSTANTIATING;</div><div class="line">      <span class="comment">// 注意下面这一行代码的行为，调用factory得到实例然后保存并返回</span></div><div class="line">      <span class="keyword">return</span> cache[serviceName] = factory(serviceName, caller);</div><div class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</div><div class="line">      <span class="keyword">if</span> (cache[serviceName] === INSTANTIATING) &#123;</div><div class="line">        <span class="keyword">delete</span> cache[serviceName];</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">throw</span> err;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      path.shift();</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>注入器本身的实例是通过调用<code>createInternalInjector</code>函数得到。该函数需要接受两个参数，第一个参数<code>cache</code>表示注入器使用的缓存是哪一个。第二个参数<code>factory</code>是一个函数，当需要的实例不存在时就会调用这个函数来进行实例化，得到的对象会被放入到第一个参数所指定的缓存中。</p>
+<p>那让我们来看看实例注入器是如何声明这个<code>factory</code>函数的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// providerSuffix实际上就是一个字符串：Provider</span></div><div class="line"><span class="keyword">var</span> providerSuffix = <span class="string">'Provider'</span>;</div><div class="line"></div><div class="line">createInternalInjector(instanceCache, <span class="function"><span class="keyword">function</span>(<span class="params">serviceName, caller</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> provider = providerInjector.get(serviceName + providerSuffix, caller);</div><div class="line">  <span class="keyword">return</span> instanceInjector.invoke(provider.$get, provider, <span class="literal">undefined</span>, serviceName);</div><div class="line">&#125;),</div></pre></td></tr></table></figure>
+<p>很明显的是，在实例注入器的<code>factory</code>函数中发生了和<code>provider</code>注入器的互动。它会去<code>provider</code>注入器中寻找一个<code>provider</code>对象，然后通过实例注入器来调用<code>provider</code>对象上的<code>$get</code>方法，来最终得到需要的对象实例。这个过程在前文的总体结构图中也反映出来了，实例注入器指向<code>provider</code>注入器的箭头表达的就是这个意思，即它会将托管对象实例化的工作委托给保存在<code>provider</code>注入器中的某个<code>provider</code>。具体而言，是委托给了<code>provider</code>对象上的<code>$get</code>方法。该方法最终会被实例注入器通过<code>invoke</code>方法进行调用。既然<code>$get</code>方法是通过注入器的<code>invoke</code>方法而调用，因此在<code>$get</code>方法中开发人员也可以声明它所需要的各种依赖。</p>
+<h3 id="provider注入器"><a href="#provider注入器" class="headerlink" title="provider注入器"></a>provider注入器</h3><p>简要分析了实例注入器之后，下面来看看另一个主角 - <code>provider</code>注入器。<br>它的创建过程是这样的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">providerCache = &#123;</div><div class="line">  <span class="attr">$provide</span>: &#123;</div><div class="line">      <span class="attr">provider</span>: supportObject(provider),</div><div class="line">      <span class="attr">factory</span>: supportObject(factory),</div><div class="line">      <span class="attr">service</span>: supportObject(service),</div><div class="line">      <span class="attr">value</span>: supportObject(value),</div><div class="line">      <span class="attr">constant</span>: supportObject(constant),</div><div class="line">      <span class="attr">decorator</span>: decorator</div><div class="line">    &#125;</div><div class="line">&#125;,</div><div class="line">providerInjector = (providerCache.$injector =</div><div class="line">  createInternalInjector(providerCache, <span class="function"><span class="keyword">function</span>(<span class="params">serviceName, caller</span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span> (angular.isString(caller)) &#123;</div><div class="line">      path.push(caller);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">throw</span> $injectorMinErr(<span class="string">'unpr'</span>, <span class="string">"Unknown provider: &#123;0&#125;"</span>, path.join(<span class="string">' &lt;- '</span>));</div><div class="line">  &#125;));</div></pre></td></tr></table></figure>
+<p>首先，<code>providerCache</code>在初始化的时候就已经有一个<code>$provide</code>对象了。这个对象中定义了我们很熟悉的<code>provider</code>，<code>factory</code>，<code>service</code>等一系列我们能够在<code>module</code>上定义的服务类型。至于这些方法的是做什么用的，如何使用的，我们后面会专门进行分析。本文暂且先专注于注入器实现的总体结构和执行流程。</p>
+<p>然后还是通过<code>createInternalInjector</code>函数来完成<code>provider</code>注入器的创建工作。创建得到的注入器也会被保存到<code>providerCache</code>中。而该注入器提供的<code>factory</code>函数的定义也特别简单。就是记录一下调用的顺序，然后抛出异常。为什么直接抛出找不到<code>provider</code>的异常？因为如果在<code>providerCache</code>中都找不到我们需要的<code>provider</code>对象，就没有必要继续寻找下去了，毕竟只有两个注入器不是嘛。实例注入器可以委托<code>provider</code>注入器，但是<code>provider</code>注入器可没别的注入器依赖。这也是为什么<code>providerCache</code>在初始化的时候就已经有一个<code>$provide</code>对象的原因。因为这个<code>$provide</code>对象上定义的方法可不简单，它们的职责就是创建我们开发人员在<code>module</code>上定义的各种服务。如果没有它们的存在，那每次定义服务都会抛出<code>Unknown Provider</code>异常了不是吗。</p>
+<p>另外值得一提的是，在创建了实例注入器和<code>provider</code>注入器之后，还有这么一行代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">providerCache[<span class="string">'$injector'</span> + providerSuffix] = &#123; <span class="attr">$get</span>: valueFn(protoInstanceInjector) &#125;;</div><div class="line"></div><div class="line"><span class="comment">// valueFn的定义</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">valueFn</span>(<span class="params">value</span>) </span>&#123;<span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">valueRef</span>(<span class="params"></span>) </span>&#123;<span class="keyword">return</span> value;&#125;;&#125;</div></pre></td></tr></table></figure>
+<p>它将实例注入器的通过<code>$injectorProvider</code>这个键值给注册到了<code>providerCache</code>中去。<br>所以，当我们在自定义的<code>service</code>，<code>factory</code>，<code>controller</code>中指定需要<code>$injector</code>时，得到的都会是实例注入器，而非<code>provider</code>注入器。这个过程也很清晰，当你需要<code>$injector</code>时，实例注入器会委托给<code>provider</code>注入器，<code>provider</code>注入器去寻找一个名为<code>$injectorProvider</code>的<code>provider</code>对象，并调用其<code>$get</code>方法返回真正的实例。</p>
+<h3 id="为什么要这样实现"><a href="#为什么要这样实现" class="headerlink" title="为什么要这样实现"></a>为什么要这样实现</h3><p>看清楚了angular注入器的实现原理和流程，我们来思考一下为什么它会这么设计。这个问题也许只有开发这个功能的人才能最终解释清楚。但是这一点是很明显的：</p>
+<p><strong>隐藏不必要的信息，将功能的入口单一化</strong>。也就是所谓的门面模式(Facade Pattern)。这个门面就是angular中的<code>module</code>。我们注册各种服务都是使用的<code>module</code>上的对应方法，作为开发人员只需要了解清除module上的各种方法的使用规则就可以了，没有知道底层还有个<code>$injector</code>服务的必要。就算开发的功能比较复杂，需要使用到<code>$injector</code>服务了，也确实没有必要需要知道这个<code>$injector</code>服务实际上是由两个<code>injector</code>联合提供的。这也是软件开发的基本规则之一，即使软件提供的功能很复杂，对外暴露的也要尽可能地简单易懂。否则你这个软件还怎么用，难道要用之前得看一遍源代码理解其内部实现才行吗。</p>
+<hr>
+<p>但是学习angular中注入器的设计和实现也是一件非常有意思的事情，真的是开拓了眼界。一个框架的重要功能原来是这么实现的，一点一点地去分析去思考也是能够看懂背后的逻辑的，毕竟再复杂的程序也是一行一行代码垒起来的。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/依赖管理/" rel="tag"># 依赖管理</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/13/AngularJS面面观-19-依赖注入-Provider是个啥/" rel="next" title="[AngularJS面面观] 19. 依赖注入 --- Provider是个啥">
+                <i class="fa fa-chevron-left"></i> [AngularJS面面观] 19. 依赖注入 --- Provider是个啥
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/19/AngularJS面面观-21-依赖注入-constant到底如何而来/" rel="prev" title="[AngularJS面面观] 21. 依赖注入 --- constant到底如何而来">
+                [AngularJS面面观] 21. 依赖注入 --- constant到底如何而来 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#总体结构"><span class="nav-number">1.</span> <span class="nav-text">总体结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#instance注入器"><span class="nav-number">1.1.</span> <span class="nav-text">instance注入器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#provider注入器"><span class="nav-number">1.2.</span> <span class="nav-text">provider注入器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要这样实现"><span class="nav-number">1.3.</span> <span class="nav-text">为什么要这样实现</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

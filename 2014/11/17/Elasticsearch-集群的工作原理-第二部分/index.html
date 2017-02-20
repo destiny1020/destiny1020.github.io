@@ -1,0 +1,832 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,集群," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本文翻译自Elasticsearch官方指南的life inside a cluster一章。
+增加故障转移(Failover)功能只运行一个节点意味着可能存在着单点失败(Single point of failure)的问题 - 因为没有冗余。幸运的是，解决这个问题我们只需要启动另一个节点。
+
+启动第二个节点
+为了试验当你添加第二节点时会发生什么，你需要像启动第一个节点那样启动第二个节点(参见运">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 集群的工作原理 - 第二部分">
+<meta property="og:url" content="http://rxjiang.com/2014/11/17/Elasticsearch-集群的工作原理-第二部分/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="本文翻译自Elasticsearch官方指南的life inside a cluster一章。
+增加故障转移(Failover)功能只运行一个节点意味着可能存在着单点失败(Single point of failure)的问题 - 因为没有冗余。幸运的是，解决这个问题我们只需要启动另一个节点。
+
+启动第二个节点
+为了试验当你添加第二节点时会发生什么，你需要像启动第一个节点那样启动第二个节点(参见运">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202132035507?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202132046600?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202132056928?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202132108774?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202132219430?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2017-02-20T11:30:24.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 集群的工作原理 - 第二部分">
+<meta name="twitter:description" content="本文翻译自Elasticsearch官方指南的life inside a cluster一章。
+增加故障转移(Failover)功能只运行一个节点意味着可能存在着单点失败(Single point of failure)的问题 - 因为没有冗余。幸运的是，解决这个问题我们只需要启动另一个节点。
+
+启动第二个节点
+为了试验当你添加第二节点时会发生什么，你需要像启动第一个节点那样启动第二个节点(参见运">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20161202132035507?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/11/17/Elasticsearch-集群的工作原理-第二部分/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 集群的工作原理 - 第二部分 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/17/Elasticsearch-集群的工作原理-第二部分/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 集群的工作原理 - 第二部分
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-17T12:25:00+08:00">
+                2014-11-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/distributed-cluster.html" target="_blank" rel="external">life inside a cluster</a>一章。</p>
+<h2 id="增加故障转移-Failover-功能"><a href="#增加故障转移-Failover-功能" class="headerlink" title="增加故障转移(Failover)功能"></a>增加故障转移(Failover)功能</h2><p>只运行一个节点意味着可能存在着单点失败(Single point of failure)的问题 - 因为没有冗余。幸运的是，解决这个问题我们只需要启动另一个节点。</p>
+<blockquote>
+<p><strong>启动第二个节点</strong></p>
+<p>为了试验当你添加第二节点时会发生什么，你需要像启动第一个节点那样启动第二个节点(参见<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/running-elasticsearch.html" target="_blank" rel="external">运行ES</a>)，可以在同一个目录下 - 多个节点能够共享相同的目录。</p>
+<p>只要第二个节点也拥有和第一个节点相同的cluster.name(参见./config/elasticsearch.yml文件)，它就能够自动地被识别和添加到第一个节点所在的集群中。如果不是这样的话，检查日志来得到错误信息。错误原因可能是你的网络禁用了多播(Multicast)，或者存在防火墙阻止了节点间的通信。</p>
+</blockquote>
+<p>如果我们启动了第二个节点，现在的集群会像下面展示的那样：</p>
+<p><img src="http://img.blog.csdn.net/20161202132035507?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<a id="more"></a>
+<p>现在第二个节点加入到了集群中，并且三个副本分片也被分配到了该节点上 - 这三个副本分别是三个主分片的副本。这意味着，此时我们如果失去了两个节点中的任何一个，都不会丢失数据。</p>
+<p>任何被索引的文档首先都会被保存到主分片上，然后通过并行地方式被拷贝到相关联的副本分片上。这保证了该文档能够通过主分片或者任意一个副本分片获取。</p>
+<p>这个时候集群的健康状态会显示为green，表示所有的6个分片(3个主分片和3个副本分片)都是处于活动状态的：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">   <span class="attr">"cluster_name"</span>:          <span class="string">"elasticsearch"</span>,</div><div class="line">   <span class="attr">"status"</span>:                <span class="string">"green"</span>, </div><div class="line">   <span class="attr">"timed_out"</span>:             <span class="literal">false</span>,</div><div class="line">   <span class="attr">"number_of_nodes"</span>:       <span class="number">2</span>,</div><div class="line">   <span class="attr">"number_of_data_nodes"</span>:  <span class="number">2</span>,</div><div class="line">   <span class="attr">"active_primary_shards"</span>: <span class="number">3</span>,</div><div class="line">   <span class="attr">"active_shards"</span>:         <span class="number">6</span>,</div><div class="line">   <span class="attr">"relocating_shards"</span>:     <span class="number">0</span>,</div><div class="line">   <span class="attr">"initializing_shards"</span>:   <span class="number">0</span>,</div><div class="line">   <span class="attr">"unassigned_shards"</span>:     <span class="number">0</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>此时，我们的集群不仅能够执行正常的功能，也具备了高可用性。</p>
+<h2 id="水平扩展-Scale-Horizontally"><a href="#水平扩展-Scale-Horizontally" class="headerlink" title="水平扩展(Scale Horizontally)"></a>水平扩展(Scale Horizontally)</h2><p>随着应用的扩展，ES如何对集群进行扩展呢？如果我们启动了第三个节点，那么集群可能会像如下所示的那样重新组织自身的结构：</p>
+<p><img src="http://img.blog.csdn.net/20161202132046600?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>节点1和节点2中各有一个分片现在被移动到了新的节点3中，此时每个节点上都有2个分片，而不是原来的3个。这意味着每个节点上的硬件资源(CPU，RAM，I/O)能够被更少的分片所享有，从而提高每个分片的性能。</p>
+<p>每个分片本身就是一个完整的搜索引擎，它能够完全地利用一个节点上的所有资源。因此，在拥有6个分片(3主，3副本)的情况下，我们的集群最多可以扩展到6个节点，此时每个节点上只有1个分片，因此每个分片就能够拥有该节点100%的资源。</p>
+<h3 id="如果继续扩展"><a href="#如果继续扩展" class="headerlink" title="如果继续扩展"></a>如果继续扩展</h3><p>如果我们想扩展到多于6个节点呢？</p>
+<p>在建立索引的时候，主分片的数量就被固定下来了。实际上，这个数量决定了该索引中能够存储的最大数据量。(实际数量取决于你的数据特征和你的硬件)。但是，对于读请求 - 搜索或者获取文档 - 能够被主分片或者副本分片处理，因此当数据有越多的副本，也就意味着搜索的吞吐量能够更高。</p>
+<p>副本分片的数量能够在一个活动的集群上动态修改，这就允许我们能够根据需要进行集群规模的调整。让我们将当前的副本分片数量从1调整到2：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">PUT /blogs/_settings</div><div class="line">&#123;</div><div class="line">   "number_of_replicas" : 2</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>调整后的组织如下所示：</p>
+<p><img src="http://img.blog.csdn.net/20161202132056928?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>现在blogs索引中就存在9个分片了：3个主分片和6个副本分片。这意味着现在我们可以最多扩展到9个节点，每个节点中只有一个分片。这能够让搜索性能相比原来的3个节点，提升3倍。</p>
+<p>NOTE 当然，仅增加副本分片的数量而不增加节点的数量是不会对性能有任何提高的。这是因为在该情况下，每个分片只会得到其所在节点的一部分资源。你需要增加硬件资源来提高吞吐量。</p>
+<p>但是这些新添加的副本无疑增加了数据的冗余：像上图那样配置的话，我们现在能够做到即便丢失了两个节点也不会丢失数据。</p>
+<h2 id="应对失败"><a href="#应对失败" class="headerlink" title="应对失败"></a>应对失败</h2><p>我们说过ES能够应对节点失败的情况，所以让我们试一试。如果我们杀死了第一个节点，那么此时的节点会变成这样：</p>
+<p><img src="http://img.blog.csdn.net/20161202132108774?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>被杀死的节点是主节点(Master Node)。一个集群中必须有一个主节点来保证集群能够正常工作，所以第一件事就是剩下的节点会选出一个新的主节点：比方说节点2。</p>
+<p>当我们杀死节点1的时候，同时也丢失了主分片1和主分片2，当缺少了主分片的时候索引是不能正常工作的。此时如果检查集群的健康状态，我们会毫无疑问的得到一个red：不是所有的主分片都处于活动状态！</p>
+<p>幸运的是，丢失的两个主分片的副本分片完好无损的存在于其它的节点上，所以被选为主节点的节点2首先需要做的就是提升节点2和节点3中的相应副本分片，让它们成为主分片。此时集群的状态就会变成yellow：所有的主分片又处于活动状态了。对于分片的提升是会立即启动的，就像扳动开关那样。</p>
+<p>那么我们的集群为什么是yellow，而不是green？我们有3个主分片，但是我们指定了每个主分片需要有2个副本分片，但是当前我们只能分配1个副本分片(译注：因为此时我们只有两个节点，相同数据不能同时存储于一个节点上)。这导致了集群的状态变为green，但是这里我们并不需要过分担心：假设我们杀死了节点2，应用还是能够在不丢失数据的情况下继续运行，因为节点3还是保存了每个分片的拷贝。</p>
+<p>如果我们重启节点1，此时集群又能够对尚未分配的副本分片进行分配了，因此就恢复到了类似下图这种组织结构：</p>
+<p><img src="http://img.blog.csdn.net/20161202132219430?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>如果节点1中仍然存在之前的分片，那么它会尝试继续使用它们，只不过需要从对应的主分片中将最新的变化数据拷贝回来。</p>
+<p>现在你应该对ES如何利用分片来实现水平扩展和如何保证数据安全有所了解了。在后面我们还会介绍关于分片的更多细节。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/集群/" rel="tag"># 集群</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/17/Elasticsearch-集群的工作原理-第一部分/" rel="next" title="[Elasticsearch] 集群的工作原理 - 第一部分">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 集群的工作原理 - 第一部分
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/11/18/Elasticsearch-分布式文档存储/" rel="prev" title="[Elasticsearch] 分布式文档存储">
+                [Elasticsearch] 分布式文档存储 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#增加故障转移-Failover-功能"><span class="nav-number">1.</span> <span class="nav-text">增加故障转移(Failover)功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#水平扩展-Scale-Horizontally"><span class="nav-number">2.</span> <span class="nav-text">水平扩展(Scale Horizontally)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#如果继续扩展"><span class="nav-number">2.1.</span> <span class="nav-text">如果继续扩展</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应对失败"><span class="nav-number">3.</span> <span class="nav-text">应对失败</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

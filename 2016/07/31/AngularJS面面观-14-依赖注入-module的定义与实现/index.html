@@ -1,0 +1,813 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,源码分析,依赖管理," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="从本篇文章开始，会开始系统性地介绍angular是如何实现依赖注入这一重要特性的。
+引言提到依赖注入，有后端背景的开发人员应该不会陌生。比如对于Java开发人员而言，绝大部分都是通过Spring这一框架首先了解到依赖注入这一概念的。所谓依赖注入(Dependency Injection)，它其实是一个更大的名为控制反转(Inverse of Control)概念的一种实现模式。只不过这种实现策略使">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS面面观] 14. 依赖注入 --- module的定义与实现">
+<meta property="og:url" content="http://rxjiang.com/2016/07/31/AngularJS面面观-14-依赖注入-module的定义与实现/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="从本篇文章开始，会开始系统性地介绍angular是如何实现依赖注入这一重要特性的。
+引言提到依赖注入，有后端背景的开发人员应该不会陌生。比如对于Java开发人员而言，绝大部分都是通过Spring这一框架首先了解到依赖注入这一概念的。所谓依赖注入(Dependency Injection)，它其实是一个更大的名为控制反转(Inverse of Control)概念的一种实现模式。只不过这种实现策略使">
+<meta property="og:image" content="http://img.blog.csdn.net/20160720212635469">
+<meta property="og:updated_time" content="2017-02-20T10:34:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS面面观] 14. 依赖注入 --- module的定义与实现">
+<meta name="twitter:description" content="从本篇文章开始，会开始系统性地介绍angular是如何实现依赖注入这一重要特性的。
+引言提到依赖注入，有后端背景的开发人员应该不会陌生。比如对于Java开发人员而言，绝大部分都是通过Spring这一框架首先了解到依赖注入这一概念的。所谓依赖注入(Dependency Injection)，它其实是一个更大的名为控制反转(Inverse of Control)概念的一种实现模式。只不过这种实现策略使">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160720212635469">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/07/31/AngularJS面面观-14-依赖注入-module的定义与实现/"/>
+
+
+
+
+
+  <title> [AngularJS面面观] 14. 依赖注入 --- module的定义与实现 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/31/AngularJS面面观-14-依赖注入-module的定义与实现/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS面面观] 14. 依赖注入 --- module的定义与实现
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-31T21:46:00+08:00">
+                2016-07-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>从本篇文章开始，会开始系统性地介绍angular是如何实现依赖注入这一重要特性的。</p>
+<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>提到依赖注入，有后端背景的开发人员应该不会陌生。比如对于Java开发人员而言，绝大部分都是通过Spring这一框架首先了解到依赖注入这一概念的。所谓依赖注入(Dependency Injection)，它其实是一个更大的名为控制反转(Inverse of Control)概念的一种实现模式。只不过这种实现策略使用地太广泛了，导致出镜率非常高从而让很多人都觉得两者就是一回事。实际上，它们的关系是这样的：</p>
+<p><img src="http://img.blog.csdn.net/20160720212635469" alt="这里写图片描述"></p>
+<a id="more"></a>
+<p>控制反转思想更具有一般性和抽象性，感兴趣的同学可以参考另一篇文章<a href="http://blog.csdn.net/dm_vincent/article/details/51972207" target="_blank" rel="external">控制反转IoC概念随想</a>。</p>
+<p>就依赖注入，一言以蔽之，它的作用是让框架帮你处理重要对象的生命周期的管理，不需要你显式地进行管理(对象构造和销毁)。这样能够让开发人员能够专注于应用的业务部分。</p>
+<h2 id="angular如何实现模块"><a href="#angular如何实现模块" class="headerlink" title="angular如何实现模块"></a>angular如何实现模块</h2><p>在谈angular是如何实现依赖注入之前，先看看angular是如何定义与实现模块的。毕竟，一个应用总是离不开模块的，应用使用到的各种服务，如controller，service，factory，provider等等，全部都是需要被定义在一个模块中的。</p>
+<p>和angular模块相关的源代码全部保存在<code>loader.js</code>中。不到400行代码，注释占据了一大半。因此angular中用于实现模块的代码其实是非常简练的，让我们看看它是如何实现的。</p>
+<h3 id="angular全局对象以及ensure方法"><a href="#angular全局对象以及ensure方法" class="headerlink" title="angular全局对象以及ensure方法"></a>angular全局对象以及ensure方法</h3><p>稍微深入一点用过angular的同学们都会知道，框架提供了一个名为<code>angular</code>的全局对象，在其之上定义了一些工具方法，DOM元素创建方法<code>element</code>，以及本文的重点<code>angular.module</code>方法。</p>
+<p>那么这个全局对象是如何被创建出来的呢？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">setupModuleLoader</span>(<span class="params">window</span>) </span>&#123;</div><div class="line"></div><div class="line">  <span class="keyword">var</span> $injectorMinErr = minErr(<span class="string">'$injector'</span>);</div><div class="line">  <span class="keyword">var</span> ngMinErr = minErr(<span class="string">'ng'</span>);</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">function</span> <span class="title">ensure</span>(<span class="params">obj, name, factory</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> obj[name] || (obj[name] = factory());</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">var</span> angular = ensure(<span class="built_in">window</span>, <span class="string">'angular'</span>, <span class="built_in">Object</span>);</div><div class="line"></div><div class="line">  <span class="comment">// 将minErr服务添加到angular全局对象上</span></div><div class="line">  angular.$$minErr = angular.$$minErr || minErr;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> ensure(angular, <span class="string">'module'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">// 模块的创建方法...</span></div><div class="line"></div><div class="line">  &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以发现，angular全局对象通过调用<code>ensure(window, &#39;angular&#39;, Object)</code>得到。<br>而这个方法的定义也十分简单，更像是一些基本JavaScript操作的练习。<code>window</code>上已经存在了一个名为angular的对象，那么就直接返回。如果不存在则调用传入的factory方法进行构造并返回。因此，通过ensure方法得到的对象能够保证全局唯一性。</p>
+<p>另外一些细节，比如前面用于声明异常如何处理的两行：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> $injectorMinErr = minErr(<span class="string">'$injector'</span>);</div><div class="line"><span class="keyword">var</span> ngMinErr = minErr(<span class="string">'ng'</span>);</div></pre></td></tr></table></figure>
+<p>关于<code>minErr</code>，它是angular中提供的一个用于异常处理的服务。具体可以参看<a href="http://blog.csdn.net/dm_vincent/article/details/51885375" target="_blank" rel="external">这篇文章</a>，进行了详细介绍。</p>
+<p>这里定义了两个异常包装类型，<code>$injectorMinErr</code>和<code>ngMinErr</code>。前者用于包装一些和<code>injector</code>相关的异常。关于<code>injector</code>，是实现依赖注入的关键，会在下篇文章中开始介绍。后者用于包装一些angular的基础异常。</p>
+<h3 id="模块注册和获取"><a href="#模块注册和获取" class="headerlink" title="模块注册和获取"></a>模块注册和获取</h3><p>至于angular.module方法，也是通过ensure方法来保证其在angular对象上的全局唯一性：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> ensure(angular, <span class="string">'module'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="comment">// 用来保存所有的模块</span></div><div class="line">  <span class="keyword">var</span> modules = &#123;&#125;;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">module</span>(<span class="params">name, requires, configFn</span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> assertNotHasOwnProperty = <span class="function"><span class="keyword">function</span>(<span class="params">name, context</span>) </span>&#123;</div><div class="line">      <span class="keyword">if</span> (name === <span class="string">'hasOwnProperty'</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> ngMinErr(<span class="string">'badname'</span>, <span class="string">'hasOwnProperty is not a valid &#123;0&#125; name'</span>, context);</div><div class="line">      &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    assertNotHasOwnProperty(name, <span class="string">'module'</span>);</div><div class="line">    <span class="keyword">if</span> (requires &amp;&amp; modules.hasOwnProperty(name)) &#123;</div><div class="line">      modules[name] = <span class="literal">null</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> ensure(modules, name, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">      </div><div class="line">      <span class="keyword">var</span> moduleInstance = &#123;</div><div class="line">        <span class="attr">requires</span>: requires,</div><div class="line">        <span class="attr">name</span>: name,</div><div class="line">        <span class="comment">// 模块对象提供的方法和对象定义在这里...</span></div><div class="line">      &#125;;</div><div class="line"></div><div class="line">      <span class="keyword">return</span> moduleInstance;</div><div class="line"></div><div class="line">      <span class="comment">// ...</span></div><div class="line">    &#125;);</div><div class="line">  &#125;;</div><div class="line">  </div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>以上代码是setupModuleLoader函数的返回部分，清晰地表明了同样通过使用ensure函数，来保证了module函数在angular对象上的全局唯一性。</p>
+<p>而其内部的<code>function module(name, requires, configFn)</code>就开始定义module函数本身的行为了。看到参数名称是不是很熟系了。第一个参数<code>name</code>用来定义模块的名称，二个参数<code>requires</code>是一个数组对象，用来定义该模块以来的模块名称。这个知识点只要是angular的入门文章或者书籍都会介绍吧。</p>
+<p>这部分代码不停地在嵌套返回貌似很复杂的东西，比如上面的<code>return function module(name, requires, configFn)</code>，而这个函数内部又返回了一个：<code>ensure(modules, name, function(){ //... })</code>。看样子是怪吓人的，但是把握一条原则，调用ensure方法得到的只是一个对象，因此<code>ensure(modules, name, function(){ //... })</code>返回的只不过是<code>modules</code>对象的上的一个名为<code>name</code>的对象。而<code>modules</code>对象，其实就是用来保存所有模块的一个字典对象，模块的名字<code>name</code>作为其键值。所以很明显的，它返回的就是注册后得到的对象，典型的比如我们在初始化一个angular应用时所做的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> app = angular.module(<span class="string">'testApp'</span>, []);</div></pre></td></tr></table></figure>
+<p>得到的app对象即为我们定义的模块，也就是<code>ensure(modules, name, function(){ //... })</code>的返回值，相信没有同学没写过上述代码吧。清楚了这个脉络，开始看看一些实现细节：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> assertNotHasOwnProperty = <span class="function"><span class="keyword">function</span>(<span class="params">name, context</span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (name === <span class="string">'hasOwnProperty'</span>) &#123;</div><div class="line">    <span class="keyword">throw</span> ngMinErr(<span class="string">'badname'</span>, <span class="string">'hasOwnProperty is not a valid &#123;0&#125; name'</span>, context);</div><div class="line">  &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">assertNotHasOwnProperty(name, <span class="string">'module'</span>);</div><div class="line"><span class="keyword">if</span> (requires &amp;&amp; modules.hasOwnProperty(name)) &#123;</div><div class="line">  modules[name] = <span class="literal">null</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先会保证<code>hasOwnProperty</code>这个名字是一个不合法的module名称。如果真碰到有不怀好意的开发者使用<code>hasOwnProperty</code>作为模块名称，那么angular直接就通过<code>ngMinErr</code>抛出异常宣布罢工不干了。</p>
+<p>然后，就是通过判断是否传入了<code>requires</code>这个数组来决定是正在新建模块呢，还是正在获取已经存在的模块。如果存在<code>requires</code>，那么直接将当前可能存在的另外一个同名的模块置为空。这一个细节需要引起我们的注意。有些初学者没有分清楚注册模块和获取模块的区别，在获取模块的时候也传入了<code>requires</code>参数，这会导致不断地注册新的模块，而在原来的模块上定义的<code>controller</code>等等服务就都会随着这个置空操作而灰飞烟灭。所以就会出现莫名其妙的各种”未定义”异常。</p>
+<p>最后，就是返回模块。如果是注册模块，就返回新注册的模块；如果是获取模块，就返回获取到的模块。这一切都是通过早先介绍的ensure函数完成的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> ensure(modules, name, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">      </div><div class="line">  <span class="keyword">var</span> moduleInstance = &#123;</div><div class="line">    <span class="attr">requires</span>: requires,</div><div class="line">    <span class="attr">name</span>: name,</div><div class="line">    <span class="comment">// 模块对象提供的方法定义在这里...</span></div><div class="line">  &#125;;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> moduleInstance;</div><div class="line"></div><div class="line">  <span class="comment">// ...</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p><code>moduleInstance</code>就代表了这个模块，它将模块的名称以及依赖直接通过<code>name</code>和<code>requires</code>定义在其之上。当然，出了这两个最最基础的属性，<code>moduleInstance</code>还包含了很多东西，我们日常使用的诸如<code>controller</code>，<code>service</code>，<code>factory</code>，<code>constant</code>等方法都定义在它之上。它们的实现方式是我们即将讨论的内容。</p>
+<p>至此，angular中和模块相关的操作就讨论完毕了。它作为后续即将介绍的angular核心功能之一依赖注入的一个铺垫。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/依赖管理/" rel="tag"># 依赖管理</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/24/AngularJS面面观-13-Angular工具库-异常对象创建方法minErr/" rel="next" title="[AngularJS面面观] 13. Angular工具库 --- 异常对象创建方法minErr">
+                <i class="fa fa-chevron-left"></i> [AngularJS面面观] 13. Angular工具库 --- 异常对象创建方法minErr
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/05/AngularJS面面观-15-依赖注入-初识注入器-Injector/" rel="prev" title="[AngularJS面面观] 15. 依赖注入 --- 初识注入器(Injector)">
+                [AngularJS面面观] 15. 依赖注入 --- 初识注入器(Injector) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#angular如何实现模块"><span class="nav-number">2.</span> <span class="nav-text">angular如何实现模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#angular全局对象以及ensure方法"><span class="nav-number">2.1.</span> <span class="nav-text">angular全局对象以及ensure方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模块注册和获取"><span class="nav-number">2.2.</span> <span class="nav-text">模块注册和获取</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
