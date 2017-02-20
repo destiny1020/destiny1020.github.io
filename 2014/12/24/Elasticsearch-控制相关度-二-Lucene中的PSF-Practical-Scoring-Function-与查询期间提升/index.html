@@ -1,0 +1,860 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,相关度分值计算," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本章翻译自Elasticsearch官方指南的Controlling Relevance一章。
+Lucene中的Practical Scoring Function对于多词条查询(Multiterm Queries)，Lucene使用的是布尔模型(Boolean Model)，TF/IDF以及向量空间模型(Vector Space Model)来将它们结合在一起，用来收集匹配的文档和对它们进行分值">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 控制相关度 (二) - Lucene中的PSF(Practical Scoring Function)与查询期间提升">
+<meta property="og:url" content="http://rxjiang.com/2014/12/24/Elasticsearch-控制相关度-二-Lucene中的PSF-Practical-Scoring-Function-与查询期间提升/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="本章翻译自Elasticsearch官方指南的Controlling Relevance一章。
+Lucene中的Practical Scoring Function对于多词条查询(Multiterm Queries)，Lucene使用的是布尔模型(Boolean Model)，TF/IDF以及向量空间模型(Vector Space Model)来将它们结合在一起，用来收集匹配的文档和对它们进行分值">
+<meta property="og:updated_time" content="2017-02-20T07:40:29.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 控制相关度 (二) - Lucene中的PSF(Practical Scoring Function)与查询期间提升">
+<meta name="twitter:description" content="本章翻译自Elasticsearch官方指南的Controlling Relevance一章。
+Lucene中的Practical Scoring Function对于多词条查询(Multiterm Queries)，Lucene使用的是布尔模型(Boolean Model)，TF/IDF以及向量空间模型(Vector Space Model)来将它们结合在一起，用来收集匹配的文档和对它们进行分值">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/12/24/Elasticsearch-控制相关度-二-Lucene中的PSF-Practical-Scoring-Function-与查询期间提升/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 控制相关度 (二) - Lucene中的PSF(Practical Scoring Function)与查询期间提升 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/24/Elasticsearch-控制相关度-二-Lucene中的PSF-Practical-Scoring-Function-与查询期间提升/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 控制相关度 (二) - Lucene中的PSF(Practical Scoring Function)与查询期间提升
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-24T10:12:00+08:00">
+                2014-12-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html" target="_blank" rel="external">Controlling Relevance</a>一章。</p>
+<h2 id="Lucene中的Practical-Scoring-Function"><a href="#Lucene中的Practical-Scoring-Function" class="headerlink" title="Lucene中的Practical Scoring Function"></a>Lucene中的Practical Scoring Function</h2><p>对于多词条查询(Multiterm Queries)，Lucene使用的是<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#boolean-model" target="_blank" rel="external">布尔模型(Boolean Model)</a>，<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#tfidf" target="_blank" rel="external">TF/IDF</a>以及<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#vector-space-model" target="_blank" rel="external">向量空间模型(Vector Space Model)</a>来将它们结合在一起，用来收集匹配的文档和对它们进行分值计算。</p>
+<a id="more"></a>
+<p>像下面这样的多词条查询：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">GET /my_index/doc/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "match": &#123;</div><div class="line">      "text": "quick fox"</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在内部被重写成下面这样：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">GET /my_index/doc/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "should": [</div><div class="line">        &#123;"term": &#123; "text": "quick" &#125;&#125;,</div><div class="line">        &#123;"term": &#123; "text": "fox"   &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>bool查询实现了布尔模型，在这个例子中，只有包含了词条quick，词条fox或者两者都包含的文档才会被返回。</p>
+<p>一旦一份文档匹配了一个查询，Lucene就会为该查询计算它的分值，然后将每个匹配词条的分值结合起来。用来计算分值的公式叫做Practical Scoring Function。它看起来有点吓人，但是不要退却 - 公式中的绝大多数部分你已经知道了。下面我们会介绍它引入的一些新元素。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">1   score(q,d)  = </div><div class="line">2            queryNorm(q)  </div><div class="line">3          · coord(q,d)    </div><div class="line">4          · ∑ (           </div><div class="line">5                tf(t in d)   </div><div class="line">6              · idf(t)²      </div><div class="line">7              · t.getBoost() </div><div class="line">8              · norm(t,d)    </div><div class="line">9            ) (t in q)</div></pre></td></tr></table></figure>
+<p>每行的意义如下：</p>
+<ol>
+<li>score(q,d)是文档d对于查询q的相关度分值。</li>
+<li>queryNorm(q)是<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/practical-scoring-function.html#query-norm" target="_blank" rel="external">查询归约因子(Query Normalization Factor)</a>，是新添加的部分。</li>
+<li>coord(q,d)是<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/practical-scoring-function.html#coord" target="_blank" rel="external">Coordination Factor</a>，是新添加的部分。</li>
+<li>文档d中每个词条t对于查询q的权重之和。</li>
+<li>tf(t in d)是文档d中的词条t的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#tf" target="_blank" rel="external">词条频度(Term Frequency)</a>。</li>
+<li>idf(t)是词条t的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#idf" target="_blank" rel="external">倒排索引频度(Inverse Document Frequency)</a></li>
+<li>t.getBoost()是适用于查询的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/query-time-boosting.html" target="_blank" rel="external">提升(Boost)</a>，是新添加的部分。</li>
+<li>norm(t,d)是<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#field-norm" target="_blank" rel="external">字段长度归约(Field-length Norm)</a>，可能结合了<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/practical-scoring-function.html#index-boost" target="_blank" rel="external">索引期间字段提升(Index-time Field-level Boost)</a>，是新添加的部分。<br>你应该知道score，tf以及idf的意思。queryNorm，coord，t.getBoost以及norm是新添加的。</li>
+</ol>
+<p>在本章的稍后我们会讨论<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/query-time-boosting.html" target="_blank" rel="external">查询期间提升(Query-time Boosting)</a>，首先对查询归约，Coordination以及索引期间字段级别提升进行解释。</p>
+<h3 id="查询归约因子-Query-Normalization-Factor"><a href="#查询归约因子-Query-Normalization-Factor" class="headerlink" title="查询归约因子(Query Normalization Factor)"></a>查询归约因子(Query Normalization Factor)</h3><p>查询归约因子(queryNorm)会试图去对一个查询进行归约，从而让多个查询的结果能够进行比较。</p>
+<blockquote>
+<p>TIP</p>
+<p>虽然查询归约的目的是让不同查询的结果能够比较，但是它的效果不怎么好。相关度_score的唯一目的是将当前查询的结果以正确的顺序被排序。你不应该尝试去比较不同查询得到的相关度分值。</p>
+</blockquote>
+<p>该因子会在查询开始阶段就被计算。实际的计算取决于查询本身，但是一个典型的实现如下所示：</p>
+<blockquote>
+<p>queryNorm = 1 / √sumOfSquaredWeights</p>
+</blockquote>
+<p>sumOfSquaredWeights通过对查询中每个词条的IDF进行累加，然后取其平方根得到的。</p>
+<blockquote>
+<p>TIP</p>
+<p>相同的查询归约因子会被适用在每份文档上，你也没有办法改变它。总而言之，它是可以被忽略的。</p>
+</blockquote>
+<h3 id="Query-Coordination"><a href="#Query-Coordination" class="headerlink" title="Query Coordination"></a>Query Coordination</h3><p>Coordination因子(coord)被用来奖励那些包含了更多查询词条的文档。文档中出现了越多的查询词条，那么该文档就越可能是该查询的一个高质量匹配。</p>
+<p>加入我们查询了quick brown fox，每个词条的权重都是1.5。没有Coordination因子时，分值可能会是文档中每个词条的权重之和。比如：</p>
+<ul>
+<li>含有fox的文档 -&gt; 分值：1.5</li>
+<li>含有quick fox的文档 -&gt; 分值：3.0</li>
+<li>含有quick brown fox的文档 -&gt; 分值：4.5</li>
+</ul>
+<p>而Coordination因子会将分值乘以文档中匹配了的词条的数量，然后除以查询中的总词条数。使用了Coordination因子后，分值是这样的：</p>
+<ul>
+<li>含有fox的文档 -&gt; 分值：1.5 * 1 / 3 = 0.5</li>
+<li>含有quick fox的文档 -&gt; 分值：3.0 * 2 / 3 = 2.0</li>
+<li>含有quick brown fox的文档 -&gt; 分值：4.5 * 3 / 3 = 4.5</li>
+</ul>
+<p>以上的结果中，含有所有三个词条的文档的分值会比仅含有两个词条的文档高出许多。</p>
+<p>需要记住对于quick brown fox的查询会被bool查询重写如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "should": [</div><div class="line">        &#123; "term": &#123; "text": "quick" &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "brown" &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "fox"   &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>bool查询会对所有should查询子句默认启用查询Coordination，但是你可以禁用它。为什么你需要禁用它呢？好吧，通常的答案是，并不需要。查询Coordination通常都起了正面作用。当你使用bool查询来将多个像match这样的高级查询(High-level Query)包装在一起时，启用Coordination也是有意义的。匹配的查询子句越多，你的搜索陈请求和返回的文档之间的匹配程度就越高。</p>
+<p>但是，在某些高级用例中，禁用Coordination也是有其意义的。比如你正在查询同义词jump，leap和hop。你不需要在意这些同义词出现了多少次，因为它们表达了相同的概念。实际上，只有其中的一个可能会出现。此时，禁用Coordination因子就是一个不错的选择：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "disable_coord": true,</div><div class="line">      "should": [</div><div class="line">        &#123; "term": &#123; "text": "jump" &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "hop"  &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "leap" &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当你使用了同义词(参考<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/synonyms.html" target="_blank" rel="external">同义词(Synonyms)</a>)，这正是在内部发生的：重写的查询会为同义词禁用Coordination。多数禁用Coordination的用例都会被自动地处理；你根本无需担心它。</p>
+<h3 id="索引期间字段级别提升-Index-time-Field-level-Boosting"><a href="#索引期间字段级别提升-Index-time-Field-level-Boosting" class="headerlink" title="索引期间字段级别提升(Index-time Field-level Boosting)"></a>索引期间字段级别提升(Index-time Field-level Boosting)</h3><p>现在来讨论一下字段提升 - 让该字段比其它字段更重要一些 - 通过在查询期间使用<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/query-time-boosting.html" target="_blank" rel="external">查询期间提升(Query-time Boosting)</a>。在索引期间对某个字段进行提升也是可能的。实际上，该提升会适用于字段的每个词条上，而不是在字段本身。</p>
+<p>为了在尽可能少占用空间的前提下，将提升值存储到索引中，索引期间字段级别提升会和<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#field-norm" target="_blank" rel="external">字段长度归约</a>一起以一个字节被保存在索引中。它是之前公式中norm(t,d)返回的值。</p>
+<blockquote>
+<p>警告</p>
+<p>我们强烈建议不要使用字段级别索引期间提升的原因如下：</p>
+<ul>
+<li>将此提升和字段长度归约存储在一个字节中意味着字段长度归约会损失精度。结果是ES不能区分一个含有三个单词的字段和一个含有五个单词的字段。</li>
+<li>为了修改索引期间提升，你不得不对所有文档重索引。而查询期间的提升则可以因查询而异。</li>
+<li>如果一个使用了索引期间提升的字段是多值字段(Multivalue Field)，那么提升值会为每一个值进行乘法操作，导致该字段的权重飙升。</li>
+</ul>
+<p><a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/query-time-boosting.html" target="_blank" rel="external">查询期间提升(Query-time Boosting)</a>更简单，简洁和灵活。</p>
+</blockquote>
+<p>解释完了查询归约，Coordination以及索引期间提升，现在可以开始讨论对影响相关度计算最有用的工具：查询期间提升。</p>
+<h2 id="查询期间提升-Query-time-Boosting"><a href="#查询期间提升-Query-time-Boosting" class="headerlink" title="查询期间提升(Query-time Boosting)"></a>查询期间提升(Query-time Boosting)</h2><p>在<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/multi-query-strings.html#prioritising-clauses" target="_blank" rel="external">调整查询子句优先级(Prioritizing Clauses)</a>一节中，我们已经介绍过如何在搜索期间使用boost参数为一个查询子句增加权重。比如：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "should": [</div><div class="line">        &#123;</div><div class="line">          "match": &#123;</div><div class="line">            "title": &#123;</div><div class="line">              "query": "quick brown fox",</div><div class="line">              "boost": 2 </div><div class="line">            &#125;</div><div class="line">          &#125;</div><div class="line">        &#125;,</div><div class="line">        &#123;</div><div class="line">          "match": &#123; </div><div class="line">            "content": "quick brown fox"</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>查询期间提升是用来调优相关度的主要工具。任何类型的查询都接受boost参数。将boost设为2并不是简单地将最终的_score加倍；确切的提升值会经过规范化以及一些内部优化得到。但是，它也意味着一个提升值为2的子句比一个提升值为1的子句要重要两倍。</p>
+<p>实际上，没有任何公式能够决定对某个特定的查询子句，”正确的”提升值应该是多少。它是通过尝试来得到的。记住boost仅仅是相关度分值中的一个因素；它需要和其它因素竞争。比如在上面的例子中，title字段相对于content字段，大概已经有一个”自然的”提升了，该提升来自<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#field-norm" target="_blank" rel="external">字段长度归约(Field-length Norm)</a>(因为标题通常会比相关内容要短一些)，因此不要因为你认为某个字段应该被提升而盲目地对它进行提升。适用一个提升值然后检查得到的结果，再进行修正。</p>
+<h3 id="提升索引-Boosting-an-Index"><a href="#提升索引-Boosting-an-Index" class="headerlink" title="提升索引(Boosting an Index)"></a>提升索引(Boosting an Index)</h3><p>当在多个索引中搜索时，你可以通过indices_boost参数对整个索引进行提升。在下面的例子中，会给予最近索引中的文档更多的权重：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">GET /docs_2014_*/_search </div><div class="line">&#123;</div><div class="line">  "indices_boost": &#123; </div><div class="line">    "docs_2014_10": 3,</div><div class="line">    "docs_2014_09": 2</div><div class="line">  &#125;,</div><div class="line">  "query": &#123;</div><div class="line">    "match": &#123;</div><div class="line">      "text": "quick brown fox"</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该多索引搜索(Multi-index Search)会查询所有以docs<em>2014</em>开头的索引。 索引docs_2014_10中的文档的提升值为3，索引docs_2014_09中的文档的提升值为2，其它索引中的文档的提升值为默认值1。</p>
+<h3 id="t-getBoost"><a href="#t-getBoost" class="headerlink" title="t.getBoost()"></a>t.getBoost()</h3><p>这些提升值在<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/practical-scoring-function.html" target="_blank" rel="external">Lucene的Practical Scoring Function</a>中通过t.getBoost()元素表达。提升并不是其在查询DSL出现的地方被适用的。相反，任何的提升值都会被合并然后传递到每个词条上。t.getBoost()方法返回的是适用于词条本身上的提升值，或者是适用于上层查询的提升值。</p>
+<blockquote>
+<p>TIP</p>
+<p>实际上，阅读<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/relevance-intro.html#explain" target="_blank" rel="external">解释API</a>的输出本身比上述的说明更复杂。你在解释中根本看不到boost值或者t.getBoost()。提升被融合到了适用于特定词条上的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/practical-scoring-function.html#query-norm" target="_blank" rel="external">queryNorm</a>中。尽管我们说过queryNorm对任何词条都是相同的，但是对于提升过的词条而言，queryNorm会更高一些。</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/相关度分值计算/" rel="tag"># 相关度分值计算</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/12/23/Elasticsearch-控制相关度-一-相关度分值计算背后的理论/" rel="next" title="[Elasticsearch] 控制相关度 (一) - 相关度分值计算背后的理论">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 控制相关度 (一) - 相关度分值计算背后的理论
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/25/Elasticsearch-控制相关度-三-通过查询结构调整相关度以及boosting查询/" rel="prev" title="[Elasticsearch] 控制相关度 (三) - 通过查询结构调整相关度以及boosting查询">
+                [Elasticsearch] 控制相关度 (三) - 通过查询结构调整相关度以及boosting查询 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">121</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">65</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lucene中的Practical-Scoring-Function"><span class="nav-number">1.</span> <span class="nav-text">Lucene中的Practical Scoring Function</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#查询归约因子-Query-Normalization-Factor"><span class="nav-number">1.1.</span> <span class="nav-text">查询归约因子(Query Normalization Factor)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Query-Coordination"><span class="nav-number">1.2.</span> <span class="nav-text">Query Coordination</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引期间字段级别提升-Index-time-Field-level-Boosting"><span class="nav-number">1.3.</span> <span class="nav-text">索引期间字段级别提升(Index-time Field-level Boosting)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查询期间提升-Query-time-Boosting"><span class="nav-number">2.</span> <span class="nav-text">查询期间提升(Query-time Boosting)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#提升索引-Boosting-an-Index"><span class="nav-number">2.1.</span> <span class="nav-text">提升索引(Boosting an Index)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#t-getBoost"><span class="nav-number">2.2.</span> <span class="nav-text">t.getBoost()</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,837 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,部分匹配," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="部分匹配(Partial Matching)敏锐的读者可能已经发现到目前为止，介绍的查询都是在整个词条层面进行操作的。匹配的最小单元必须是一个词条。你只能找到存在于倒排索引(Inverted Index)中的词条。
+但是如果你想匹配词条的一部分，而不是整个词条呢？部分匹配(Partial Matching)允许用户指定词条的一部分然后找到含有该部分的任何单词。
+匹配词条一部分这一需求在全文搜索引擎">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 部分匹配 (一) - 前缀查询">
+<meta property="og:url" content="http://rxjiang.com/2014/12/18/Elasticsearch-部分匹配-一-前缀查询/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="部分匹配(Partial Matching)敏锐的读者可能已经发现到目前为止，介绍的查询都是在整个词条层面进行操作的。匹配的最小单元必须是一个词条。你只能找到存在于倒排索引(Inverted Index)中的词条。
+但是如果你想匹配词条的一部分，而不是整个词条呢？部分匹配(Partial Matching)允许用户指定词条的一部分然后找到含有该部分的任何单词。
+匹配词条一部分这一需求在全文搜索引擎">
+<meta property="og:updated_time" content="2017-02-20T07:14:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 部分匹配 (一) - 前缀查询">
+<meta name="twitter:description" content="部分匹配(Partial Matching)敏锐的读者可能已经发现到目前为止，介绍的查询都是在整个词条层面进行操作的。匹配的最小单元必须是一个词条。你只能找到存在于倒排索引(Inverted Index)中的词条。
+但是如果你想匹配词条的一部分，而不是整个词条呢？部分匹配(Partial Matching)允许用户指定词条的一部分然后找到含有该部分的任何单词。
+匹配词条一部分这一需求在全文搜索引擎">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/12/18/Elasticsearch-部分匹配-一-前缀查询/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 部分匹配 (一) - 前缀查询 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/18/Elasticsearch-部分匹配-一-前缀查询/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 部分匹配 (一) - 前缀查询
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-18T10:04:00+08:00">
+                2014-12-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="部分匹配-Partial-Matching"><a href="#部分匹配-Partial-Matching" class="headerlink" title="部分匹配(Partial Matching)"></a>部分匹配(Partial Matching)</h2><p>敏锐的读者可能已经发现到目前为止，介绍的查询都是在整个词条层面进行操作的。匹配的最小单元必须是一个词条。你只能找到存在于倒排索引(Inverted Index)中的词条。</p>
+<p>但是如果你想匹配词条的一部分，而不是整个词条呢？部分匹配(Partial Matching)允许用户指定词条的一部分然后找到含有该部分的任何单词。</p>
+<p>匹配词条一部分这一需求在全文搜索引擎领域比你想象的要不那么常见。如果你有SQL的背景，你可能有过使用下面的SQL语句来实现一个简单的全文搜索功能的经历：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">WHERE text LIKE "*quick*"</div><div class="line">      AND text LIKE "*brown*"</div><div class="line">      AND text LIKE "*fox*"</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>当然，通过ES我们可以借助分析过程(Analysis Process)和倒排索引来避免这种”蛮力”技术。为了同时匹配”fox”和”foxes”，我们可以简单地使用一个词干提取器，然后将词干进行索引。这样就没有必要进行部分匹配了。</p>
+<p>即便如此，在某些场合下部分匹配还是有作用的。常见的用例比如：</p>
+<ul>
+<li>匹配邮政编码，产品序列号，或者其它以某个特定前缀开头的或者能够匹配通配符甚至正则表达式的not_analyzed值。</li>
+<li>即时搜索(Search-as-you-type) - 在用户完成搜索词条的输入前就展示最有可能的结果。</li>
+<li>匹配德语或者荷兰语这一类语言，它们韩哟长复合单词，比如Weltgesundheitsorganisation(World Health Organization)。</li>
+</ul>
+<p>我们以针对精确值not_analyzed字段的前缀匹配开始，介绍部分匹配的技术。</p>
+<h3 id="邮政编码和结构化数据"><a href="#邮政编码和结构化数据" class="headerlink" title="邮政编码和结构化数据"></a>邮政编码和结构化数据</h3><p>我们以英国的邮政编码来说明如何在结构化数据上使用部分匹配。英国邮政编码是一个定义清晰的结构。比如，W1V 3DG这个邮政编码可以被分解成以下几个部分：</p>
+<ul>
+<li>W1V：这个部分表明了邮政地域和地区(Postal Area and District)：<ul>
+<li>W 表明了地域(Area)，使用一个或者两个字母。</li>
+<li>1V 表明了地区(District)，使用一个或者两个数字，可能跟随一个字母。</li>
+</ul>
+</li>
+<li>3DG：该部分表明了街道或者建筑：<ul>
+<li>3 表明了区域(Sector)，使用一个数字。</li>
+<li>DG 表明了单元，使用两个字母。</li>
+</ul>
+</li>
+</ul>
+<p>假设我们将邮政编码索引为精确值的not_analyzed字段，因此我们可以创建如下索引：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">PUT /my_index</div><div class="line">&#123;</div><div class="line">    "mappings": &#123;</div><div class="line">        "address": &#123;</div><div class="line">            "properties": &#123;</div><div class="line">                "postcode": &#123;</div><div class="line">                    "type":  "string",</div><div class="line">                    "index": "not_analyzed"</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后索引一些邮政编码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">PUT /my_index/address/1</div><div class="line">&#123; "postcode": "W1V 3DG" &#125;</div><div class="line"></div><div class="line">PUT /my_index/address/2</div><div class="line">&#123; "postcode": "W2F 8HW" &#125;</div><div class="line"></div><div class="line">PUT /my_index/address/3</div><div class="line">&#123; "postcode": "W1F 7HW" &#125;</div><div class="line"></div><div class="line">PUT /my_index/address/4</div><div class="line">&#123; "postcode": "WC1N 1LZ" &#125;</div><div class="line"></div><div class="line">PUT /my_index/address/5</div><div class="line">&#123; "postcode": "SW5 0BE" &#125;</div></pre></td></tr></table></figure>
+<p>现在我们的数据就准备就绪了。</p>
+<h3 id="前缀查询-Prefix-Query"><a href="#前缀查询-Prefix-Query" class="headerlink" title="前缀查询(Prefix Query)"></a>前缀查询(Prefix Query)</h3><p>我们可以通过一个简单的prefix查询来得到所有以W1开头的邮政编码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">GET /my_index/address/_search</div><div class="line">&#123;</div><div class="line">    "query": &#123;</div><div class="line">        "prefix": &#123;</div><div class="line">            "postcode": "W1"</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>prefix查询是一个工作在词条级别的低级查询。它不会在搜索前对查询字符串进行解析。它假设用户会传入一个需要查询的精确前缀。</p>
+<blockquote>
+<p>TIP</p>
+<p>默认情况下，prefix查询不会计算相关度分值。它只是进行文档匹配，匹配的文档的分值为1。其实，相比查询它更像一个过滤器。prefix查询和prefix过滤器的唯一区别在于过滤器可以被缓存。</p>
+</blockquote>
+<p>之前，我们提到过”你只能找到存在于倒排索引中的词条”，但是对于这些邮政编码我们并没有进行任何特殊处理；每个邮政编码只是被当做精确值被简单地索引。那么prefix查询是如何工作的呢？</p>
+<p>记住倒排索引是由唯一词条得有序列表构成的(此种情况下，即邮政编码)。对于每个词条，它会列举所有含有该词条的文档ID。对于我们的示例文档，倒排索引如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Term:          Doc IDs:</div><div class="line">-------------------------</div><div class="line">&quot;SW5 0BE&quot;    |  5</div><div class="line">&quot;W1F 7HW&quot;    |  3</div><div class="line">&quot;W1V 3DG&quot;    |  1</div><div class="line">&quot;W2F 8HW&quot;    |  2</div><div class="line">&quot;WC1N 1LZ&quot;   |  4</div><div class="line">-------------------------</div></pre></td></tr></table></figure>
+<p>为了支持前缀匹配，查询会执行以下的步骤：</p>
+<ol>
+<li>遍历词条列表并找到以W1开头的词条。</li>
+<li>收集对应的文档ID。</li>
+<li>移动到下一个词条。</li>
+<li>如果该词条也以W1开头，那么重复步骤2；否则结束操作。</li>
+</ol>
+<p>尽管以上的步骤对于我们的小例子而言能很好地工作，想象一下当倒排索引含有一百万个以W1开头的邮政编码时的情景，prefix查询需要访问一百万个词条来得到结果。</p>
+<p>而前缀越短，就意味着需要访问越多的词条。如果我们查询前缀为W，而不是W1的词条，可能会匹配多达一千万个词条。</p>
+<blockquote>
+<p>注意</p>
+<p>prefix查询和过滤器对于即时(Ad-hoc)的前缀匹配是有用处的，但是在使用它们的时候需要小心。对于拥有少量词条的字段可以随意地使用，但是它们的扩展性较差，可能会让你的集群承受过多的压力。可以通过使用一个较长的前缀来限制它们对于集群的影响；这能够减少需要访问的词条的数量。</p>
+</blockquote>
+<p>在本章的稍后部分，我们会介绍一种让前缀匹配更具效率的索引期间解决方案。但是首先，让我们看看两个相关的查询：wildcard以及regexp查询。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/部分匹配/" rel="tag"># 部分匹配</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/12/17/Elasticsearch-邻近匹配-三-性能，关联单词查询以及Shingles/" rel="next" title="[Elasticsearch] 邻近匹配 (三) - 性能，关联单词查询以及Shingles">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 邻近匹配 (三) - 性能，关联单词查询以及Shingles
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/19/Elasticsearch-部分匹配-二-通配符及正则表达式查询/" rel="prev" title="[Elasticsearch] 部分匹配 (二) - 通配符及正则表达式查询">
+                [Elasticsearch] 部分匹配 (二) - 通配符及正则表达式查询 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">121</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">65</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#部分匹配-Partial-Matching"><span class="nav-number">1.</span> <span class="nav-text">部分匹配(Partial Matching)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#邮政编码和结构化数据"><span class="nav-number">1.1.</span> <span class="nav-text">邮政编码和结构化数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#前缀查询-Prefix-Query"><span class="nav-number">1.2.</span> <span class="nav-text">前缀查询(Prefix Query)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

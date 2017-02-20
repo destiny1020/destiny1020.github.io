@@ -1,0 +1,840 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,邻近匹配," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="提高性能短语和邻近度查询比简单的match查询在性能上更昂贵。match查询只是查看词条是否存在于倒排索引(Inverted Index)中，而match_phrase查询则需要计算和比较多个可能重复词条(Multiple possibly repeated)的位置。
+在Lucene Nightly Benchmarks中，显示了一个简单的term查询比一个短语查询快大概10倍，比一个邻近度查询(">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 邻近匹配 (三) - 性能，关联单词查询以及Shingles">
+<meta property="og:url" content="http://rxjiang.com/2014/12/17/Elasticsearch-邻近匹配-三-性能，关联单词查询以及Shingles/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="提高性能短语和邻近度查询比简单的match查询在性能上更昂贵。match查询只是查看词条是否存在于倒排索引(Inverted Index)中，而match_phrase查询则需要计算和比较多个可能重复词条(Multiple possibly repeated)的位置。
+在Lucene Nightly Benchmarks中，显示了一个简单的term查询比一个短语查询快大概10倍，比一个邻近度查询(">
+<meta property="og:updated_time" content="2017-02-20T07:12:30.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 邻近匹配 (三) - 性能，关联单词查询以及Shingles">
+<meta name="twitter:description" content="提高性能短语和邻近度查询比简单的match查询在性能上更昂贵。match查询只是查看词条是否存在于倒排索引(Inverted Index)中，而match_phrase查询则需要计算和比较多个可能重复词条(Multiple possibly repeated)的位置。
+在Lucene Nightly Benchmarks中，显示了一个简单的term查询比一个短语查询快大概10倍，比一个邻近度查询(">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/12/17/Elasticsearch-邻近匹配-三-性能，关联单词查询以及Shingles/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 邻近匹配 (三) - 性能，关联单词查询以及Shingles | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/17/Elasticsearch-邻近匹配-三-性能，关联单词查询以及Shingles/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 邻近匹配 (三) - 性能，关联单词查询以及Shingles
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-17T10:15:00+08:00">
+                2014-12-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="提高性能"><a href="#提高性能" class="headerlink" title="提高性能"></a>提高性能</h2><p>短语和邻近度查询比简单的match查询在性能上更昂贵。match查询只是查看词条是否存在于倒排索引(Inverted Index)中，而match_phrase查询则需要计算和比较多个可能重复词条(Multiple possibly repeated)的位置。</p>
+<p>在<a href="http://people.apache.org/~mikemccand/lucenebench/" target="_blank" rel="external">Lucene Nightly Benchmarks</a>中，显示了一个简单的term查询比一个短语查询快大概10倍，比一个邻近度查询(一个拥有slop的短语查询)快大概20倍。当然，这个代价是在搜索期间而不是索引期间付出的。</p>
+<a id="more"></a>
+<blockquote>
+<p>TIP</p>
+<p>通常，短语查询的额外代价并不像这些数字说的那么吓人。实际上，性能上的差异只是说明了一个简单的term查询时多么的快。在标准全文数据上进行的短语查询通常能够在数毫秒内完成，因此它们在实际生产环境下是完全能够使用的，即使在一个繁忙的集群中。</p>
+<p>在某些特定的场景下，短语查询可能会很耗费资源，但是这种情况时不常有的。一个典型的例子是DNA序列，此时会在很多位置上出现非常之多的相同重复词条。使用高slop值会使位置计算发生大幅度的增长。</p>
+</blockquote>
+<p>因此，如何能够限制短语和邻近度查询的性能消耗呢？一个有用的方法是减少需要使用短语查询进行检查的文档总数。</p>
+<h3 id="结果的分值重计算-Rescoring-Results"><a href="#结果的分值重计算-Rescoring-Results" class="headerlink" title="结果的分值重计算(Rescoring Results)"></a>结果的分值重计算(Rescoring Results)</h3><p>在上一节中，我们讨论了使用邻近度查询来调整相关度，而不是使用它来将文档从结果列表中添加或者排除。一个查询可能会匹配百万计的结果，但是我们的用户很可能只对前面几页结果有兴趣。</p>
+<p>一个简单的match查询已经通过排序将含有所有搜索词条的文档放在结果列表的前面了。而我们只想对这些前面的结果进行重新排序来给予那些同时匹配了短语查询的文档额外的相关度。</p>
+<p>search API通过分值重计算(Rescoring)来支持这一行为。在分值重计算阶段，你能够使用一个更加昂贵的分值计算算法 - 比如一个短语查询 - 来为每个分片的前K个结果重新计算其分值。紧接着这些结果就会按其新的分值重新排序。</p>
+<p>该请求如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">GET /my_index/my_type/_search</div><div class="line">&#123;</div><div class="line">    "query": &#123;</div><div class="line">        "match": &#123;  </div><div class="line">            "title": &#123;</div><div class="line">                "query":                "quick brown fox",</div><div class="line">                "minimum_should_match": "30%"</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    "rescore": &#123;</div><div class="line">        "window_size": 50, </div><div class="line">        "query": &#123;         </div><div class="line">            "rescore_query": &#123;</div><div class="line">                "match_phrase": &#123;</div><div class="line">                    "title": &#123;</div><div class="line">                        "query": "quick brown fox",</div><div class="line">                        "slop":  50</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>match查询用来决定哪些文档会被包含在最终的结果集合中，结果通过TF/IDF进行排序。 window_size是每个分片上需要重新计算分值的数量。</p>
+<h2 id="寻找关联的单词-Finding-Associated-Words"><a href="#寻找关联的单词-Finding-Associated-Words" class="headerlink" title="寻找关联的单词(Finding Associated Words)"></a>寻找关联的单词(Finding Associated Words)</h2><p>尽管短语和邻近度查询很管用，它们还是有一个缺点。它们过于严格了：所有的在短语查询中的词条都必须出现在文档中，即使使用了slop。</p>
+<p>通过slop获得的能够调整单词顺序的灵活性也是有代价的，因为你失去了单词之间的关联。尽管你能够识别文档中的sue，alligator和ate出现在一块，但是你不能判断是Sue ate还是alligator ate。</p>
+<p>当单词结合在一起使用时，它们表达的意思比单独使用时要丰富。”I’m not happy I’m working”和”I’m happy I’m not working”含有相同的单词，也拥有相近的邻近度，但是它们的意思大相径庭。</p>
+<p>如果我们索引单词对，而不是索引独立的单词，那么我们就能够保留更多关于单词使用的上下文信息。</p>
+<p>对于句子”Sue ate the alligator”，我们不仅索引每个单词(或者Unigram)为一个词条：</p>
+<p>[“sue”, “ate”, “the”, “alligator”]</p>
+<p>我们同时会将每个单词和它的邻近单词一起索引成一个词条：</p>
+<p>[“sue ate”, “ate the”, “the alligator”]</p>
+<p>这些单词对(也叫做Bigram)就是所谓的Shingle。</p>
+<blockquote>
+<p>TIP</p>
+<p>Shingle不限于只是单词对；你也可以索引三个单词(Word Triplet，也被称为Trigram)作为一个词条：</p>
+<p>[“sue ate the”, “ate the alligator”]</p>
+<p>Trigram能够给你更高的精度，但是也大大地增加了索引的不同词条的数量。在多数情况下，Bigram就足够了。</p>
+</blockquote>
+<p>当然，只有当用户输入查询的顺序和原始文档的顺序一致，Shingle才能够起作用；一个针对sue alligator的查询会匹配单独的单词，但是不会匹配任何Shingle。</p>
+<p>幸运的是，用户会倾向于使用和他们正在搜索的数据中相似的结构来表达查询。但是这是很重要的一点：仅使用Bigram是不够的；我们仍然需要Unigram，我们可以将匹配Bigram作为信号(Signal)来增加相关度分值。</p>
+<h3 id="产生Shingle"><a href="#产生Shingle" class="headerlink" title="产生Shingle"></a>产生Shingle</h3><p>Shingle需要在索引期间，作为分析过程的一部分被创建。我们可以将Unigram和Bigram都索引到一个字段中，但是将它们放在不同的字段中会更加清晰，也能够让它们能够被独立地查询。Unigram字段形成了我们搜索的基础部分，而Bigram字段则用来提升相关度。</p>
+<p>首先，我们需要使用shingle词条过滤器来创建解析器：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">DELETE /my_index</div><div class="line"></div><div class="line">PUT /my_index</div><div class="line">&#123;</div><div class="line">    "settings": &#123;</div><div class="line">        "number_of_shards": 1,  </div><div class="line">        "analysis": &#123;</div><div class="line">            "filter": &#123;</div><div class="line">                "my_shingle_filter": &#123;</div><div class="line">                    "type":             "shingle",</div><div class="line">                    "min_shingle_size": 2, </div><div class="line">                    "max_shingle_size": 2, </div><div class="line">                    "output_unigrams":  false   </div><div class="line">                &#125;</div><div class="line">            &#125;,</div><div class="line">            "analyzer": &#123;</div><div class="line">                "my_shingle_analyzer": &#123;</div><div class="line">                    "type":             "custom",</div><div class="line">                    "tokenizer":        "standard",</div><div class="line">                    "filter": [</div><div class="line">                        "lowercase",</div><div class="line">                        "my_shingle_filter" </div><div class="line">                    ]</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>默认Shingle的min/max值就是2，因此我们也可以不显式地指定它们。 output_unigrams被设置为false，用来避免将Unigram和Bigram索引到相同字段中。</p>
+<p>让我们使用analyze API来测试该解析器：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">GET /my_index/_analyze?analyzer=my_shingle_analyzer</div><div class="line">Sue ate the alligator</div></pre></td></tr></table></figure>
+<p>不出所料，我们得到了3个词条：</p>
+<ul>
+<li>sue ate</li>
+<li>ate the</li>
+<li>the alligator</li>
+</ul>
+<p>现在我们就可以创建一个使用新解析器的字段了。</p>
+<h3 id="多字段-Multifields"><a href="#多字段-Multifields" class="headerlink" title="多字段(Multifields)"></a>多字段(Multifields)</h3><p>将Unigram和Bigram分开索引会更加清晰，因此我们将title字段创建成一个多字段(Multifield)(参见<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/multi-fields.html" target="_blank" rel="external">字符串排序和多字段(String Sorting and Multifields)</a>)：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">PUT /my_index/_mapping/my_type</div><div class="line">&#123;</div><div class="line">    "my_type": &#123;</div><div class="line">        "properties": &#123;</div><div class="line">            "title": &#123;</div><div class="line">                "type": "string",</div><div class="line">                "fields": &#123;</div><div class="line">                    "shingles": &#123;</div><div class="line">                        "type":     "string",</div><div class="line">                        "analyzer": "my_shingle_analyzer"</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>有了上述映射，JSON文档中的title字段会以Unigram(title字段)和Bigram(title.shingles字段)的方式索引，从而让我们可以独立地对这两个字段进行查询。</p>
+<p>最后，我们可以索引示例文档：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">POST /my_index/my_type/_bulk</div><div class="line">&#123; "index": &#123; "_id": 1 &#125;&#125;</div><div class="line">&#123; "title": "Sue ate the alligator" &#125;</div><div class="line">&#123; "index": &#123; "_id": 2 &#125;&#125;</div><div class="line">&#123; "title": "The alligator ate Sue" &#125;</div><div class="line">&#123; "index": &#123; "_id": 3 &#125;&#125;</div><div class="line">&#123; "title": "Sue never goes anywhere without her alligator skin purse" &#125;</div></pre></td></tr></table></figure>
+<h3 id="搜索Shingles"><a href="#搜索Shingles" class="headerlink" title="搜索Shingles"></a>搜索Shingles</h3><p>为了理解添加的shingles字段的好处，让我们首先看看一个针对”The hungry alligator ate Sue”的简单match查询的返回结果：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">GET /my_index/my_type/_search</div><div class="line">&#123;</div><div class="line">   "query": &#123;</div><div class="line">        "match": &#123;</div><div class="line">           "title": "the hungry alligator ate sue"</div><div class="line">        &#125;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该查询会返回所有的3份文档，但是注意文档1和文档2拥有相同的相关度分值，因为它们含有相同的单词：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"hits"</span>: [</div><div class="line">     &#123;</div><div class="line">        <span class="attr">"_id"</span>: <span class="string">"1"</span>,</div><div class="line">        <span class="attr">"_score"</span>: <span class="number">0.44273707</span>, </div><div class="line">        <span class="attr">"_source"</span>: &#123;</div><div class="line">           <span class="attr">"title"</span>: <span class="string">"Sue ate the alligator"</span></div><div class="line">        &#125;</div><div class="line">     &#125;,</div><div class="line">     &#123;</div><div class="line">        <span class="attr">"_id"</span>: <span class="string">"2"</span>,</div><div class="line">        <span class="attr">"_score"</span>: <span class="number">0.44273707</span>, </div><div class="line">        <span class="attr">"_source"</span>: &#123;</div><div class="line">           <span class="attr">"title"</span>: <span class="string">"The alligator ate Sue"</span></div><div class="line">        &#125;</div><div class="line">     &#125;,</div><div class="line">     &#123;</div><div class="line">        <span class="attr">"_id"</span>: <span class="string">"3"</span>, </div><div class="line">        <span class="attr">"_score"</span>: <span class="number">0.046571054</span>,</div><div class="line">        <span class="attr">"_source"</span>: &#123;</div><div class="line">           <span class="attr">"title"</span>: <span class="string">"Sue never goes anywhere without her alligator skin purse"</span></div><div class="line">        &#125;</div><div class="line">     &#125;</div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>现在让我们将shingles字段也添加到查询中。记住我们会将shingle字段作为信号 - 以增加相关度分值 - 我们仍然需要将主要的title字段包含到查询中：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">GET /my_index/my_type/_search</div><div class="line">&#123;</div><div class="line">   "query": &#123;</div><div class="line">      "bool": &#123;</div><div class="line">         "must": &#123;</div><div class="line">            "match": &#123;</div><div class="line">               "title": "the hungry alligator ate sue"</div><div class="line">            &#125;</div><div class="line">         &#125;,</div><div class="line">         "should": &#123;</div><div class="line">            "match": &#123;</div><div class="line">               "title.shingles": "the hungry alligator ate sue"</div><div class="line">            &#125;</div><div class="line">         &#125;</div><div class="line">      &#125;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们仍然匹配了3分文档，但是文档2现在排在了第一位，因为它匹配了Shingle词条”ate sue”：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"hits"</span>: [</div><div class="line">     &#123;</div><div class="line">        <span class="attr">"_id"</span>: <span class="string">"2"</span>,</div><div class="line">        <span class="attr">"_score"</span>: <span class="number">0.4883322</span>,</div><div class="line">        <span class="attr">"_source"</span>: &#123;</div><div class="line">           <span class="attr">"title"</span>: <span class="string">"The alligator ate Sue"</span></div><div class="line">        &#125;</div><div class="line">     &#125;,</div><div class="line">     &#123;</div><div class="line">        <span class="attr">"_id"</span>: <span class="string">"1"</span>,</div><div class="line">        <span class="attr">"_score"</span>: <span class="number">0.13422975</span>,</div><div class="line">        <span class="attr">"_source"</span>: &#123;</div><div class="line">           <span class="attr">"title"</span>: <span class="string">"Sue ate the alligator"</span></div><div class="line">        &#125;</div><div class="line">     &#125;,</div><div class="line">     &#123;</div><div class="line">        <span class="attr">"_id"</span>: <span class="string">"3"</span>,</div><div class="line">        <span class="attr">"_score"</span>: <span class="number">0.014119488</span>,</div><div class="line">        <span class="attr">"_source"</span>: &#123;</div><div class="line">           <span class="attr">"title"</span>: <span class="string">"Sue never goes anywhere without her alligator skin purse"</span></div><div class="line">        &#125;</div><div class="line">     &#125;</div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>即使在查询中包含了没有在任何文档中出现的单词hungry，我们仍然通过使用单词邻近度得到了最相关的文档。</p>
+<h3 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h3><p>Shingle不仅比短语查询更灵活，它们的性能也更好。相比每次搜索需要为短语查询付出的代价，对Shingle的查询和简单match查询一样的高效。只是在索引期间会付出一点小代价，因为更多的词条需要被索引，意味着使用了Shingle的字段也会占用更多的磁盘空间。但是，多数应用是写入一次读取多次的，因此在索引期间花费一点代价来让查询更迅速是有意义的。</p>
+<p>这是一个你在ES中经常会碰到的主题：让你在搜索期间能够做很多事情，而不需要任何预先的设置。一旦更好地了解了你的需求，就能够通过在索引期间正确地建模来得到更好的结果和更好的性能。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/邻近匹配/" rel="tag"># 邻近匹配</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/12/16/Elasticsearch-邻近匹配-二-多值字段，邻近程度与相关度/" rel="next" title="[Elasticsearch] 邻近匹配 (二) - 多值字段，邻近程度与相关度">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 邻近匹配 (二) - 多值字段，邻近程度与相关度
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/18/Elasticsearch-部分匹配-一-前缀查询/" rel="prev" title="[Elasticsearch] 部分匹配 (一) - 前缀查询">
+                [Elasticsearch] 部分匹配 (一) - 前缀查询 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">121</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">65</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#提高性能"><span class="nav-number">1.</span> <span class="nav-text">提高性能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结果的分值重计算-Rescoring-Results"><span class="nav-number">1.1.</span> <span class="nav-text">结果的分值重计算(Rescoring Results)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#寻找关联的单词-Finding-Associated-Words"><span class="nav-number">2.</span> <span class="nav-text">寻找关联的单词(Finding Associated Words)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#产生Shingle"><span class="nav-number">2.1.</span> <span class="nav-text">产生Shingle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多字段-Multifields"><span class="nav-number">2.2.</span> <span class="nav-text">多字段(Multifields)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#搜索Shingles"><span class="nav-number">2.3.</span> <span class="nav-text">搜索Shingles</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#性能"><span class="nav-number">2.4.</span> <span class="nav-text">性能</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

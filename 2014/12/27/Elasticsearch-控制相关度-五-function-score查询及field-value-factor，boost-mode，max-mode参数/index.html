@@ -1,0 +1,857 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,相关度分值计算," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本章翻译自Elasticsearch官方指南的Controlling Relevance一章。
+function_score查询function_score查询是处理分值计算过程的终极工具。它让你能够对所有匹配了主查询的每份文档调用一个函数来调整甚至是完全替换原来的_score。
+实际上，你可以通过设置过滤器来将查询得到的结果分成若干个子集，然后对每个子集使用不同的函数。这样你就能够同时得益于：高">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 控制相关度 (五) - function_score查询及field_value_factor，boost_mode，max_mode参数">
+<meta property="og:url" content="http://rxjiang.com/2014/12/27/Elasticsearch-控制相关度-五-function-score查询及field-value-factor，boost-mode，max-mode参数/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="本章翻译自Elasticsearch官方指南的Controlling Relevance一章。
+function_score查询function_score查询是处理分值计算过程的终极工具。它让你能够对所有匹配了主查询的每份文档调用一个函数来调整甚至是完全替换原来的_score。
+实际上，你可以通过设置过滤器来将查询得到的结果分成若干个子集，然后对每个子集使用不同的函数。这样你就能够同时得益于：高">
+<meta property="og:image" content="https://camo.githubusercontent.com/f0bd555a4da2b95e912e92f4315de206eae017e0/687474703a2f2f7777772e656c61737469637365617263682e6f72672f67756964652f656e2f656c61737469637365617263682f67756964652f63757272656e742f696d616765732f656c61735f313730312e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/2aaa20a0da983a8ccb8f1092ee302b57437bf045/687474703a2f2f7777772e656c61737469637365617263682e6f72672f67756964652f656e2f656c61737469637365617263682f67756964652f63757272656e742f696d616765732f656c61735f313730322e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/99c91b5d4e3d509d3c4981a88e446afc6c62320d/687474703a2f2f7777772e656c61737469637365617263682e6f72672f67756964652f656e2f656c61737469637365617263682f67756964652f63757272656e742f696d616765732f656c61735f313730332e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/38804d86f54890e2955a34c75775861d195c1ca3/687474703a2f2f7777772e656c61737469637365617263682e6f72672f67756964652f656e2f656c61737469637365617263682f67756964652f63757272656e742f696d616765732f656c61735f313730342e706e67">
+<meta property="og:updated_time" content="2017-02-20T07:54:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 控制相关度 (五) - function_score查询及field_value_factor，boost_mode，max_mode参数">
+<meta name="twitter:description" content="本章翻译自Elasticsearch官方指南的Controlling Relevance一章。
+function_score查询function_score查询是处理分值计算过程的终极工具。它让你能够对所有匹配了主查询的每份文档调用一个函数来调整甚至是完全替换原来的_score。
+实际上，你可以通过设置过滤器来将查询得到的结果分成若干个子集，然后对每个子集使用不同的函数。这样你就能够同时得益于：高">
+<meta name="twitter:image" content="https://camo.githubusercontent.com/f0bd555a4da2b95e912e92f4315de206eae017e0/687474703a2f2f7777772e656c61737469637365617263682e6f72672f67756964652f656e2f656c61737469637365617263682f67756964652f63757272656e742f696d616765732f656c61735f313730312e706e67">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/12/27/Elasticsearch-控制相关度-五-function-score查询及field-value-factor，boost-mode，max-mode参数/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 控制相关度 (五) - function_score查询及field_value_factor，boost_mode，max_mode参数 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/27/Elasticsearch-控制相关度-五-function-score查询及field-value-factor，boost-mode，max-mode参数/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 控制相关度 (五) - function_score查询及field_value_factor，boost_mode，max_mode参数
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-27T23:20:00+08:00">
+                2014-12-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html" target="_blank" rel="external">Controlling Relevance</a>一章。</p>
+<h2 id="function-score查询"><a href="#function-score查询" class="headerlink" title="function_score查询"></a>function_score查询</h2><p><a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html" target="_blank" rel="external">function_score查询</a>是处理分值计算过程的终极工具。它让你能够对所有匹配了主查询的每份文档调用一个函数来调整甚至是完全替换原来的_score。</p>
+<p>实际上，你可以通过设置过滤器来将查询得到的结果分成若干个子集，然后对每个子集使用不同的函数。这样你就能够同时得益于：高效的分值计算以及可缓存的过滤器。</p>
+<p>它拥有几种预先定义好了的函数：</p>
+<a id="more"></a>
+<p><strong>weight</strong></p>
+<p>对每份文档适用一个简单的提升，且该提升不会被归约：当weight为2时，结果为2 * _score。</p>
+<p><strong>field_value_factor</strong></p>
+<p>使用文档中某个字段的值来改变_score，比如将受欢迎程度或者投票数量考虑在内。</p>
+<p><strong>random_score</strong></p>
+<p>使用一致性随机分值计算来对每个用户采用不同的结果排序方式，对相同用户仍然使用相同的排序方式。</p>
+<p><strong>衰减函数(Decay Function) - linear，exp，gauss</strong></p>
+<p>将像publish_date，geo_location或者price这类浮动值考虑到_score中，偏好最近发布的文档，邻近于某个地理位置(译注：其中的某个字段)的文档或者价格(译注：其中的某个字段)靠近某一点的文档。</p>
+<p><strong>script_score</strong></p>
+<p>使用自定义的脚本来完全控制分值计算逻辑。如果你需要以上预定义函数之外的功能，可以根据需要通过脚本进行实现。</p>
+<p>没有function_score查询的话，我们也许就不能将全文搜索得到分值和近因进行结合了。我们将不得不根据_score或者date进行排序；无论采用哪一种都会抹去另一种的影响。function_score查询让我们能够将两者融合在一起：仍然通过全文相关度排序，但是给新近发布的文档，或者流行的文档，或者符合用户价格期望的文档额外的权重。你可以想象，一个拥有所有这些功能的查询看起来会相当复杂。我们从一个简单的例子开始，循序渐进地对它进行介绍。</p>
+<h2 id="根据人气来提升-Boosting-by-Popularity"><a href="#根据人气来提升-Boosting-by-Popularity" class="headerlink" title="根据人气来提升(Boosting by Popularity)"></a>根据人气来提升(Boosting by Popularity)</h2><p>假设我们有一个博客网站让用户投票选择他们喜欢的文章。我们希望让人气高的文章出现在结果列表的头部，但是主要的排序依据仍然是全文搜索分值。我们可以通过保存每篇文章的投票数量来实现：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">PUT /blogposts/post/1</div><div class="line">&#123;</div><div class="line">  "title":   "About popularity",</div><div class="line">  "content": "In this post we will talk about...",</div><div class="line">  "votes":   6</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在搜索期间，使用带有field_value_factor函数的function_score查询将投票数和全文相关度分值结合起来：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">GET /blogposts/post/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "function_score": &#123; </div><div class="line">      "query": &#123; </div><div class="line">        "multi_match": &#123;</div><div class="line">          "query":    "popularity",</div><div class="line">          "fields": [ "title", "content" ]</div><div class="line">        &#125;</div><div class="line">      &#125;,</div><div class="line">      "field_value_factor": &#123; </div><div class="line">        "field": "votes" </div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>function_score查询会包含主查询(Main Query)和希望适用的函数。先会执行主查询，然后再为匹配的文档调用相应的函数。每份文档中都必须有一个votes字段用来保证function_score能够起作用。</p>
+<p>在前面的例子中，每份文档的最终_score会通过下面的方式改变：</p>
+<blockquote>
+<p>new_score = old_score * number_of_votes</p>
+</blockquote>
+<p>它得到的结果并不好。全文搜索的_score通常会在0到10之间。而从下图我们可以发现，拥有10票的文章的分值大大超过了这个范围，而没有被投票的文章的分值会被重置为0。</p>
+<p><img src="https://camo.githubusercontent.com/f0bd555a4da2b95e912e92f4315de206eae017e0/687474703a2f2f7777772e656c61737469637365617263682e6f72672f67756964652f656e2f656c61737469637365617263682f67756964652f63757272656e742f696d616765732f656c61735f313730312e706e67" alt=""></p>
+<p><strong>modifier</strong></p>
+<p>为了让votes值对最终分值的影响更缓和，我们可以使用modifier。换言之，我们需要让头几票的效果更明显，其后的票的影响逐渐减小。0票和1票的区别应该比10票和11票的区别要大的多。</p>
+<p>一个用于此场景的典型modifier是log1p，它将公式改成这样：</p>
+<blockquote>
+<p>new_score = old_score * log(1 + number_of_votes)</p>
+</blockquote>
+<p>log函数将votes字段的效果减缓了，其效果类似下面的曲线：</p>
+<p><img src="https://camo.githubusercontent.com/2aaa20a0da983a8ccb8f1092ee302b57437bf045/687474703a2f2f7777772e656c61737469637365617263682e6f72672f67756964652f656e2f656c61737469637365617263682f67756964652f63757272656e742f696d616765732f656c61735f313730322e706e67" alt=""></p>
+<p>使用了modifier参数的请求如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">GET /blogposts/post/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "function_score": &#123;</div><div class="line">      "query": &#123;</div><div class="line">        "multi_match": &#123;</div><div class="line">          "query":    "popularity",</div><div class="line">          "fields": [ "title", "content" ]</div><div class="line">        &#125;</div><div class="line">      &#125;,</div><div class="line">      "field_value_factor": &#123;</div><div class="line">        "field":    "votes",</div><div class="line">        "modifier": "log1p" </div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可用的modifiers有：none(默认值)，log，log1p，log2p，ln，ln1p，ln2p，square，sqrt以及reciprocal。它们的详细功能和用法可以参考<a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_field_value_factor" target="_blank" rel="external">field_value_factor文档</a>。</p>
+<p><strong>factor</strong></p>
+<p>可以通过将votes字段的值乘以某个数值来增加该字段的影响力，这个数值被称为factor：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">GET /blogposts/post/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "function_score": &#123;</div><div class="line">      "query": &#123;</div><div class="line">        "multi_match": &#123;</div><div class="line">          "query":    "popularity",</div><div class="line">          "fields": [ "title", "content" ]</div><div class="line">        &#125;</div><div class="line">      &#125;,</div><div class="line">      "field_value_factor": &#123;</div><div class="line">        "field":    "votes",</div><div class="line">        "modifier": "log1p",</div><div class="line">        "factor":   2 </div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>添加了factor将公式修改成这样：</p>
+<blockquote>
+<p>new_score = old_score <em> log(1 + factor </em> number_of_votes)</p>
+</blockquote>
+<p>当factor大于1时，会增加其影响力，而小于1的factor则相应减小了其影响力，如下图所示：</p>
+<p><img src="https://camo.githubusercontent.com/99c91b5d4e3d509d3c4981a88e446afc6c62320d/687474703a2f2f7777772e656c61737469637365617263682e6f72672f67756964652f656e2f656c61737469637365617263682f67756964652f63757272656e742f696d616765732f656c61735f313730332e706e67" alt=""></p>
+<p><strong>boost_mode</strong></p>
+<p>将全文搜索的相关度分值乘以field_value_factor函数的结果，对最终分值的影响可能太大了。通过boost_mode参数，我们可以控制函数的结果应该如何与_score结合在一起，该参数接受下面的值：</p>
+<ul>
+<li>multiply：_score乘以函数结果(默认情况)</li>
+<li>sum：_score加上函数结果</li>
+<li>min：_score和函数结果的较小值</li>
+<li>max：_score和函数结果的较大值</li>
+<li>replace：将_score替换成函数结果<br>如果我们是通过将函数结果累加来得到_score，其影响会小的多，特别是当我们使用了一个较低的factor时：</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">GET /blogposts/post/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "function_score": &#123;</div><div class="line">      "query": &#123;</div><div class="line">        "multi_match": &#123;</div><div class="line">          "query":    "popularity",</div><div class="line">          "fields": [ "title", "content" ]</div><div class="line">        &#125;</div><div class="line">      &#125;,</div><div class="line">      "field_value_factor": &#123;</div><div class="line">        "field":    "votes",</div><div class="line">        "modifier": "log1p",</div><div class="line">        "factor":   0.1</div><div class="line">      &#125;,</div><div class="line">      "boost_mode": "sum" </div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述请求的公式如下所示：</p>
+<blockquote>
+<p>new_score = old_score + log(1 + 0.1 * number_of_votes)</p>
+</blockquote>
+<p><img src="https://camo.githubusercontent.com/38804d86f54890e2955a34c75775861d195c1ca3/687474703a2f2f7777772e656c61737469637365617263682e6f72672f67756964652f656e2f656c61737469637365617263682f67756964652f63757272656e742f696d616765732f656c61735f313730342e706e67" alt=""></p>
+<p><strong>max_boost</strong></p>
+<p>最后，我们能够通过制定max_boost参数来限制函数的最大影响：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">GET /blogposts/post/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "function_score": &#123;</div><div class="line">      "query": &#123;</div><div class="line">        "multi_match": &#123;</div><div class="line">          "query":    "popularity",</div><div class="line">          "fields": [ "title", "content" ]</div><div class="line">        &#125;</div><div class="line">      &#125;,</div><div class="line">      "field_value_factor": &#123;</div><div class="line">        "field":    "votes",</div><div class="line">        "modifier": "log1p",</div><div class="line">        "factor":   0.1</div><div class="line">      &#125;,</div><div class="line">      "boost_mode": "sum",</div><div class="line">      "max_boost":  1.5 </div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>无论field_value_factor函数的结果是多少，它绝不会大于1.5。</p>
+<blockquote>
+<p>NOTE</p>
+<p>max_boost只是对函数的结果有所限制，并不是最终的_score。</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/相关度分值计算/" rel="tag"># 相关度分值计算</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/12/26/Elasticsearch-控制相关度-四-忽略TF-IDF/" rel="next" title="[Elasticsearch] 控制相关度 (四) - 忽略TF/IDF">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 控制相关度 (四) - 忽略TF/IDF
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/27/Elasticsearch-控制相关度-六-function-score查询中的filter，functions及random-score参数/" rel="prev" title="[Elasticsearch] 控制相关度 (六) - function_score查询中的filter，functions及random_score参数">
+                [Elasticsearch] 控制相关度 (六) - function_score查询中的filter，functions及random_score参数 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">121</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">65</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#function-score查询"><span class="nav-number">1.</span> <span class="nav-text">function_score查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#根据人气来提升-Boosting-by-Popularity"><span class="nav-number">2.</span> <span class="nav-text">根据人气来提升(Boosting by Popularity)</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
