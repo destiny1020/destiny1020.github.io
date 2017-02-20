@@ -67,7 +67,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="源码分析,AngularJS,脏检查," />
+  <meta name="keywords" content="AngularJS,源码分析,脏检查," />
 
 
 
@@ -103,7 +103,7 @@
 脏数据检查和数据绑定
 
 前两点并没有什么新奇的地方，关键的地方在于第三点。这是AngularJS这一框架和好多其它框架的不同之处，也是AngularJS的">
-<meta property="og:updated_time" content="2017-02-20T09:34:15.000Z">
+<meta property="og:updated_time" content="2017-02-20T09:38:55.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[AngularJS面面观] 1. scope中的Dirty Checking(脏数据检查) --- 引言 ">
 <meta name="twitter:description" content="scope功能概述scope是AngularJS中的核心概念之一。它的设计思想和实现方式也是希望深入了解和学习AngularJS的开发人员必须熟知的。
@@ -461,10 +461,10 @@
 <p>可是光看看第一条就觉得挺难的，又不让利用事件系统，如何知道哪些数据发生了变化…… 那就让AngularJS帮你完成事件的注册和监听吧！在AngularJS版的Hello World中不是有这样的代码嘛：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// JavaScript Code</span></div><div class="line">$scope.hello = <span class="string">'Hello World'</span>;</div></pre></td></tr></table></figure>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- HTML Code --&gt;</span></div><div class="line">&#123;&#123; hello &#125;&#125;</div></pre></td></tr></table></figure>
-<p>利用再HTML中写下`{{ hello }}`这种表达式，AngularJS就能够帮你自动注册并监听hello这个变量的改变。那么它是如何完成注册工作的呢？实际上，AngularJS会首先将你在`{{ }}`中声明的表达式编译成函数并调用<code>$watch</code>方法。这里出现了一个新的概念<code>$watch</code>方法，这个方法很接近事件的注册和监听：</p>
+<p>利用再HTML中写下{{ hello }}这种表达式，AngularJS就能够帮你自动注册并监听hello这个变量的改变。那么它是如何完成注册工作的呢？实际上，AngularJS会首先将你在{{ }}中声明的表达式编译成函数并调用<code>$watch</code>方法。这里出现了一个新的概念<code>$watch</code>方法，这个方法很接近事件的注册和监听：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$scope.$watch(</div><div class="line">	<span class="function"><span class="keyword">function</span>(<span class="params">scope</span>) </span>&#123; <span class="keyword">return</span> scope.someValue; &#125;,</div><div class="line">	<span class="function"><span class="keyword">function</span>(<span class="params">newValue, oldValue, scope</span>) </span>&#123; <span class="comment">// listener code defined here &#125;</span></div><div class="line">);</div></pre></td></tr></table></figure>
-<p><code>$watch</code>方法的第一个参数是一个函数，它通常被称为watch函数，它的返回值声明需要监听的变量；第二个参数是listener，在变量发生改变的时候会被调用。这样看来它和传统的事件注册和监听并没有什么本质上的差别，差别仅在于AngularJS能够帮你自动注册绝大多数的change事件并监听它们，只要你按照AngularJS要求的语法来写HTML中的表达式代码，即`{{ }}`。<code>$watch</code>方法为当前scope注册了一个watcher，这个watcher会被保存到一个scope内部维护的数组中。</p>
-<p>那么现在既然已经注册了需要监听的变量并赋予了listener函数，什么时候才会触发listener函数呢？是时候让<code>$digest</code>方法登台亮相了，在<code>$digest</code>函数中，会逐个检查<code>$watch</code>方法中注册的watch函数，如果该函数返回的值和上一次检查中返回的值不一样的话，就会触发对应的listener函数。拿`{{ }}`表达式作为例子，该表达式编译得到的listener的行为就是将后台的最新变量给同步到前端。这么一来，就完成了一个简单的数据绑定。</p>
+<p><code>$watch</code>方法的第一个参数是一个函数，它通常被称为watch函数，它的返回值声明需要监听的变量；第二个参数是listener，在变量发生改变的时候会被调用。这样看来它和传统的事件注册和监听并没有什么本质上的差别，差别仅在于AngularJS能够帮你自动注册绝大多数的change事件并监听它们，只要你按照AngularJS要求的语法来写HTML中的表达式代码，即{{ }}。<code>$watch</code>方法为当前scope注册了一个watcher，这个watcher会被保存到一个scope内部维护的数组中。</p>
+<p>那么现在既然已经注册了需要监听的变量并赋予了listener函数，什么时候才会触发listener函数呢？是时候让<code>$digest</code>方法登台亮相了，在<code>$digest</code>函数中，会逐个检查<code>$watch</code>方法中注册的watch函数，如果该函数返回的值和上一次检查中返回的值不一样的话，就会触发对应的listener函数。拿{{ }}表达式作为例子，该表达式编译得到的listener的行为就是将后台的最新变量给同步到前端。这么一来，就完成了一个简单的数据绑定。</p>
 <p>好，现在明白了<code>$digest</code>方法用来触发watchers中的listener函数。那么什么时候会触发<code>$digest</code>方法呢？如果没有地方触发<code>$digest</code>方法，那么也没有办法完成整个数据绑定的流程。</p>
 <p>答案就是<code>$apply</code>方法。这个方法能够触发<code>$digest</code>方法。<code>$digest</code>方法的执行就标志着一轮Digest Cycle的开始。</p>
 <p>下篇文章将详细介绍<code>$digest</code>以及<code>$apply</code>方法的实现，敬请期待。</p>
@@ -486,9 +486,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
-          
             <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
           
             <a href="/tags/脏检查/" rel="tag"># 脏检查</a>
           
@@ -512,6 +512,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/" rel="prev" title="[AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle">
+                [AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -581,7 +585,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">141</span>
+                <span class="site-state-item-count">145</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -590,7 +594,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -599,7 +603,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">83</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

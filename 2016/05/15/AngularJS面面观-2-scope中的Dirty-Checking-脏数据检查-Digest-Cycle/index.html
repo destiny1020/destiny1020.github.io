@@ -1,0 +1,846 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,源码分析,脏检查," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Dirty Checking的实现方式了解Angular的开发人员都知道，是一种叫做脏数据检查(Dirty Checking)的机制实现了双向绑定这一前端开发中的黑科技。那么在Angular中到底是如何实现它的呢？本文就一一来揭开它的神秘面纱。
+一言以蔽之，在angular中是通过Digest Cycle来完成脏数据检查从而完成双向绑定进而实现scope和view的同步的。下面分几个方面来介绍一下">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle">
+<meta property="og:url" content="http://rxjiang.com/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="Dirty Checking的实现方式了解Angular的开发人员都知道，是一种叫做脏数据检查(Dirty Checking)的机制实现了双向绑定这一前端开发中的黑科技。那么在Angular中到底是如何实现它的呢？本文就一一来揭开它的神秘面纱。
+一言以蔽之，在angular中是通过Digest Cycle来完成脏数据检查从而完成双向绑定进而实现scope和view的同步的。下面分几个方面来介绍一下">
+<meta property="og:updated_time" content="2017-02-20T09:40:37.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle">
+<meta name="twitter:description" content="Dirty Checking的实现方式了解Angular的开发人员都知道，是一种叫做脏数据检查(Dirty Checking)的机制实现了双向绑定这一前端开发中的黑科技。那么在Angular中到底是如何实现它的呢？本文就一一来揭开它的神秘面纱。
+一言以蔽之，在angular中是通过Digest Cycle来完成脏数据检查从而完成双向绑定进而实现scope和view的同步的。下面分几个方面来介绍一下">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/"/>
+
+
+
+
+
+  <title> [AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-15T00:45:00+08:00">
+                2016-05-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Dirty-Checking的实现方式"><a href="#Dirty-Checking的实现方式" class="headerlink" title="Dirty Checking的实现方式"></a>Dirty Checking的实现方式</h2><p>了解Angular的开发人员都知道，是一种叫做脏数据检查(Dirty Checking)的机制实现了双向绑定这一前端开发中的黑科技。那么在Angular中到底是如何实现它的呢？本文就一一来揭开它的神秘面纱。</p>
+<p>一言以蔽之，在angular中是通过Digest Cycle来完成脏数据检查从而完成双向绑定进而实现scope和view的同步的。下面分几个方面来介绍一下什么是Digest Cycle(DC)：</p>
+<a id="more"></a>
+<h3 id="1-DC中的检查单元-Watcher"><a href="#1-DC中的检查单元-Watcher" class="headerlink" title="1. DC中的检查单元-Watcher"></a>1. DC中的检查单元-Watcher</h3><p>在上一篇文章中，已经说明了在数据绑定表达式{{ }}的背后，是watcher在起作用。那么这个watcher到底是什么呢？它又是如何实现的呢？</p>
+<p>直接上代码，摘自v1.5.5的rootScope.js：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">$watch: <span class="function"><span class="keyword">function</span>(<span class="params">watchExp, listener, objectEquality, prettyPrintExpression</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> get = $parse(watchExp);</div><div class="line">  <span class="keyword">if</span> (get.$$watchDelegate) &#123;</div><div class="line">    <span class="keyword">return</span> get.$$watchDelegate(<span class="keyword">this</span>, listener, objectEquality, get, watchExp);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">var</span> scope = <span class="keyword">this</span>,</div><div class="line">      array = scope.$$watchers,</div><div class="line">      watcher = &#123;</div><div class="line">        <span class="attr">fn</span>: listener,</div><div class="line">        <span class="attr">last</span>: initWatchVal,</div><div class="line">        <span class="attr">get</span>: get,</div><div class="line">        <span class="attr">exp</span>: prettyPrintExpression || watchExp,</div><div class="line">        <span class="attr">eq</span>: !!objectEquality</div><div class="line">      &#125;;</div><div class="line"></div><div class="line">  lastDirtyWatch = <span class="literal">null</span>;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (!isFunction(listener)) &#123;</div><div class="line">    watcher.fn = noop;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (!array) &#123;</div><div class="line">    array = scope.$$watchers = [];</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// we use unshift since we use a while loop in $digest for speed.</span></div><div class="line">  <span class="comment">// the while loop reads in reverse order.</span></div><div class="line">  array.unshift(watcher);</div><div class="line">  incrementWatchersCount(<span class="keyword">this</span>, <span class="number">1</span>);</div><div class="line"></div><div class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">deregisterWatch</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span> (arrayRemove(array, watcher) &gt;= <span class="number">0</span>) &#123;</div><div class="line">      incrementWatchersCount(scope, <span class="number">-1</span>);</div><div class="line">    &#125;</div><div class="line">    lastDirtyWatch = <span class="literal">null</span>;</div><div class="line">  &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>angular文档中对于该方法的描述是：Registers a <code>listener</code> callback to be executed whenever the <code>watchExpression</code> changes. 即当watchExp发生变化的时候就调用listener代表的回调函数。</p>
+<p>前面提到过传入的watch表达式会被翻译成一个watch函数。从上面的代码中，也很清晰的发现了这一点：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> get = $parse(watchExp);</div></pre></td></tr></table></figure>
+<p>angular调用了另一个服务\$parse完成了从表达式到函数的转换。至于\$parse的实现，目前我也还没仔细研究，以后有机会再专门写文章介绍。</p>
+<p>然后，下面这段代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (get.$$watchDelegate) &#123;</div><div class="line">  <span class="keyword">return</span> get.$$watchDelegate(<span class="keyword">this</span>, listener, objectEquality, get, watchExp);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当编译得到的watch function中存在\$\$watchDelegate这个属性时，就会直接返回。这实际上是一个性能优化的措施，在后面的文章中会进行分析。</p>
+<p>后面会声明一个数组变量：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">array = scope.$$watchers;</div><div class="line">......</div><div class="line">if (!array) &#123;</div><div class="line">  array = scope.$$watchers = [];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>很明显，这个数组用来保存当前scope中的所有watchers。顺便说一句，angular中所有以两个$符号开头的变量名都是作为内部变量或者内部方法，一般在我们的应用逻辑中不应该使用它们。而这个数组就是后面执行<code>$digest</code>时重点关注的对象。</p>
+<p>在创建watcher对象时，它有5个属性：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">watcher = &#123;</div><div class="line">  <span class="attr">fn</span>: listener,</div><div class="line">  <span class="attr">last</span>: initWatchVal,</div><div class="line">  <span class="attr">get</span>: get,</div><div class="line">  <span class="attr">exp</span>: prettyPrintExpression || watchExp,</div><div class="line">  <span class="attr">eq</span>: !!objectEquality</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>fn就是传入的listener，关于listener，它的形式是这样的：<code>function(newVal, oldVal, scope)</code><br>顾名思义在调用它的时候，会将当前的最新值，前值以及当前scope传入。</p>
+<p>但是listener也并不是必须的：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (!isFunction(listener)) &#123;</div><div class="line">  watcher.fn = noop;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>既然watcher的主要目的是对scope上的某个属性进行监控，不设置listener有什么意义呢？其实，我也不是很清楚它的应用场景有哪些。但是从逻辑上来说，毕竟每次DC的时候都会执行到watchExp，所以对于没有设置listener的watcher，或多或少可以起到通知的效果吧。比如在watchExp进行digest次数的统计：) 有点牵强，有经验的同学请赐教……</p>
+<p>至于exp和eq，在后面阅读代码的时候自然就会再次碰到，有了更多上下文背景知识，理解这些新的概念的时候就会相对容易一些。现在暂时性的先忽略掉。</p>
+<p>其实在阅读代码的时候，遇到看不明白的地方是非常非常非常正常的事情，此时不要感觉到气馁，也不要过于较劲非要把它弄明白。这样做就相当于是在做深度优先遍历，探索的层次太深了，恐怕你就不知道你在哪里了！最后的结局往往就是放弃，我想很多尝试过阅读代码的同学们都有过这种体验吧。而阅读代码更像是在进行广度优先遍历，我们需要首先弄明白代码的整体结构，然后根据需要逐层推进，各个击破，最终领悟。</p>
+<p>最后的返回值是一个函数：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">deregisterWatch</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (arrayRemove(array, watcher) &gt;= <span class="number">0</span>) &#123;</div><div class="line">    incrementWatchersCount(scope, <span class="number">-1</span>);</div><div class="line">  &#125;</div><div class="line">  lastDirtyWatch = <span class="literal">null</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>很明显，返回的这个函数是用来注销当前watcher：将当前watcher从数组中删除并减少计数器的值。<br>以上就是DC中的检查单元：watcher。将不必要的复杂性剖离后，背后的逻辑也没有那么神秘。</p>
+<h3 id="2-DC中判断数据是否变化的几种逻辑"><a href="#2-DC中判断数据是否变化的几种逻辑" class="headerlink" title="2. DC中判断数据是否变化的几种逻辑"></a>2. DC中判断数据是否变化的几种逻辑</h3><p>声明好了watcher，那么在一轮DC中，是不是会将注册过的watcher中的listener统统调用一次呢？<br>很明显，答案是否定的。如果真要这么设计，任何程序员都会摇摇头：性能会有多差啊！<br>确实，不可能将所有watcher中的listener全部都调用一次。是否调用的关键就在于\$watch中的第一个参数：watchExp。</p>
+<p>只有在当前的值和上次检测的值不同时，才需要调用listener。基于这个逻辑，我们可以写下下面的示意代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">forEach($$watchers, function(watcher) &#123;</div><div class="line">  newVal = watcher.get(scope);</div><div class="line">  oldVal = watcher.last;</div><div class="line">  if (newVal !== oldVal) &#123;</div><div class="line">    watcher.last = newValue;</div><div class="line">    watcher.listenerFn(newVal, oldVal, scope);</div><div class="line">  &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p>首先对watchExp求值得到当前值：newVal。<br>然后将该值和前值(oldVal)进行比较，如果不相等：</p>
+<ol>
+<li>将last设为当前值</li>
+<li>调用listener</li>
+</ol>
+<p>从上面的逻辑中，我们能够发现几个问题：</p>
+<ol>
+<li>在一轮DC中，尽管每个watcher上的listener不一定会被调用，但是每个watcher上的watchExp是会被调用一次的。因此最为应用程序的开发者，对于它的性能我们需要做到心中有数，即在watchExp中不宜进行过于复杂的判断和操作。</li>
+<li>在比较当前值(newVal)和前值(oldVal)的时候，目前使用的是<code>!==</code>来进行比较。但是考虑下面的这种情况，又觉得有些不对：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[1, 2, 3] !== [1, 2, 3] // true</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>即使两个数组的元素一模一样，得到的判断仍然是：他俩不一样，需要调用listener！</p>
+<p>好了，那么如何克服这个问题呢？即当元素内容一样的时候，不调用listener。这就涉及到了DC中判断数据是否变“脏”的几种逻辑：</p>
+<ol>
+<li>基于值的检查</li>
+<li>基于引用的检查</li>
+<li>基于集合的检查</li>
+</ol>
+<p>对于第一种，基于值的检查。很好理解，就是我们在面对相同数组时需要的逻辑。如果数组元素相同，则判断它们是相同的。此时\$watch方法的第三个参数eq就派上用场了，下面是文档中对它的解释：</p>
+<blockquote>
+<p>@param {boolean=} [objectEquality=false] Compare for object equality using {@link angular.equals} instead of comparing for reference equality.</p>
+</blockquote>
+<p>默认为false。使用基于引用的判断方式。也就是我们上面使用的<code>!==</code>。如果设置为true，那么就会使用angular.equals方法来进行比较。至于angular.equals这个方法，它定义在Angular.js这个文件中，其中定义的都是一些工具类方法。它会递归地对其中的所有属性进行比对。因此，只有两个对象的值一模一样时，才会判断它们是相同的。</p>
+<p>那么第三种呢，它对应的方法是<code>$watchCollection</code>，现在介绍它还有点太早了，它的主要目的是对数组和对象的比较过程进行优化。在后续的文章中会进行介绍。</p>
+<h3 id="3-DC的执行者-digest"><a href="#3-DC的执行者-digest" class="headerlink" title="3. DC的执行者\$digest"></a>3. DC的执行者\$digest</h3><p>在上面执行DC的伪代码中，我们会调用watchExp，将当前的值和前值进行比对来确定是否需要调用listener。那么一个很直接的问题就是，第一次调用的时候，这个前值(oldVal)是如何确定的呢？</p>
+<p>如果我们watch了scope上的一个并没有设置过的属性，那么在第一次DC的时候，该watch上的listener永远不会被执行。这是因为我们还没有设置watcher的last属性，没有设置的属性默认就是undefined，而undefined和undefined进行比较的时候，会返回true。因此，当我们需要在第一次DC的时候执行所有watcher的listener时，就必须对每个watcher设置last属性。</p>
+<p>因此，也就有了代码中的这一段：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">watcher = &#123;</div><div class="line">  <span class="attr">fn</span>: listener,</div><div class="line">  <span class="attr">last</span>: initWatchVal,</div><div class="line">  <span class="attr">get</span>: get,</div><div class="line">  <span class="attr">exp</span>: prettyPrintExpression || watchExp,</div><div class="line">  <span class="attr">eq</span>: !!objectEquality</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>将last设置为了initWatchVal。<br>对代码进行搜索可以知道initWatchVal是这样定义的：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">initWatchVal</span>(<span class="params"></span>) </span>&#123;&#125;</div></pre></td></tr></table></figure></p>
+<p>比较巧妙的利用了JavaScript中引用相等判断(Reference Equality)规则。即只有该函数自身和自身进行比较的时候，才会相等。它和任何其它的值进行比较的时候，都会返回false。将它设置为一个watcher的last值再适合不过了。</p>
+<p>另外一个需要注意的问题是，如果listener中对scope中的其它属性进行了修改，而恰巧该属性也有对应的watcher时，该如何是好？这样就造成了潜在的不一致，举个简单的例子。</p>
+<p>现在我们有两个watcher A和B，分别针对属性a和属性b。针对a的watcher A首先执行，如果在B的listener中改变了属性a，那么由于A已经执行过了，就不会判断出a又变“脏”了的事实。这只是一种可能性，当watcher数量增多，各种各样的可能性都是存在的。因此，angular用最悲观的方式来看待这一问题：只要listener被执行了，就认为有可能存在有的数据又变“脏”了的情况。所以我们需要反复的执行DC，来确保再没有listener被执行。只有当一轮DC中一个listener都没有被执行时，DC才可以不用再被执行。</p>
+<p>所以，DC并不是一蹴而就的过程。它需要反复确认所有的被检查值都“稳定”了，它才能休息。那么是不是意味着DC可能会执行非常多次，乃至于无限执行下去的情况呢？</p>
+<p>答案显然是否定的。在实际开发过程中，我们应该遇到过这个异常：</p>
+<blockquote>
+<p>10 $digest() iterations reached. Aborting!</p>
+</blockquote>
+<p>它告诉我们DC似乎进入了一个无休止的循环状态中，因此为了不造成浏览器失去响应，angular主动放弃治疗！这个10是直接定义在angular的源码中的，当然我们也可以通过<code>$rootScopeProvider</code>来修改它：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>.digestTtl = <span class="function"><span class="keyword">function</span>(<span class="params">value</span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (<span class="built_in">arguments</span>.length) &#123;</div><div class="line">    TTL = value;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> TTL;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这里的TTL(可能是Time To Live的意思)就是DC的最大执行次数。</p>
+<p>以上的逻辑反映到伪代码中是这样的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> ttl = <span class="number">10</span>;</div><div class="line"><span class="keyword">do</span> &#123;</div><div class="line">  <span class="keyword">var</span> dirty = <span class="literal">false</span>;</div><div class="line">  <span class="keyword">var</span> length = $$watchers.length;</div><div class="line">  <span class="keyword">var</span> watcher;</div><div class="line">  <span class="keyword">for</span>(<span class="keyword">var</span> idx = <span class="number">0</span>; idx &lt; length; idx++) &#123;</div><div class="line">    watcher = $$watchers[idx];</div><div class="line">    newVal = watcher.watchFn(scope);</div><div class="line">    oldVal = watcher.last;</div><div class="line">    <span class="keyword">if</span> (!newVal.equals(oldVal)) &#123;</div><div class="line">      watcher.last = newVal;</div><div class="line">      watcher.listener(newVal, oldVal, scope);</div><div class="line">      dirty = <span class="literal">true</span>;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  ttl -= <span class="number">1</span>;</div><div class="line">  <span class="keyword">if</span> (dirty &amp;&amp; ttl === <span class="number">0</span>) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="string">'10 $digest() iterations reached. Aborting!'</span>;</div><div class="line">  &#125;</div><div class="line">&#125; <span class="keyword">while</span> (dirty);</div></pre></td></tr></table></figure>
+<p>上面DC的逻辑离angular真正的实现还差的比较远。但是核心的逻辑已经初具雏形了。剩下的很多代码都是针对这个过程的各种优化措施。在下一篇文章中会对这些优化措施进行介绍。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/脏检查/" rel="tag"># 脏检查</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/18/AngularJS面面观-1-scope中的Dirty-Checking-脏数据检查-引言/" rel="next" title="[AngularJS面面观] 1. scope中的Dirty Checking(脏数据检查) --- 引言 ">
+                <i class="fa fa-chevron-left"></i> [AngularJS面面观] 1. scope中的Dirty Checking(脏数据检查) --- 引言 
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/15/AngularJS面面观-3-scope中的Dirty-Checking-脏数据检查-Digest-Cycle中的优化和细节/" rel="prev" title="[AngularJS面面观] 3. scope中的Dirty Checking(脏数据检查) --- Digest Cycle中的优化和细节">
+                [AngularJS面面观] 3. scope中的Dirty Checking(脏数据检查) --- Digest Cycle中的优化和细节 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">145</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Dirty-Checking的实现方式"><span class="nav-number">1.</span> <span class="nav-text">Dirty Checking的实现方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-DC中的检查单元-Watcher"><span class="nav-number">1.1.</span> <span class="nav-text">1. DC中的检查单元-Watcher</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-DC中判断数据是否变化的几种逻辑"><span class="nav-number">1.2.</span> <span class="nav-text">2. DC中判断数据是否变化的几种逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-DC的执行者-digest"><span class="nav-number">1.3.</span> <span class="nav-text">3. DC的执行者\$digest</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

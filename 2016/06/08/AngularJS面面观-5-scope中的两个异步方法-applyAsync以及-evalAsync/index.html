@@ -1,0 +1,825 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,源码分析,异步," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Angular中digest循环的主干是对于watchers的若干次遍历，直到整个scope中的数据”稳定”下来，这部分实现在这篇文章中已经进行了详尽的介绍。相关的一些细节优化也在这篇文章中进行了分析。
+除了主干的内容，digest循环的内容其实还包括几个比较有趣的部分，比如这一节我们即将分析的$evalAsync以及$applyAsync，下面我们就来通过相关源代码来分析一下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS面面观] 5. scope中的两个异步方法 - $applyAsync以及$evalAsync">
+<meta property="og:url" content="http://rxjiang.com/2016/06/08/AngularJS面面观-5-scope中的两个异步方法-applyAsync以及-evalAsync/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="Angular中digest循环的主干是对于watchers的若干次遍历，直到整个scope中的数据”稳定”下来，这部分实现在这篇文章中已经进行了详尽的介绍。相关的一些细节优化也在这篇文章中进行了分析。
+除了主干的内容，digest循环的内容其实还包括几个比较有趣的部分，比如这一节我们即将分析的$evalAsync以及$applyAsync，下面我们就来通过相关源代码来分析一下：">
+<meta property="og:updated_time" content="2017-02-20T09:15:40.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS面面观] 5. scope中的两个异步方法 - $applyAsync以及$evalAsync">
+<meta name="twitter:description" content="Angular中digest循环的主干是对于watchers的若干次遍历，直到整个scope中的数据”稳定”下来，这部分实现在这篇文章中已经进行了详尽的介绍。相关的一些细节优化也在这篇文章中进行了分析。
+除了主干的内容，digest循环的内容其实还包括几个比较有趣的部分，比如这一节我们即将分析的$evalAsync以及$applyAsync，下面我们就来通过相关源代码来分析一下：">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/06/08/AngularJS面面观-5-scope中的两个异步方法-applyAsync以及-evalAsync/"/>
+
+
+
+
+
+  <title> [AngularJS面面观] 5. scope中的两个异步方法 - $applyAsync以及$evalAsync | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/06/08/AngularJS面面观-5-scope中的两个异步方法-applyAsync以及-evalAsync/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS面面观] 5. scope中的两个异步方法 - $applyAsync以及$evalAsync
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-08T00:32:00+08:00">
+                2016-06-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Angular中digest循环的主干是对于watchers的若干次遍历，直到整个scope中的数据”稳定”下来，这部分实现在<a href="http://blog.csdn.net/dm_vincent/article/details/51407292" target="_blank" rel="external">这篇</a>文章中已经进行了详尽的介绍。相关的一些细节优化也在<a href="http://blog.csdn.net/dm_vincent/article/details/51416606" target="_blank" rel="external">这篇</a>文章中进行了分析。</p>
+<p>除了主干的内容，digest循环的内容其实还包括几个比较有趣的部分，比如这一节我们即将分析的<code>$evalAsync</code>以及<code>$applyAsync</code>，下面我们就来通过相关源代码来分析一下：</p>
+<a id="more"></a>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div></pre></td><td class="code"><pre><div class="line">$digest: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> watch, value, last, fn, get,</div><div class="line">      watchers,</div><div class="line">      length,</div><div class="line">      dirty, ttl = TTL,</div><div class="line">      next, current, target = <span class="keyword">this</span>,</div><div class="line">      watchLog = [],</div><div class="line">      logIdx, logMsg, asyncTask;</div><div class="line"></div><div class="line">  beginPhase(<span class="string">'$digest'</span>);</div><div class="line">  <span class="comment">// Check for changes to browser url that happened in sync before the call to $digest</span></div><div class="line">  $browser.$$checkUrlChange();</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="keyword">this</span> === $rootScope &amp;&amp; applyAsyncId !== <span class="literal">null</span>) &#123;</div><div class="line">    <span class="comment">// If this is the root scope, and $applyAsync has scheduled a deferred $apply(), then</span></div><div class="line">    <span class="comment">// cancel the scheduled $apply and flush the queue of expressions to be evaluated.</span></div><div class="line">    $browser.defer.cancel(applyAsyncId);</div><div class="line">    flushApplyAsync();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  lastDirtyWatch = <span class="literal">null</span>;</div><div class="line"></div><div class="line">  <span class="keyword">do</span> &#123; <span class="comment">// "while dirty" loop</span></div><div class="line">    dirty = <span class="literal">false</span>;</div><div class="line">    current = target;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (asyncQueue.length) &#123;</div><div class="line">      <span class="keyword">try</span> &#123;</div><div class="line">        asyncTask = asyncQueue.shift();</div><div class="line">        asyncTask.scope.$<span class="built_in">eval</span>(asyncTask.expression, asyncTask.locals);</div><div class="line">      &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">        $exceptionHandler(e);</div><div class="line">      &#125;</div><div class="line">      lastDirtyWatch = <span class="literal">null</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    traverseScopesLoop:</div><div class="line">    <span class="keyword">do</span> &#123; <span class="comment">// "traverse the scopes" loop</span></div><div class="line">      <span class="keyword">if</span> ((watchers = current.$$watchers)) &#123;</div><div class="line">        <span class="comment">// process our watches</span></div><div class="line">        length = watchers.length;</div><div class="line">        <span class="keyword">while</span> (length--) &#123;</div><div class="line">          <span class="keyword">try</span> &#123;</div><div class="line">            watch = watchers[length];</div><div class="line">            <span class="comment">// Most common watches are on primitives, in which case we can short</span></div><div class="line">            <span class="comment">// circuit it with === operator, only when === fails do we use .equals</span></div><div class="line">            <span class="keyword">if</span> (watch) &#123;</div><div class="line">              get = watch.get;</div><div class="line">              <span class="keyword">if</span> ((value = get(current)) !== (last = watch.last) &amp;&amp;</div><div class="line">                  !(watch.eq</div><div class="line">                      ? equals(value, last)</div><div class="line">                      : (<span class="keyword">typeof</span> value === <span class="string">'number'</span> &amp;&amp; <span class="keyword">typeof</span> last === <span class="string">'number'</span></div><div class="line">                         &amp;&amp; <span class="built_in">isNaN</span>(value) &amp;&amp; <span class="built_in">isNaN</span>(last)))) &#123;</div><div class="line">                dirty = <span class="literal">true</span>;</div><div class="line">                lastDirtyWatch = watch;</div><div class="line">                watch.last = watch.eq ? copy(value, <span class="literal">null</span>) : value;</div><div class="line">                fn = watch.fn;</div><div class="line">                fn(value, ((last === initWatchVal) ? value : last), current);</div><div class="line">                <span class="keyword">if</span> (ttl &lt; <span class="number">5</span>) &#123;</div><div class="line">                  logIdx = <span class="number">4</span> - ttl;</div><div class="line">                  <span class="keyword">if</span> (!watchLog[logIdx]) watchLog[logIdx] = [];</div><div class="line">                  watchLog[logIdx].push(&#123;</div><div class="line">                    <span class="attr">msg</span>: isFunction(watch.exp) ? <span class="string">'fn: '</span> + (watch.exp.name || watch.exp.toString()) : watch.exp,</div><div class="line">                    <span class="attr">newVal</span>: value,</div><div class="line">                    <span class="attr">oldVal</span>: last</div><div class="line">                  &#125;);</div><div class="line">                &#125;</div><div class="line">              &#125; <span class="keyword">else</span> <span class="keyword">if</span> (watch === lastDirtyWatch) &#123;</div><div class="line">                <span class="comment">// If the most recently dirty watcher is now clean, short circuit since the remaining watchers</span></div><div class="line">                <span class="comment">// have already been tested.</span></div><div class="line">                dirty = <span class="literal">false</span>;</div><div class="line">                <span class="keyword">break</span> traverseScopesLoop;</div><div class="line">              &#125;</div><div class="line">            &#125;</div><div class="line">          &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">            $exceptionHandler(e);</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      <span class="comment">// Insanity Warning: scope depth-first traversal</span></div><div class="line">      <span class="comment">// yes, this code is a bit crazy, but it works and we have tests to prove it!</span></div><div class="line">      <span class="comment">// this piece should be kept in sync with the traversal in $broadcast</span></div><div class="line">      <span class="keyword">if</span> (!(next = ((current.$$watchersCount &amp;&amp; current.$$childHead) ||</div><div class="line">          (current !== target &amp;&amp; current.$$nextSibling)))) &#123;</div><div class="line">        <span class="keyword">while</span> (current !== target &amp;&amp; !(next = current.$$nextSibling)) &#123;</div><div class="line">          current = current.$parent;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125; <span class="keyword">while</span> ((current = next));</div><div class="line"></div><div class="line">    <span class="comment">// `break traverseScopesLoop;` takes us to here</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> ((dirty || asyncQueue.length) &amp;&amp; !(ttl--)) &#123;</div><div class="line">      clearPhase();</div><div class="line">      <span class="keyword">throw</span> $rootScopeMinErr(<span class="string">'infdig'</span>,</div><div class="line">          <span class="string">'&#123;0&#125; $digest() iterations reached. Aborting!\n'</span> +</div><div class="line">          <span class="string">'Watchers fired in the last 5 iterations: &#123;1&#125;'</span>,</div><div class="line">          TTL, watchLog);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">  &#125; <span class="keyword">while</span> (dirty || asyncQueue.length);</div><div class="line"></div><div class="line">  clearPhase();</div><div class="line"></div><div class="line">  <span class="keyword">while</span> (postDigestQueue.length) &#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      postDigestQueue.shift()();</div><div class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">      $exceptionHandler(e);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上就是digest方法的完整实现。有了前面的知识铺垫，我们再来阅读一下这段代码，看看是否会有新的收获。</p>
+<p>L10-L20：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">beginPhase(<span class="string">'$digest'</span>);</div><div class="line"><span class="comment">// Check for changes to browser url that happened in sync before the call to $digest</span></div><div class="line">$browser.$$checkUrlChange();</div><div class="line"></div><div class="line"><span class="keyword">if</span> (<span class="keyword">this</span> === $rootScope &amp;&amp; applyAsyncId !== <span class="literal">null</span>) &#123;</div><div class="line">  <span class="comment">// If this is the root scope, and $applyAsync has scheduled a deferred $apply(), then</span></div><div class="line">  <span class="comment">// cancel the scheduled $apply and flush the queue of expressions to be evaluated.</span></div><div class="line">  $browser.defer.cancel(applyAsyncId);</div><div class="line">  flushApplyAsync();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>首先，会使用<code>beginPhase</code>方法将当前的状态标注为<code>$digest</code>。<br>由于URL的变化可能和<code>$digest</code>方法的调用同时发生，通过<code>$browser</code>上定义的<code>$$checkUrlChange</code>方法来检测一下是否发生了URL的变化：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">self.$$checkUrlChange = fireUrlChange;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fireUrlChange</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (lastBrowserUrl === self.url() &amp;&amp; lastHistoryState === cachedState) &#123;</div><div class="line">    <span class="keyword">return</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  lastBrowserUrl = self.url();</div><div class="line">  lastHistoryState = cachedState;</div><div class="line">  forEach(urlChangeListeners, <span class="function"><span class="keyword">function</span>(<span class="params">listener</span>) </span>&#123;</div><div class="line">    listener(self.url(), cachedState);</div><div class="line">  &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果URL没有发生变化那么立即返回。反之则会保存当前的URL和相关历史状态，同时调用当URL发生变化时注册过的监听器。</p>
+<p>这部分的内容和我们这一节的内容关系并不大，以后我希望专门用一些篇幅来阐述，这里就不再深入下去。</p>
+<p>好了，那么下面L14-L19是在做什么呢？<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (<span class="keyword">this</span> === $rootScope &amp;&amp; applyAsyncId !== <span class="literal">null</span>) &#123;</div><div class="line">  <span class="comment">// If this is the root scope, and $applyAsync has scheduled a deferred $apply(), then</span></div><div class="line">  <span class="comment">// cancel the scheduled $apply and flush the queue of expressions to be evaluated.</span></div><div class="line">  $browser.defer.cancel(applyAsyncId);</div><div class="line">  flushApplyAsync();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这里出现了好多奇奇怪怪的东西。主要是这几个新概念：</p>
+<ol>
+<li><code>$applyAsync</code></li>
+<li><code>applyAsyncId</code>以及<code>$browser.defer.cancel</code></li>
+<li><code>flushApplyAsync()</code></li>
+</ol>
+<p>这里出现了本节的主角之一<code>$applyAsync</code>。<br>2和3则是围绕它的两个概念。</p>
+<p>来看看它的实现：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$applyAsync: <span class="function"><span class="keyword">function</span>(<span class="params">expr</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> scope = <span class="keyword">this</span>;</div><div class="line">  expr &amp;&amp; applyAsyncQueue.push($applyAsyncExpression);</div><div class="line">  expr = $parse(expr);</div><div class="line">  scheduleApplyAsync();</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">function</span> <span class="title">$applyAsyncExpression</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    scope.$<span class="built_in">eval</span>(expr);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>让我们看看这个方法的实现。首先，将传入的参数表达式通过闭包给包装到一个函数中，并将该函数置入到一个名为<code>applyAsyncQueue</code>的数组中。解析表达式为Angular能够辨识的形式(通过<code>$parse</code>服务)。最后调用<code>scheduleApplyAsync</code>方法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> applyAsyncId = <span class="literal">null</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">scheduleApplyAsync</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (applyAsyncId === <span class="literal">null</span>) &#123;</div><div class="line">    applyAsyncId = $browser.defer(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">      $rootScope.$apply(flushApplyAsync);</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>需要明白的是，<code>applyAsyncId</code>只是定义在<code>$rootScope</code>上的一个变量而已。</p>
+<p>在<code>scheduleApplyAsync</code>方法中，会首先判断<code>applyAsyncId</code>是否已经被定义了，如果没有定义的话会使用<code>$browser.defer</code>来生成一个<code>applyAsyncId</code>。</p>
+<p>这里出现的<code>$browser.defer</code>目前不打算分析它的代码。现在需要知道的是它只不过是浏览器环境下JavaScript原生函数<code>setTimeout</code>的一层封装。而对应的<code>$browser.defer.cancel(deferId)</code>用来取消由<code>$browser.defer</code>定义的一个延迟执行任务。</p>
+<p>很显然，需要调度的异步任务是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$rootScope.$apply(flushApplyAsync);</div><div class="line"></div><div class="line">// 下面是具体任务的定义</div><div class="line">function flushApplyAsync() &#123;</div><div class="line">  while (applyAsyncQueue.length) &#123;</div><div class="line">    try &#123;</div><div class="line">      applyAsyncQueue.shift()();</div><div class="line">    &#125; catch (e) &#123;</div><div class="line">      $exceptionHandler(e);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  applyAsyncId = null;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>具体执行的任务很好理解，从<code>applyAsyncQueue</code>这个数组中依次拿出前面置入的函数并执行。最后将<code>applyAsyncId</code>重置为空表明执行完毕。</p>
+<p>初步了解了$applyAsync的实现后，再看看上面这段代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (<span class="keyword">this</span> === $rootScope &amp;&amp; applyAsyncId !== <span class="literal">null</span>) &#123;</div><div class="line">  <span class="comment">// If this is the root scope, and $applyAsync has scheduled a deferred $apply(), then</span></div><div class="line">  <span class="comment">// cancel the scheduled $apply and flush the queue of expressions to be evaluated.</span></div><div class="line">  $browser.defer.cancel(applyAsyncId);</div><div class="line">  flushApplyAsync();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>正如同注释说明的那样，如果当前scope是<code>$rootScope</code>并且定义了需要异步执行的任务的话，取消该任务并马上执行保存在<code>applyAsyncQueue</code>这个数组中的每个表达式(通过<code>flushApplyAsync</code>方法)。</p>
+<p>这样做的原因也比较好理解，目前已经进入了一轮digest循环，这是执行之前定义的异步任务的一个合适契机。因为<code>$apply</code>方法最终也会触发<code>$digest</code>方法的执行，那么在这里直接执行就能够减少一次不必要的digest调用。</p>
+<p>了解了<code>$applyAsync</code>是如何实现的，有必要思考一下应该在什么场景下使用<code>$applyAsync</code>呢？或者说，Angular在设计这个方法之处是出于什么考虑呢？源代码中该方法的注释说明如下：</p>
+<blockquote>
+<p>Schedule the invocation of $apply to occur at a later time. The actual time difference varies across browsers, but is typically around ~10 milliseconds. This can be used to queue up multiple expressions which need to be evaluated in the same digest.</p>
+</blockquote>
+<p>简单翻译一下：让<code>$apply</code>晚一些运行，实际晚的时间根据浏览器的不同而有所不同，但是一般在10毫秒左右。可以用它将多个表达式的任务排队，从而让它们都在同一个digest循环中执行。</p>
+<p>看上去有那么一点点道理，但还是有一些不明就里的感觉。但是下面这个例子就让它的用途清晰起来了。我们知道在Angular中发起AJAX请求一般通过<code>$http</code>服务，在得到来自后端的响应之后，它也会触发一轮digest循环。这也就是说，如果同时发起了10个AJAX请求，那么最终会触发10轮digest循环。而如果这10个AJAX请求并不是那么耗时，它们返回的速度很快，这就会造成10轮digest循环依次被触发，而很显然没有必要这么密集地触发digest循环。</p>
+<p>所以在<code>$http</code>服务对应的配置对象<code>$httpProvider</code>中，有一个方法：<code>useApplyAsync([value])</code>。它的简要说明如下：</p>
+<blockquote>
+<p>Configure <code>$http</code> service to combine processing of multiple http responses received at around the same time via <code>$rootScope.$applyAsync</code>. This can result in significant performance improvement for bigger applications that make many HTTP requests concurrently (common during application bootstrap).</p>
+</blockquote>
+<p>配置<code>$http</code>服务使用<code>$rootScope.$applyAsync</code>来合并处理几乎在相同时间得到的http响应。对于同时发起很多HTTP请求(一般在应用启动阶段)的大型应用，能够大幅提高性能。</p>
+<p>所以，答案就比较清晰了。如果在你的应用中，经常同时调用很多个AJAX请求，那么可以考虑配置：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$httpProvider.useApplyAsync(<span class="literal">true</span>);</div></pre></td></tr></table></figure></p>
+<p>好了，跟第一个主角<code>$applyAsync</code>打好招呼，下面这段代码我们会碰到第二个主角<code>$evalAsync</code>：</p>
+<p>在上面digest完整代码的L27-L35：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span> (asyncQueue.length) &#123;</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    asyncTask = asyncQueue.shift();</div><div class="line">    asyncTask.scope.$<span class="built_in">eval</span>(asyncTask.expression, asyncTask.locals);</div><div class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">    $exceptionHandler(e);</div><div class="line">  &#125;</div><div class="line">  lastDirtyWatch = <span class="literal">null</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当代码运行到这里时，事实上已经进入了digest循环体。<br>它遍历<code>asyncQueue</code>这个数组，并且通过<code>$eval</code>方法依次执行定义在其中的表达式。</p>
+<p>那么数组<code>asyncQueue</code>是怎么什么时候被填充的呢？嗯，没错，就是在调用<code>$evalAsync</code>时。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$evalAsync: <span class="function"><span class="keyword">function</span>(<span class="params">expr, locals</span>) </span>&#123;</div><div class="line">  <span class="comment">// if we are outside of an $digest loop and this is the first time we are scheduling async</span></div><div class="line">  <span class="comment">// task also schedule async auto-flush</span></div><div class="line">  <span class="keyword">if</span> (!$rootScope.$$phase &amp;&amp; !asyncQueue.length) &#123;</div><div class="line">    $browser.defer(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">      <span class="keyword">if</span> (asyncQueue.length) &#123;</div><div class="line">        $rootScope.$digest();</div><div class="line">      &#125;</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  asyncQueue.push(&#123;<span class="attr">scope</span>: <span class="keyword">this</span>, <span class="attr">expression</span>: $parse(expr), <span class="attr">locals</span>: locals&#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>如果当前不处于<code>$digest</code>或者<code>$apply</code>的过程中(只有在<code>$apply</code>和<code>$digest</code>方法中才会设置<code>$$phase</code>这个字段)，并且<code>asyncQueue</code>数组中还不存在任务时，就会异步调度一轮digest循环来确保<code>asyncQueue</code>数组中的表达式会被执行。</p>
+<p>如果没有后面这个判断条件的话，每次调用<code>$evalAsync</code>都会触发一次digest循环，那么会给整个应用造成不必要的负担。因为一次digest循环会执行掉<code>asyncQueue</code>数组中所有的任务，而多次执行显然是没有意义的，添加的负担就是触发一轮watchers中<code>watch</code>方法的遍历。而不可排出某些<code>watch</code>方法可能会相当耗时(即时在<code>watch</code>方法中执行耗时任务并不是一个好的实践)。</p>
+<p>弄清楚了<code>$evalAsync</code>的作用，那么使用它到底又有什么意义呢？在什么场合下需要使用它？</p>
+<p>这就涉及到了一个问题，延迟执行的时机。我们知道，当我们需要在某个”晚一点”的时候执行一段代码的时候，我们会使用<code>setTimeout</code>方法，或者在Angular环境中的<code>$timeout</code>服务。但是它们的共通之处在于它们都依赖于浏览器的事件循环机制(Event Loop)。也就是说，在我们调用了<code>setTimeout</code>或者<code>$timeout</code>后，我们将何时执行这段延时代码的控制权交给了浏览器。可是我们的浏览器大哥可是很忙的，你以为你指定了timeout时间为100毫秒，大哥就一定会在100毫秒之后执行吗？这有一点不现实。如果事件循环中存在了一些耗时任务，那么你的任务的执行时间就完全不可控了。大哥可能在执行了一堆排在你的任务之前的任务后才会来执行你的任务。这个时候也许黄花菜都凉了。</p>
+<p>而<code>$evalAsync</code>就尝试解决这一问题。如果目前已经处于一轮digest循环中，那么它能够确保你定义的任务在本轮digest循环期间一定会被执行！因此，这个过程和浏览器就没有任何关系了，这样能够提高浏览器的渲染效率，因为无效的渲染被屏蔽了。关于<code>$timeout</code>和<code>$evalAsync</code>，在Stackoverlow上有比较好的一个<a href="http://stackoverflow.com/questions/17301572/angularjs-evalasync-vs-timeout#answer-17303759" target="_blank" rel="external">总结</a>，简单的翻译一下：</p>
+<ol>
+<li>如果在directive中使用<code>$evalAsync</code>，那么它的运行时机在Angular对DOM进行操作之后，浏览器渲染之前。</li>
+<li>如果在controller中使用<code>$evalAsync</code>，那么它的运行时机在Angular对DOM进行操作之前，同时也在浏览器渲染之前 - 很少需要这样做。</li>
+<li>如果通过<code>$timeout</code>来异步执行代码，那么它的运行时机在Angular对DOM进行操作之后，也在浏览器渲染完毕之后(这也许会造成页面闪烁)。</li>
+</ol>
+<p>如果当前不在一轮digest循环中，和$timeout就几乎没有区别了。因为它会通过下面的代码触发digest循环：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$browser.defer(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (asyncQueue.length) &#123;</div><div class="line">    $rootScope.$digest();</div><div class="line">  &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p>而<code>$browser.defer</code>等同于直接调用<code>setTimeout</code>。</p>
+<p>因此，我们可以记住一个结论：使用<code>$evalAsync</code>的最佳场合是在指令的<code>link</code>方法中。这样能够避免浏览器不必要的渲染而造成的页面闪烁。当你在directive中考虑使用<code>$timeout</code>时，不妨试试<code>$evalAsync</code>。</p>
+<p>因为在digest循环中引入了对<code>asyncQueue</code>数组的操作。循环的终止条件也需要相应作出调整：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">  ...</div><div class="line">  if ((dirty || asyncQueue.length) &amp;&amp; !(ttl--)) &#123;</div><div class="line">    clearPhase();</div><div class="line">    <span class="keyword">throw</span> $rootScopeMinErr(<span class="string">'infdig'</span>,</div><div class="line">        <span class="string">'&#123;0&#125; $digest() iterations reached. Aborting!\n'</span> +</div><div class="line">        <span class="string">'Watchers fired in the last 5 iterations: &#123;1&#125;'</span>,</div><div class="line">        TTL, watchLog);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125; <span class="keyword">while</span> (dirty || asyncQueue.length);</div></pre></td></tr></table></figure>
+<p>不能再以是否dirty作为循环的终止条件了。考虑一种极端情况，如果watcher的watch方法中不停的调用<code>$evalAsync</code>，那么就会造成<code>asyncQueue</code>数组永远无法被执行完。因此这种情况也会触发达到最大digest数的异常。</p>
+<p>另外，在最外层的while循环条件中，也加入了<code>asyncQueue.length</code>，只有当<code>asyncQueue</code>数组中的所有任务都完成时，才能考虑推出digest循环。</p>
+<p>最后，如果你细心，还会发现在digest方法的最后，digest循环体之外，还有一个while循环：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span> (postDigestQueue.length) &#123;</div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    postDigestQueue.shift()();</div><div class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">    $exceptionHandler(e);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>形式上和之前处理<code>asyncQueue</code>数组挺相似的，看看在什么地方操作了<code>postDigestQueue</code>数组就明白是啥意思了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$$postDigest: <span class="function"><span class="keyword">function</span>(<span class="params">fn</span>) </span>&#123;</div><div class="line">  postDigestQueue.push(fn);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上是scope定义的一个方法，按照Angular的代码规约，它实际上是一个private方法，因为它的前缀有两个$符号。那么它是用来干什么的呢？从该循环的位置可以得出判断：用于在digest循环后执行，因此也可以将<code>$$postDigest</code>方法理解为一些callback的注册，这些callback会在digest循环完毕后被调用。尽管<code>$$postDigest</code>方法是一个private方法，在确实有需求在digest循环后执行某些任务时，也是可以考虑使用的。</p>
+<p>至此，digest循环的主体部分就介绍的差不多了。其实它还涉及到了一些其他的概念，比如：</p>
+<ol>
+<li>scope的继承机制，因为digest循环会遍历整个scope树结构。</li>
+<li>watcher的watch方法如何判断scope上的某个数据是否发生了变化，判断的方式因该数据的类型而异。关于这一点再前面的文章中已经简要叙述过了，以后有空会有专门的文章再深入探讨这个问题。</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/异步/" rel="tag"># 异步</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/07/AngularJS面面观-4-scope中的-apply方法-Digest-Cycle的触发者/" rel="next" title="[AngularJS面面观] 4. scope中的$apply方法 - Digest Cycle的触发者">
+                <i class="fa fa-chevron-left"></i> [AngularJS面面观] 4. scope中的$apply方法 - Digest Cycle的触发者
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">145</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
