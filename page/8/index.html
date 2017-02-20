@@ -30,10 +30,6 @@
 
 
 
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
 
 
 
@@ -105,7 +101,7 @@
     root: '/',
     scheme: 'Pisces',
     sidebar: {"position":"left","display":"post"},
-    fancybox: true,
+    fancybox: false,
     motion: true,
     duoshuo: {
       userId: '0',
@@ -296,6 +292,1289 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2013/01/19/Effective-Java-Distilled-Item-3-通过使用私有构造方法或者枚举类型来强化单例属性/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2013/01/19/Effective-Java-Distilled-Item-3-通过使用私有构造方法或者枚举类型来强化单例属性/" itemprop="url">
+                  [Effective Java Distilled] Item 3 通过使用私有构造方法或者枚举类型来强化单例属性
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-01-19T11:40:00+08:00">
+                2013-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="关于Effective-Java-Distilled"><a href="#关于Effective-Java-Distilled" class="headerlink" title="关于Effective Java Distilled"></a>关于Effective Java Distilled</h2><p>《Effective Java》这本书我断断续续的读了近两遍，里面的内容挺有深度，对提高工程代码质量也非常有帮助。我打算慢慢的整理出来一个系列，之所以命名为Effective Java Distilled，也是想将本书的精华尽可能的整理出来，方便复习查阅使用，毕竟自己的记忆力也很有限，很多东西经常忘记，一言以蔽之，就是对这本书的一些读书笔记吧。文章中的内容肯定是忠于原文的，对于某些Items，可能会添加一些内容，添加的内容我都会标明。同时，也希望本系列的文章能给大家带来一些帮助。如有疑问或者建议，烦请留言，谢谢大家。</p>
+<h2 id="本文提纲"><a href="#本文提纲" class="headerlink" title="本文提纲"></a>本文提纲</h2><ul>
+<li>传统的实现单例模式的几种方式</li>
+<li>Lazy方式实现单例模式</li>
+<li>使用枚举类型来实现单例模式</li>
+</ul>
+<p>需要说明的是，关于第二点，Lazy方式实现单例模式在《Effective Java》原文中没有提到。这里是为了完整性，自行添加的内容，是否有实践意义，还有待商榷，因为使用Lazy实现方式，特别在并发环境中使用它，到底能带来多少好处，确实不好说。其实我个人感觉是，不会带来什么好处。带来的那么一点点性能上以及空间上的好处，实在不足以抵消它引入的复杂性。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2013/01/19/Effective-Java-Distilled-Item-3-通过使用私有构造方法或者枚举类型来强化单例属性/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2013/01/18/Effective-Java-Distilled-Item-2-当构造方法中有多个参数时，考虑建造者模式/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2013/01/18/Effective-Java-Distilled-Item-2-当构造方法中有多个参数时，考虑建造者模式/" itemprop="url">
+                  [Effective Java Distilled] Item 2 当构造方法中有多个参数时，考虑建造者模式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-01-18T14:21:00+08:00">
+                2013-01-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h3 id="关于Effective-Java-Distilled"><a href="#关于Effective-Java-Distilled" class="headerlink" title="关于Effective Java Distilled"></a>关于Effective Java Distilled</h3><p>《Effective Java》这本书我断断续续的读了近两遍，里面的内容挺有深度，对提高工程代码质量也非常有帮助。我打算慢慢的整理出来一个系列，之所以命名为Effective Java Distilled，也是想将本书的精华尽可能的整理出来，方便复习查阅使用，毕竟自己的记忆力也很有限，很多东西经常忘记，一言以蔽之，就是对这本书的一些读书笔记吧。文章中的内容肯定是忠于原文的，对于某些Items，可能会添加一些内容，添加的内容我都会标明。同时，也希望本系列的文章能给大家带来一些帮助。如有疑问或者建议，烦请留言，谢谢大家。</p>
+<h2 id="本文提纲"><a href="#本文提纲" class="headerlink" title="本文提纲"></a>本文提纲</h2><ul>
+<li>参数过多对静态工厂方法和构造方法的影响</li>
+<li>JavaBean模式及其弊端</li>
+<li>建造者模式的运用</li>
+<li>泛化建造者模式</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2013/01/18/Effective-Java-Distilled-Item-2-当构造方法中有多个参数时，考虑建造者模式/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2013/01/17/Effective-Java-Distilled-Item-1-考虑使用静态工厂方法来替换构造方法/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2013/01/17/Effective-Java-Distilled-Item-1-考虑使用静态工厂方法来替换构造方法/" itemprop="url">
+                  [Effective Java Distilled] Item 1 考虑使用静态工厂方法来替换构造方法
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-01-17T15:26:00+08:00">
+                2013-01-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="关于Effective-Java-Distilled"><a href="#关于Effective-Java-Distilled" class="headerlink" title="关于Effective Java Distilled"></a>关于Effective Java Distilled</h2><p>《Effective Java》这本书我断断续续的读了近两遍，里面的内容挺有深度，对提高工程代码质量也非常有帮助。我打算慢慢的整理出来一个系列，之所以命名为Effective Java Distilled，也是想将本书的精华尽可能的整理出来，方便复习查阅使用，毕竟自己的记忆力也很有限，很多东西经常忘记，一言以蔽之，就是对这本书的一些读书笔记吧。文章中的内容肯定是忠于原文的，对于某些Items，可能会添加一些内容，添加的内容我都会标明。同时，也希望本系列的文章能给大家带来一些帮助。如有疑问或者建议，烦请留言，谢谢大家。</p>
+<h2 id="本文提纲"><a href="#本文提纲" class="headerlink" title="本文提纲"></a>本文提纲</h2><ul>
+<li>静态工厂方法是什么</li>
+<li>静态工厂方法的声明方式</li>
+<li>静态工厂方法的优势</li>
+<li>静态工厂方法的劣势</li>
+<li>静态工厂方法的争议</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2013/01/17/Effective-Java-Distilled-Item-1-考虑使用静态工厂方法来替换构造方法/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2012/09/22/由“栈的逆序”谈谈递归算法/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2012/09/22/由“栈的逆序”谈谈递归算法/" itemprop="url">
+                  由“栈的逆序”谈谈递归算法
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-09-22T20:23:00+08:00">
+                2012-09-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>最近看到一道题目：要求将一个栈逆序，使用递归。</p>
+<p>我们先看看最常规的解法应该是怎样的，显然对于“逆序”这种问题描述，栈这种数据结构就会蹦入我们的脑海。</p>
+<p>实现代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> LinkedStack&lt;Integer&gt; <span class="title">reverseStackDirectly</span><span class="params">(LinkedStack&lt;Integer&gt; stack)</span> </span>&#123;  </div><div class="line">      </div><div class="line">    <span class="keyword">if</span>(<span class="keyword">null</span> != stack &amp;&amp; !stack.isEmpty()) &#123;  </div><div class="line">        LinkedStack&lt;Integer&gt; auxiliary = <span class="keyword">new</span> LinkedStack&lt;Integer&gt;();  </div><div class="line">        <span class="keyword">while</span>(!stack.isEmpty()) &#123;  </div><div class="line">            auxiliary.push(stack.pop());  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">return</span> auxiliary;  </div><div class="line">    &#125;  </div><div class="line">      </div><div class="line">    <span class="keyword">return</span> stack;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>代码的思路很明确，首先开辟了一个新的栈作为辅助栈，将原栈中的元素依次弹出并压入到辅助栈中，最后返回辅助栈。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/09/22/由“栈的逆序”谈谈递归算法/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2012/07/22/并查集-Union-Find-应用举例-基础篇/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2012/07/22/并查集-Union-Find-应用举例-基础篇/" itemprop="url">
+                  并查集(Union-Find) 应用举例 --- 基础篇
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-07-22T23:54:00+08:00">
+                2012-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/图论/" itemprop="url" rel="index">
+                    <span itemprop="name">图论</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本文是作为上一篇文章 <a href="http://www.rxjiang.com/2012/06/12/%E5%B9%B6%E6%9F%A5%E9%9B%86-Union-Find-%E7%AE%97%E6%B3%95%E4%BB%8B%E7%BB%8D/">并查集算法原理和改进</a> 的后续，焦点主要集中在一些并查集的应用上。材料主要是取自POJ，HDOJ上的一些算法练习题。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/07/22/并查集-Union-Find-应用举例-基础篇/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2012/07/04/拓扑排序的原理及其实现/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2012/07/04/拓扑排序的原理及其实现/" itemprop="url">
+                  拓扑排序的原理及其实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-07-04T13:27:00+08:00">
+                2012-07-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/图论/" itemprop="url" rel="index">
+                    <span itemprop="name">图论</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本文将从以下几个方面介绍拓扑排序：</p>
+<ul>
+<li>拓扑排序的定义和前置条件</li>
+<li>和离散数学中偏序/全序概念的联系</li>
+<li>典型实现算法<ul>
+<li>Kahn算法</li>
+<li>基于DFS的算法</li>
+</ul>
+</li>
+<li>解的唯一性问题</li>
+<li>实际例子</li>
+</ul>
+<p>取材自以下材料：</p>
+<p><a href="http://en.wikipedia.org/wiki/Topological_sorting">WIKI-拓扑排序</a><br><a href="http://en.wikipedia.org/wiki/Hamiltonian_path">WIKI-哈密顿路径</a></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/07/04/拓扑排序的原理及其实现/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+      <div>
+        
+      </div>
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2012/06/15/TestNG-并发运行相关的核心概念-补充/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2012/06/15/TestNG-并发运行相关的核心概念-补充/" itemprop="url">
+                  TestNG 并发运行相关的核心概念 - 补充
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-06-15T23:07:00+08:00">
+                2012-06-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/TestNG/" itemprop="url" rel="index">
+                    <span itemprop="name">TestNG</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>翻译自：<a href="http://beust.com/weblog/2009/12/13/more-on-multithreaded-topological-sorting-2/">http://beust.com/weblog/2009/12/13/more-on-multithreaded-topological-sorting-2/</a> </p>
+<p><strong>限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！</strong></p>
+<p><img src="http://my.csdn.net/uploads/201206/15/1339772470_1861.png" alt=""></p>
+<p>在上篇文章中我介绍了在TestNG中新实现的多线程拓扑排序(译注：严格说来，应该是更加动态的拓扑排序，为了支持对待测试方法的并发运行，上一篇文章的译文连接在<a href="http://www.rxjiang.com/2012/06/14/TestNG-%E5%B9%B6%E5%8F%91%E8%BF%90%E8%A1%8C%E7%9B%B8%E5%85%B3%E7%9A%84%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5/">这里</a>)，这篇文章收到了一些有意思的评论，其中有一条来自Rafael Naufal的评论我想拿出来讨论一下：</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/06/15/TestNG-并发运行相关的核心概念-补充/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2012/06/14/TestNG-并发运行相关的核心概念/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2012/06/14/TestNG-并发运行相关的核心概念/" itemprop="url">
+                  TestNG 并发运行相关的核心概念
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-06-14T23:29:00+08:00">
+                2012-06-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/TestNG/" itemprop="url" rel="index">
+                    <span itemprop="name">TestNG</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>翻译自：<a href="http://beust.com/weblog/2009/11/28/hard-core-multicore-with-testng/">http://beust.com/weblog/2009/11/28/hard-core-multicore-with-testng/</a></p>
+<p><strong>限于翻译水平有限，有兴趣的同学可以直接看原文。翻译上如果有什么不妥之处，还麻烦指正，感谢！</strong></p>
+<p><img src="http://my.csdn.net/uploads/201206/14/1339685809_5919.png" alt=""></p>
+<p>近期我实现了TestNG中的一个新特性，该特性有趣地将图论和并发结合在了一起。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/06/14/TestNG-并发运行相关的核心概念/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
     
       
 
@@ -619,168 +1898,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2012/06/04/TestNG源代码分析-依赖管理的实现（一）/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2012/06/04/TestNG源代码分析-依赖管理的实现（一）/" itemprop="url">
-                  TestNG源代码分析 --- 依赖管理的实现（一）
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-06-04T19:56:00+08:00">
-                2012-06-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/TestNG/" itemprop="url" rel="index">
-                    <span itemprop="name">TestNG</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>最近看了一些TestNG的源代码，觉得这个测试框架的功能其实满强大的，里面的功能点很多，以后有机会慢慢分析一下它们的实现方法，今天主要介绍一下它如何实现方法之间的依赖关系。</p>
-<h2 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h2><p>想必大家都知道拓扑排序吧，拓扑排序最经典的应用场景就是对于Jobs/Tasks的规划，即对于存在前后依赖关系的任务如何安排一个计划来执行它们。<br>相关的资料，可以参考<a href="http://en.wikipedia.org/wiki/Topological_sorting">维基百科</a>，里面介绍的比较详细。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2012/06/04/TestNG源代码分析-依赖管理的实现（一）/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span>
+    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -823,7 +1945,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">73</span>
+                <span class="site-state-item-count">81</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -948,8 +2070,6 @@
 
 
 
-  
-
 
 
 
@@ -967,9 +2087,6 @@
 
   
   <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
 
 
   

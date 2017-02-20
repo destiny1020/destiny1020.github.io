@@ -1,0 +1,832 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,最佳实践,Java 8,函数式编程,Lambda," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="要想更好的使用函数式编程，仅仅熟悉其语法结构是远远不够的。必须从思想和设计层面，去考虑它，去接纳它。这种编程范式和大多数开发人员所熟知的面向对象编程范式是不同的。
+下面我们从以下几个方面来回顾一下使用函数式编程的要点：
+多用声明式，少用命令式要想更好的使用函数式编程，首先必须要提升代码的抽象程度。之所以使用函数式编程在完成同样任务时需要的代码量比命令式要少，很大程度上就是源于函数式风格的代码的抽象">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Java 8] (11) 使用Lambda的原则">
+<meta property="og:url" content="http://rxjiang.com/2014/11/07/Java-8-11-使用Lambda的原则/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="要想更好的使用函数式编程，仅仅熟悉其语法结构是远远不够的。必须从思想和设计层面，去考虑它，去接纳它。这种编程范式和大多数开发人员所熟知的面向对象编程范式是不同的。
+下面我们从以下几个方面来回顾一下使用函数式编程的要点：
+多用声明式，少用命令式要想更好的使用函数式编程，首先必须要提升代码的抽象程度。之所以使用函数式编程在完成同样任务时需要的代码量比命令式要少，很大程度上就是源于函数式风格的代码的抽象">
+<meta property="og:updated_time" content="2017-02-20T00:14:59.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Java 8] (11) 使用Lambda的原则">
+<meta name="twitter:description" content="要想更好的使用函数式编程，仅仅熟悉其语法结构是远远不够的。必须从思想和设计层面，去考虑它，去接纳它。这种编程范式和大多数开发人员所熟知的面向对象编程范式是不同的。
+下面我们从以下几个方面来回顾一下使用函数式编程的要点：
+多用声明式，少用命令式要想更好的使用函数式编程，首先必须要提升代码的抽象程度。之所以使用函数式编程在完成同样任务时需要的代码量比命令式要少，很大程度上就是源于函数式风格的代码的抽象">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/11/07/Java-8-11-使用Lambda的原则/"/>
+
+
+
+
+
+  <title> [Java 8] (11) 使用Lambda的原则 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/07/Java-8-11-使用Lambda的原则/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Java 8] (11) 使用Lambda的原则
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-07T10:16:00+08:00">
+                2014-11-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>要想更好的使用函数式编程，仅仅熟悉其语法结构是远远不够的。必须从思想和设计层面，去考虑它，去接纳它。这种编程范式和大多数开发人员所熟知的面向对象编程范式是不同的。</p>
+<p>下面我们从以下几个方面来回顾一下使用函数式编程的要点：</p>
+<h2 id="多用声明式，少用命令式"><a href="#多用声明式，少用命令式" class="headerlink" title="多用声明式，少用命令式"></a>多用声明式，少用命令式</h2><p>要想更好的使用函数式编程，首先必须要提升代码的抽象程度。之所以使用函数式编程在完成同样任务时需要的代码量比命令式要少，很大程度上就是源于函数式风格的代码的抽象程度更高，能够表达的语义也就更丰富。</p>
+<a id="more"></a>
+<p>当我们使用命令式风格的代码时，我们习惯很快地就进入到细节上的考量，比如解决这个问题需要使用多少次循环，每次循环需要进行的操作有哪些等。这是命令式风格的必然，正是由于较低的抽象程度而导致我们的考虑方式也陷入了琐碎的细节中。此情此景，应了那句话“只见树木不见森林”。所以稍有经验的开发人员，都会特别看重代码封装，目的也就是为了将抽象层次低的琐碎细节给隐藏起来，减少代码的噪声。</p>
+<p>而使用函数式风格进行编码时，首先我们应该明确这段代码的目标。比如，对集合根据某种条件进行过滤，对集合中的每个元素进行某种操作。这才是代码的目标，不要陷入到代码的底层细节中。比如，遍历集合并逐一判断，将符合要求的元素放入一个新的集合中，最后返回这个新的集合。一个用来简单判断你是否陷入到对细节的思考的方法是：仔细审视你的描述中有没有出现“遍历”或者“循环”这样的字眼。如果出现了这些字眼，多半表示你的思考方式过于底层了。在进行函数式编程时，这是一种需要避免的思维习惯。所以，这也许就是之前提到过的内部遍历器(Internal Iterator)的意义，它将遍历的底层逻辑给封装起来，给你的思维腾出空间，让你有机会去从更宏观，更抽象的角度来审视需要解决的问题。</p>
+<p>比如，当我们需要拿到一组价格中的最高价格时，99.9%的Java开发人员都会这样实现：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">int max = <span class="number">0</span>;</div><div class="line"><span class="keyword">for</span>(int price : prices) &#123;</div><div class="line">    <span class="keyword">if</span>(max &lt; price) max = price;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上就是最最典型的命令式思考方式，严重依赖于循环与遍历这类语法结构。可是仔细想想，循环和遍历只不过是一种语法现象，它和我们要解决的实际问题并没有直接的关系。我们为何不从更高的角度来审视这个问题呢？输入的参数是一个集合，而输出的参数是一个元素。这就是典型的规约操作(Reduction Operation)，它已经被JDK提供了，我们只需要使用它即可：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">final int max = prices.stream().reduce(<span class="number">0</span>, <span class="attr">Math</span>::max);</div></pre></td></tr></table></figure>
+<p>代码变的简洁了很多，没有额外创造出任何“轮子”，使用的都是已经存在的基础方法。比如reduce方法和Math.max的方法引用。这也是函数式风格的另一个吸引人的地方：可重用性。</p>
+<h2 id="青睐不变性-Immutability"><a href="#青睐不变性-Immutability" class="headerlink" title="青睐不变性(Immutability)"></a>青睐不变性(Immutability)</h2><p>对于并发程序设计而言，变量的可变性可以说是万恶之源。当多个线程同时对某个变量进行修改的时候，由于可能发生的竞态条件(Race Condition)，在很多情况下会得到错误的结果。这也从另一个角度解释了为何在命令式的代码中，实现高效而正确的并发代码是非常困难的。要处理的细节太多，各种小陷阱和过于底层的实现方式，能不困难吗？</p>
+<p>而使用函数式编程时，就从本质上避免了创建过多的可变变量。程序的执行并不会改变对象的状态，而是通过输入的对象根据逻辑直接创建出了全新的对象。这也是为什么函数式代码更容易被并行化的原因，从根源上杜绝了破坏并行化的罪魁祸首 - 可变变量(Mutable Variable)。</p>
+<p>因此，当你发现代码中定义了可变变量时，考虑是否有办法对它们进行重构来避免之。</p>
+<h2 id="减少副作用-Side-Effects"><a href="#减少副作用-Side-Effects" class="headerlink" title="减少副作用(Side Effects)"></a>减少副作用(Side Effects)</h2><p>所谓副作用，就是这段代码对其外部的程序状态有影响。比如修改了某个实例的状态，修改了全局变量等等。</p>
+<p>所谓的副作用，最常见的就是返回值为void的方法，这种方法一般都是通过修改对象的状态来完成计算逻辑。这也意味着程序中存在着可变量。因此，方法的副作用往往和可变量有着千丝万缕的联系。当消除了方法的副作用时，多半也意味着可变量的数量也减小了。如果一个方法没有副作用，意味着只要输入的参数不变，输出的结果就永远是一样的。</p>
+<p>当使用Lambda表达式时，需要确保代码没有副作用。如果代码存在副作用，也就违背了Lambda表达式的初衷，毕竟Lambda就是为了函数式编程而生的，而函数式编程的特点之一就是函数的实现应该无副作用。</p>
+<h2 id="使用表达式-Expression-，而不是语句-Statement"><a href="#使用表达式-Expression-，而不是语句-Statement" class="headerlink" title="使用表达式(Expression)，而不是语句(Statement)"></a>使用表达式(Expression)，而不是语句(Statement)</h2><p>表达式和语句都是程序中用来执行某些操作的指令。只不过它们之间存在一些区别：</p>
+<ul>
+<li>语句：执行了操作，但是不会返回任何值</li>
+<li>表达式：执行了操作，并且有返回值</li>
+</ul>
+<p>因此，优先使用表达式也就是希望减少副作用和可变量。因为语句虽然没有返回值，但是它仍然会执行某些操作，而这些操作通常就是对程序状态进行修改，否则语句的意义何在？</p>
+<p>同时，表达式和语句不一样也在于表达式是可以组合起来的，也就是前面提到过的函数链(Function Chaining)。在函数式编程中，函数链十分强大，并且拥有很好的可重用性，每个函数就像一块乐高积木，而这些积木则可以拼装出无穷无尽的组合。</p>
+<h2 id="设计高阶函数"><a href="#设计高阶函数" class="headerlink" title="设计高阶函数"></a>设计高阶函数</h2><p>高阶函数是Java 8中引进的一个重大特性，过去我们只能向方法传入对象或者值作为参数。而高阶函数的引入，让我们也可以将函数作为参数传入。这无疑能够大大地提高代码的抽象程度，同时减少代码的噪声，比如过去频繁使用的匿名内部类，当它的定义符合函数接口的规范时，就可以直接使用Lambda表达式或者更为简练的方法引用。</p>
+<p>比如，这样的代码在Java 8之前的GUI程序中层出不穷：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">button.addActionListener(<span class="keyword">new</span> ActionListener() &#123;</div><div class="line">    public <span class="keyword">void</span> actionPerformed(ActionEvent event) &#123;</div><div class="line">        JOptionPane.showMessageDialog(frame, <span class="string">"you clicked!"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>而现在我们可以让它插上Lambda表达式的翅膀：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">button.addActionListener(event -&gt;</div><div class="line">    JOptionPane.showMessageDialog(frame, <span class="string">"you clicked!"</span>));</div></pre></td></tr></table></figure>
+<p>这不仅让这部分代码变的简练，还减少了源代码中需要的import语句。 因为此时需要实现的接口ActionListener是不需要引入的，同时ActionEvent也可以通过借助类型推导来自动引入。</p>
+<p>合理地设计和应用高阶函数，可以让我们非常巧妙和简洁地实现一些常用的设计模式，而不需要像面向对象设计那样创建一大批的类型和接口。</p>
+<h2 id="关于性能"><a href="#关于性能" class="headerlink" title="关于性能"></a>关于性能</h2><p>有些有些开发人员会担心，大规模的将命令式代码替换成以Lambda表达式和方法引用为基础的声明式代码会对程序性能造成一些影响。但是实际上，这个担心可以说是多余的：在大多数情况下，性能只会变的更好。</p>
+<p>Java 8规范提供了一些方法用来帮助编译器进行优化。其中比较和Lambda表达式关系比较密切的是一个叫做”调用动态优化的字节码“(Invoke Dynamic Optimized Bytecode)的指令。结合这个指令可以让Lambda的表达式的执行更快。</p>
+<p>比如，下面是一段用来统计集合中质数个数的命令式程序：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">long primesCount = <span class="number">0</span>;</div><div class="line"><span class="keyword">for</span>(long number : numbers) &#123;</div><div class="line">    <span class="keyword">if</span>(isPrime(number)) primesCount += <span class="number">1</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>将命令式重构成下面的声明式：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">final long primesCount = numbers</div><div class="line">    .stream()</div><div class="line">    .filter(number -&gt; isPrime(number))</div><div class="line">    .count();</div></pre></td></tr></table></figure>
+<p>当这个集合是1-100000的整型数时，无论是命令式还是声明式的运行时间都是0.025秒左右。但是即便耗时相同，由于使用声明式的种种优势，我们还是可以认为声明式的风格更好：更简练，没有副作用，易于并行化。</p>
+<p>而且，由于对每个整型数值判断其是否是质数都是独立的任务。因此，上述程序也非常容易被并行化，仅仅是将stream方法替换成parallelStream就行：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">final long primesCount = numbers</div><div class="line">    .parallelStream()</div><div class="line">    .filter(number -&gt; isPrime(number))</div><div class="line">    .count();</div></pre></td></tr></table></figure>
+<p>此时，执行时间缩短到了0.006秒！也就是说，性能上升了大约400%。</p>
+<h2 id="采用函数式编码风格"><a href="#采用函数式编码风格" class="headerlink" title="采用函数式编码风格"></a>采用函数式编码风格</h2><p>从Java 8开始，Java也是一门像Scala等语言那样的混合范式编程语言了。了解在Java 8中如何通过Lambda表达式，方法引用和高阶函数等语法来实现函数式编码本身并不困难。</p>
+<p>困难的地方在于，如何灵活地将这种新型编程范式和现有的命令式面向对象范式有机地融合在一起。这需要你对手头的问题进行仔细的思考，甚至是颠覆性的思考。当然，通过寻找一些典型的用例也是一个非常好的学习方式。</p>
+<p>我们可以采取一种循序渐进的方式来对编写代码。首先让它能够工作，再让它变的更好，变的更优美。而毫无疑问，函数式编码会让代码更加优美，更加充满诗意。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/最佳实践/" rel="tag"># 最佳实践</a>
+          
+            <a href="/tags/Java-8/" rel="tag"># Java 8</a>
+          
+            <a href="/tags/函数式编程/" rel="tag"># 函数式编程</a>
+          
+            <a href="/tags/Lambda/" rel="tag"># Lambda</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/06/Java-8-10-使用Lambda完成函数组合，Map-Reduce以及并行化/" rel="next" title="[Java 8] (10) 使用Lambda完成函数组合，Map-Reduce以及并行化">
+                <i class="fa fa-chevron-left"></i> [Java 8] (10) 使用Lambda完成函数组合，Map-Reduce以及并行化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/11/10/Effective-JavaScript-Item-47-绝不要向Object-prototype中添加可列举的-Enumerable-属性/" rel="prev" title="[Effective JavaScript] Item 47 绝不要向Object.prototype中添加可列举的(Enumerable)属性">
+                [Effective JavaScript] Item 47 绝不要向Object.prototype中添加可列举的(Enumerable)属性 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">81</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">55</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#多用声明式，少用命令式"><span class="nav-number">1.</span> <span class="nav-text">多用声明式，少用命令式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#青睐不变性-Immutability"><span class="nav-number">2.</span> <span class="nav-text">青睐不变性(Immutability)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#减少副作用-Side-Effects"><span class="nav-number">3.</span> <span class="nav-text">减少副作用(Side Effects)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用表达式-Expression-，而不是语句-Statement"><span class="nav-number">4.</span> <span class="nav-text">使用表达式(Expression)，而不是语句(Statement)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设计高阶函数"><span class="nav-number">5.</span> <span class="nav-text">设计高阶函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于性能"><span class="nav-number">6.</span> <span class="nav-text">关于性能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#采用函数式编码风格"><span class="nav-number">7.</span> <span class="nav-text">采用函数式编码风格</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

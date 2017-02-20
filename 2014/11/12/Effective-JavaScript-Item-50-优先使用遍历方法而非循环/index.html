@@ -1,0 +1,820 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="设计模式,最佳实践,JavaScript,Effective JavaScript," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="优先使用遍历方法而非循环在使用循环的时候，很容易违反DRY(Don’t Repeat Yourself)原则。这是因为我们通常会选择复制粘贴的方法来避免手写一段段的循环语句。但是这样做回让代码中出现大量重复代码，开发人员也在没有意义地”重复造轮子”。更重要的是，在复制粘贴的时候很容易忽视循环中的那些细节，比如起始索引值，终止判断条件等。
+比如以下的for循环就存在这个问题，假设n是集合对象的长度：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Effective JavaScript] Item 50 优先使用遍历方法而非循环">
+<meta property="og:url" content="http://rxjiang.com/2014/11/12/Effective-JavaScript-Item-50-优先使用遍历方法而非循环/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="优先使用遍历方法而非循环在使用循环的时候，很容易违反DRY(Don’t Repeat Yourself)原则。这是因为我们通常会选择复制粘贴的方法来避免手写一段段的循环语句。但是这样做回让代码中出现大量重复代码，开发人员也在没有意义地”重复造轮子”。更重要的是，在复制粘贴的时候很容易忽视循环中的那些细节，比如起始索引值，终止判断条件等。
+比如以下的for循环就存在这个问题，假设n是集合对象的长度：">
+<meta property="og:updated_time" content="2017-02-20T00:02:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Effective JavaScript] Item 50 优先使用遍历方法而非循环">
+<meta name="twitter:description" content="优先使用遍历方法而非循环在使用循环的时候，很容易违反DRY(Don’t Repeat Yourself)原则。这是因为我们通常会选择复制粘贴的方法来避免手写一段段的循环语句。但是这样做回让代码中出现大量重复代码，开发人员也在没有意义地”重复造轮子”。更重要的是，在复制粘贴的时候很容易忽视循环中的那些细节，比如起始索引值，终止判断条件等。
+比如以下的for循环就存在这个问题，假设n是集合对象的长度：">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/11/12/Effective-JavaScript-Item-50-优先使用遍历方法而非循环/"/>
+
+
+
+
+
+  <title> [Effective JavaScript] Item 50 优先使用遍历方法而非循环 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/12/Effective-JavaScript-Item-50-优先使用遍历方法而非循环/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Effective JavaScript] Item 50 优先使用遍历方法而非循环
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-12T10:06:00+08:00">
+                2014-11-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="优先使用遍历方法而非循环"><a href="#优先使用遍历方法而非循环" class="headerlink" title="优先使用遍历方法而非循环"></a>优先使用遍历方法而非循环</h2><p>在使用循环的时候，很容易违反DRY(Don’t Repeat Yourself)原则。这是因为我们通常会选择复制粘贴的方法来避免手写一段段的循环语句。但是这样做回让代码中出现大量重复代码，开发人员也在没有意义地”重复造轮子”。更重要的是，在复制粘贴的时候很容易忽视循环中的那些细节，比如起始索引值，终止判断条件等。</p>
+<p>比如以下的for循环就存在这个问题，假设n是集合对象的长度：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt;= n; i++) &#123; ... &#125;</div><div class="line"><span class="comment">// 终止条件错误，应该是i &lt; n</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">1</span>; i &lt; n; i++) &#123; ... &#125;</div><div class="line"><span class="comment">// 起始变量错误，应该是i = 0</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = n; i &gt;= <span class="number">0</span>; i--) &#123; ... &#125;</div><div class="line"><span class="comment">// 起始变量错误，应该是i = n - 1</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = n - <span class="number">1</span>; i &gt; <span class="number">0</span>; i--) &#123; ... &#125;</div><div class="line"><span class="comment">// 终止条件错误，应该是i &gt;= 0</span></div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>可见在循环的一些细节处理上很容易出错。而利用JavaScript提供的闭包(参见Item 11)，可以将循环的细节给封装起来供重用。实际上，ES5就提供了一些方法来处理这一问题。其中的Array.prototype.forEach是最简单的一个。利用它，我们可以将循环这样写：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 使用for循环</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = players.length; i &lt; n; i++) &#123;</div><div class="line">    players[i].score++;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 使用forEach</span></div><div class="line">players.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">p</span>) </span>&#123;</div><div class="line">    p.score++;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>除了对集合对象进行遍历之外，另一种常见的模式是对原集合中的每个元素进行某种操作，然后得到一个新的集合，我们也可以利用forEach方法实现如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 使用for循环</span></div><div class="line"><span class="keyword">var</span> trimmed = [];</div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = input.length; i &lt; n; i++) &#123;</div><div class="line">    trimmed.push(input[i].trim());</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 使用forEach</span></div><div class="line"><span class="keyword">var</span> trimmed = [];</div><div class="line">input.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">s</span>) </span>&#123;</div><div class="line">    trimmed.push(s.trim());</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>但是由于这种由将一个集合转换为另一个集合的模式十分常见，ES5也提供了Array.prototype.map方法用来让代码更加简单和优雅：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> trimmed = input.map(<span class="function"><span class="keyword">function</span>(<span class="params">s</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> s.trim();</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>另外，还有一种常见模式是对集合根据某种条件进行过滤，然后得到一个原集合的子集。ES5中提供了Array.prototype.filter来实现这一模式。该方法接受一个Predicate作为参数，它是一个返回true或者false的函数：返回true意味着该元素会被保留在新的集合中；返回false则意味着该元素不会出现在新集合中。比如，我们使用以下代码来对商品的价格进行过滤，仅保留价格在[min, max]区间的商品：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">listings.filter(<span class="function"><span class="keyword">function</span>(<span class="params">listing</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> listing.price &gt;= min &amp;&amp; listing.price &lt;= max;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>当然，以上的方法是在支持ES5的环境中可用的。在其它环境中，我们有两种选择： </p>
+<ol>
+<li>使用第三方库，如underscore或者lodash，它们都提供了相当多的通用方法来操作对象和集合。 </li>
+<li>根据需要自行定义。</li>
+</ol>
+<p>比如，定义如下的方法来根据某个条件取得集合中前面的若干元素：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">takeWhile</span>(<span class="params">a, pred</span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> result = [];</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = a.length; i &lt; n; i++) &#123;</div><div class="line">        <span class="keyword">if</span> (!pred(a[i], i)) &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        result[i] = a[i];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> prefix = takeWhile([<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>, <span class="number">32</span>], <span class="function"><span class="keyword">function</span>(<span class="params">n</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> n &lt; <span class="number">10</span>;</div><div class="line">&#125;); <span class="comment">// [1, 2, 4, 8]</span></div></pre></td></tr></table></figure>
+<p>为了更好的重用该方法，我们可以将它定义在Array.prototype对象上，具体的影响可以参考Item 42。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Array</span>.prototype.takeWhile = <span class="function"><span class="keyword">function</span>(<span class="params">pred</span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> result = [];</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = <span class="keyword">this</span>.length; i &lt; n; i++) &#123;</div><div class="line">        <span class="keyword">if</span> (!pred(<span class="keyword">this</span>[i], i)) &#123;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        result[i] = <span class="keyword">this</span>[i];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">var</span> prefix = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>, <span class="number">32</span>].takeWhile(<span class="function"><span class="keyword">function</span>(<span class="params">n</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> n &lt; <span class="number">10</span>;</div><div class="line">&#125;); <span class="comment">// [1, 2, 4, 8]</span></div></pre></td></tr></table></figure>
+<p>只有一个场合使用循环会比使用遍历函数要好：需要使用break和continue的时候。 比如，当使用forEach来实现上面的takeWhile方法时就会有问题，在不满足predicate的时候应该如何实现呢？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">takeWhile</span>(<span class="params">a, pred</span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> result = [];</div><div class="line">    a.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">x, i</span>) </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!pred(x)) &#123;</div><div class="line">            <span class="comment">// ?</span></div><div class="line">        &#125;</div><div class="line">        result[i] = x;</div><div class="line">    &#125;);</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们可以使用一个内部的异常来进行判断，但是它同样有些笨拙和低效：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">takeWhile</span>(<span class="params">a, pred</span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> result = [];</div><div class="line">    <span class="keyword">var</span> earlyExit = &#123;&#125;; <span class="comment">// unique value signaling loop break</span></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        a.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">x, i</span>) </span>&#123;</div><div class="line">            <span class="keyword">if</span> (!pred(x)) &#123;</div><div class="line">                <span class="keyword">throw</span> earlyExit;</div><div class="line">            &#125;</div><div class="line">            result[i] = x;</div><div class="line">        &#125;);</div><div class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">        <span class="keyword">if</span> (e !== earlyExit) &#123; <span class="comment">// only catch earlyExit</span></div><div class="line">            <span class="keyword">throw</span> e;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可是使用forEach之后，代码甚至比使用它之前更加冗长。这显然是存在问题的。 对于这个问题，ES5提供了some和every方法用来处理存在提前终止的循环，它们的用法如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[<span class="number">1</span>, <span class="number">10</span>, <span class="number">100</span>].some(<span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123; <span class="keyword">return</span> x &gt; <span class="number">5</span>; &#125;); <span class="comment">// true</span></div><div class="line">[<span class="number">1</span>, <span class="number">10</span>, <span class="number">100</span>].some(<span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123; <span class="keyword">return</span> x &lt; <span class="number">0</span>; &#125;); <span class="comment">// false</span></div><div class="line"></div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>].every(<span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123; <span class="keyword">return</span> x &gt; <span class="number">0</span>; &#125;); <span class="comment">// true</span></div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>].every(<span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123; <span class="keyword">return</span> x &lt; <span class="number">3</span>; &#125;); <span class="comment">// false</span></div></pre></td></tr></table></figure>
+<p>这两个方法都是短路方法(Short-circuiting)：只要有任何一个元素在some方法的predicate中返回true，那么some就会返回；只有有任何一个元素在every方法的predicate中返回false，那么every方法也会返回false。</p>
+<p>因此，takeWhile就可以实现如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">takeWhile</span>(<span class="params">a, pred</span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> result = [];</div><div class="line">    a.every(<span class="function"><span class="keyword">function</span>(<span class="params">x, i</span>) </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!pred(x)) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="literal">false</span>; <span class="comment">// break</span></div><div class="line">        &#125;</div><div class="line">        result[i] = x;</div><div class="line">        <span class="keyword">return</span> <span class="literal">true</span>; <span class="comment">// continue</span></div><div class="line">    &#125;);</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>实际上，这就是函数式编程的思想。在函数式编程中，你很少能够看见显式的for循环或者while循环。循环的细节都被很好地封装起来了。</p>
+<p>值得一提的是，在Java 8中引入了函数式编程和Lambda表达式的概念。如果有兴趣了解，可以参考这里。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>使用遍历方法Array.prototype.forEach和Array.prototype.map来代替循环，从而让代码更加清晰可读。</li>
+<li>对于重复出现的循环，可以考虑将它们进行抽象。通过第三方提供的方法或者自己实现。</li>
+<li>显式的循环在一些场合下还是有用武之地的，相应的也可以使用some或者every方法。</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+            <a href="/tags/最佳实践/" rel="tag"># 最佳实践</a>
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/Effective-JavaScript/" rel="tag"># Effective JavaScript</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/11/Effective-JavaScript-Item-49-对于数组遍历，优先使用for循环，而不是for-in循环/" rel="next" title="[Effective JavaScript] Item 49 对于数组遍历，优先使用for循环，而不是for..in循环">
+                <i class="fa fa-chevron-left"></i> [Effective JavaScript] Item 49 对于数组遍历，优先使用for循环，而不是for..in循环
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/11/12/Effective-JavaScript-Item-51-在类数组对象上重用数组方法/" rel="prev" title="[Effective JavaScript] Item 51 在类数组对象上重用数组方法">
+                [Effective JavaScript] Item 51 在类数组对象上重用数组方法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">81</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">55</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#优先使用遍历方法而非循环"><span class="nav-number">1.</span> <span class="nav-text">优先使用遍历方法而非循环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
