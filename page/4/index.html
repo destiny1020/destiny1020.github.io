@@ -302,6 +302,648 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/26/Elasticsearch-控制相关度-四-忽略TF-IDF/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/12/26/Elasticsearch-控制相关度-四-忽略TF-IDF/" itemprop="url">
+                  [Elasticsearch] 控制相关度 (四) - 忽略TF/IDF
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-26T00:07:00+08:00">
+                2014-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
+<h2 id="忽略TF-IDF"><a href="#忽略TF-IDF" class="headerlink" title="忽略TF/IDF"></a>忽略TF/IDF</h2><p>有时我们不需要TF/IDF。我们想知道的只是一个特定的单词是否出现在了字段中。比如我们正在搜索度假酒店，希望它拥有的卖点越多越好：</p>
+<ul>
+<li>WiFi</li>
+<li>花园(Garden)</li>
+<li>泳池(Pool)</li>
+</ul>
+<p>而关于度假酒店的文档类似下面这样：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123; <span class="attr">"description"</span>: <span class="string">"A delightful four-bedroomed house with ... "</span> &#125;</div></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/12/26/Elasticsearch-控制相关度-四-忽略TF-IDF/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/25/Elasticsearch-控制相关度-三-通过查询结构调整相关度以及boosting查询/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/12/25/Elasticsearch-控制相关度-三-通过查询结构调整相关度以及boosting查询/" itemprop="url">
+                  [Elasticsearch] 控制相关度 (三) - 通过查询结构调整相关度以及boosting查询
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-25T01:10:00+08:00">
+                2014-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
+<h2 id="通过查询结构调整相关度"><a href="#通过查询结构调整相关度" class="headerlink" title="通过查询结构调整相关度"></a>通过查询结构调整相关度</h2><p>ES提供的查询DSL是相当灵活的。你可以通过将单独的查询子句在查询层次中上下移动来让它更重要/更不重要。比如，下面的查询：</p>
+<blockquote>
+<p>quick OR brown OR red OR fox</p>
+</blockquote>
+<p>我们可以使用一个bool查询，对所有词条一视同仁：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "should": [</div><div class="line">        &#123; "term": &#123; "text": "quick" &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "brown" &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "red"   &#125;&#125;,</div><div class="line">        &#123; "term": &#123; "text": "fox"   &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/12/25/Elasticsearch-控制相关度-三-通过查询结构调整相关度以及boosting查询/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/24/Elasticsearch-控制相关度-二-Lucene中的PSF-Practical-Scoring-Function-与查询期间提升/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/12/24/Elasticsearch-控制相关度-二-Lucene中的PSF-Practical-Scoring-Function-与查询期间提升/" itemprop="url">
+                  [Elasticsearch] 控制相关度 (二) - Lucene中的PSF(Practical Scoring Function)与查询期间提升
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-24T10:12:00+08:00">
+                2014-12-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
+<h2 id="Lucene中的Practical-Scoring-Function"><a href="#Lucene中的Practical-Scoring-Function" class="headerlink" title="Lucene中的Practical Scoring Function"></a>Lucene中的Practical Scoring Function</h2><p>对于多词条查询(Multiterm Queries)，Lucene使用的是<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#boolean-model">布尔模型(Boolean Model)</a>，<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#tfidf">TF/IDF</a>以及<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scoring-theory.html#vector-space-model">向量空间模型(Vector Space Model)</a>来将它们结合在一起，用来收集匹配的文档和对它们进行分值计算。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/12/24/Elasticsearch-控制相关度-二-Lucene中的PSF-Practical-Scoring-Function-与查询期间提升/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/23/Elasticsearch-控制相关度-一-相关度分值计算背后的理论/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/12/23/Elasticsearch-控制相关度-一-相关度分值计算背后的理论/" itemprop="url">
+                  [Elasticsearch] 控制相关度 (一) - 相关度分值计算背后的理论
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-23T10:02:00+08:00">
+                2014-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/controlling-relevance.html">Controlling Relevance</a>一章。</p>
+<h1 id="控制相关度-Controlling-Relevance"><a href="#控制相关度-Controlling-Relevance" class="headerlink" title="控制相关度(Controlling Relevance)"></a>控制相关度(Controlling Relevance)</h1><p>对于仅处理结构化数据(比如日期，数值和字符枚举值)的数据库，它们只需要检查一份文档(在关系数据库中是一行)是否匹配查询即可。</p>
+<p>尽管布尔类型的YES|NO匹配也是全文搜索的一个必要组成，它们本身是不够的。我们还需要知道每份文档和查询之间的相关程度。全文搜索引擎不仅要找到匹配的文档，还需要根据相关度对它们进行排序。</p>
+<p>全文搜索相关度的公式，或者被称为相似度算法，将多个因素综合起来为没份文档产生一个相关度_score。在本章中，我们来讨论一下其中的一些变化的部分以及如何控制它们。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/12/23/Elasticsearch-控制相关度-一-相关度分值计算背后的理论/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/22/Elasticsearch-部分匹配-四-索引期间优化ngrams及索引期间的即时搜索/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1271,644 +1913,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/15/Elasticsearch-邻近匹配-一-短语匹配以及slop参数/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/12/15/Elasticsearch-邻近匹配-一-短语匹配以及slop参数/" itemprop="url">
-                  [Elasticsearch] 邻近匹配 (一) - 短语匹配以及slop参数
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-15T11:31:00+08:00">
-                2014-12-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>本文翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/partial-matching.html">Proximity Matching</a>一章。</p>
-<h1 id="邻近匹配-Proximity-Matching"><a href="#邻近匹配-Proximity-Matching" class="headerlink" title="邻近匹配(Proximity Matching)"></a>邻近匹配(Proximity Matching)</h1><p>使用了TF/IDF的标准全文搜索将文档，或者至少文档中的每个字段，视作”一大袋的单词”(Big bag of Words)。match查询能够告诉我们这个袋子中是否包含了我们的搜索词条，但是这只是一个方面。它不能告诉我们关于单词间关系的任何信息。</p>
-<p>考虑以下这些句子的区别：</p>
-<ul>
-<li>Sue ate the alligator.</li>
-<li>The alligator ate Sue.</li>
-<li>Sue never goes anywhere without her alligator-skin purse.</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/12/15/Elasticsearch-邻近匹配-一-短语匹配以及slop参数/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/12/Elasticsearch-多字段搜索-六-自定义-all字段，跨域查询及精确值字段/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/12/12/Elasticsearch-多字段搜索-六-自定义-all字段，跨域查询及精确值字段/" itemprop="url">
-                  [Elasticsearch] 多字段搜索 (六) - 自定义_all字段，跨域查询及精确值字段
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-12T10:00:00+08:00">
-                2014-12-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="自定义-all字段"><a href="#自定义-all字段" class="headerlink" title="自定义_all字段"></a>自定义_all字段</h2><p>在<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/root-object.html#all-field">元数据：_all字段</a>中，我们解释了特殊的_all字段会将其它所有字段中的值作为一个大字符串进行索引。尽管将所有字段的值作为一个字段进行索引并不是非常灵活。如果有一个自定义的_all字段用来索引人名，另外一个自定义的_all字段用来索引地址就更好了。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/12/12/Elasticsearch-多字段搜索-六-自定义-all字段，跨域查询及精确值字段/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/11/Elasticsearch-多字段搜索-五-以字段为中心的查询/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/12/11/Elasticsearch-多字段搜索-五-以字段为中心的查询/" itemprop="url">
-                  [Elasticsearch] 多字段搜索 (五) - 以字段为中心的查询
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-11T10:11:00+08:00">
-                2014-12-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="以字段为中心的查询-Field-centric-Queries"><a href="#以字段为中心的查询-Field-centric-Queries" class="headerlink" title="以字段为中心的查询(Field-centric Queries)"></a>以字段为中心的查询(Field-centric Queries)</h2><p>上述提到的三个问题都来源于most_fields是以字段为中心(Field-centric)，而不是以词条为中心(Term-centric)：它会查询最多匹配的字段(Most matching fields)，而我们真正感兴趣的最匹配的词条(Most matching terms)。</p>
-<blockquote>
-<p>NOTE</p>
-<p>best_fields同样是以字段为中心的，因此它也存在相似的问题。<br>首先我们来看看为什么存在这些问题，以及如何解决它们。</p>
-</blockquote>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/12/11/Elasticsearch-多字段搜索-五-以字段为中心的查询/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/11/Elasticsearch-多字段搜索-四-跨字段实体搜索/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/12/11/Elasticsearch-多字段搜索-四-跨字段实体搜索/" itemprop="url">
-                  [Elasticsearch] 多字段搜索 (四) - 跨字段实体搜索
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-11T10:09:00+08:00">
-                2014-12-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/" itemprop="url" rel="index">
-                    <span itemprop="name">译文</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">Elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="跨字段实体搜索-Cross-fields-Entity-Search"><a href="#跨字段实体搜索-Cross-fields-Entity-Search" class="headerlink" title="跨字段实体搜索(Cross-fields Entity Search)"></a>跨字段实体搜索(Cross-fields Entity Search)</h2><p>现在让我们看看一个常见的模式：跨字段实体搜索。类似person，product或者address这样的实体，它们的信息会分散到多个字段中。我们或许有一个person实体被索引如下：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"firstname"</span>:  <span class="string">"Peter"</span>,</div><div class="line">    <span class="attr">"lastname"</span>:   <span class="string">"Smith"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>而address实体则是像下面这样：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"street"</span>:   <span class="string">"5 Poland Street"</span>,</div><div class="line">    <span class="attr">"city"</span>:     <span class="string">"London"</span>,</div><div class="line">    <span class="attr">"country"</span>:  <span class="string">"United Kingdom"</span>,</div><div class="line">    <span class="attr">"postcode"</span>: <span class="string">"W1V 3DG"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/12/11/Elasticsearch-多字段搜索-四-跨字段实体搜索/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1956,7 +1960,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">145</span>
+                <span class="site-state-item-count">149</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1965,7 +1969,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1974,7 +1978,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-count">91</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

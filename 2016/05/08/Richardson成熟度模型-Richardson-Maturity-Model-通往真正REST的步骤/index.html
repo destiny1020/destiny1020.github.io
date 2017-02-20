@@ -1,0 +1,862 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="REST,Richardson成熟度模型," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤原文地址：Richardson Maturity Model - steps toward the glory of REST
+最近我在阅读Rest In Practice的草稿，这本书由我的一些同事撰写。他们希望通过这本书解释如何利用Restful Web Service来解决企业面临">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤">
+<meta property="og:url" content="http://rxjiang.com/2016/05/08/Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤原文地址：Richardson Maturity Model - steps toward the glory of REST
+最近我在阅读Rest In Practice的草稿，这本书由我的一些同事撰写。他们希望通过这本书解释如何利用Restful Web Service来解决企业面临">
+<meta property="og:image" content="http://martinfowler.com/articles/images/richardsonMaturityModel/overview.png">
+<meta property="og:image" content="http://martinfowler.com/articles/images/richardsonMaturityModel/level0.png">
+<meta property="og:image" content="http://martinfowler.com/articles/images/richardsonMaturityModel/level1.png">
+<meta property="og:image" content="http://martinfowler.com/articles/images/richardsonMaturityModel/level2.png">
+<meta property="og:image" content="http://martinfowler.com/articles/images/richardsonMaturityModel/level3.png">
+<meta property="og:updated_time" content="2017-02-20T10:06:25.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤">
+<meta name="twitter:description" content="Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤原文地址：Richardson Maturity Model - steps toward the glory of REST
+最近我在阅读Rest In Practice的草稿，这本书由我的一些同事撰写。他们希望通过这本书解释如何利用Restful Web Service来解决企业面临">
+<meta name="twitter:image" content="http://martinfowler.com/articles/images/richardsonMaturityModel/overview.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/05/08/Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤/"/>
+
+
+
+
+
+  <title> Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/05/08/Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-08T01:49:00+08:00">
+                2016-05-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/REST/" itemprop="url" rel="index">
+                    <span itemprop="name">REST</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤"><a href="#Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤" class="headerlink" title="Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤"></a>Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤</h2><p>原文地址：<br><a href="http://martinfowler.com/articles/richardsonMaturityModel.html" target="_blank" rel="external">Richardson Maturity Model - steps toward the glory of REST</a></p>
+<p>最近我在阅读<a href="https://www.amazon.com/gp/product/0596805829?ie=UTF8&amp;tag=martinfowlerc-20&amp;linkCode=as2&amp;camp=1789&amp;creative=9325&amp;creativeASIN=0596805829" target="_blank" rel="external">Rest In Practice</a>的草稿，这本书由我的一些同事撰写。他们希望通过这本书解释如何利用Restful Web Service来解决企业面临的很多集成上的问题。该书的核心观点是目前的Web就是一个大规模分布式系统能够很好地工作的证据，而我们则可以借助这个观点来让系统集成更加容易。</p>
+<p><img src="http://martinfowler.com/articles/images/richardsonMaturityModel/overview.png" alt=""><br>图1： 通往REST的步骤</p>
+<a id="more"></a>
+<p>为了帮助解释Web风格系统的专门属性，作者们使用了由<a href="http://www.crummy.com/" target="_blank" rel="external">Leonard Richardson</a>发明的RESTful成熟度模型，该模型在一次<a href="http://www.crummy.com/writing/speaking/2008-QCon/act3.html" target="_blank" rel="external">QCon Talk</a>中被谈及。通过该模型可以很好地思考如何使用REST，因此我也尝试着对它添加一些我个人的解释。(关于协议的例子只是为了更好的说明，我并不认为去写代码并测试它们是值得做的，因此在细节中也许会存在问题。)</p>
+<h3 id="LEVEL-0"><a href="#LEVEL-0" class="headerlink" title="LEVEL 0"></a>LEVEL 0</h3><p>该模型的出发点是使用HTTP作为远程交互的传输系统，但是不会使用Web中的任何机制。本质上这里你是为了使用你的远程交互而利用HTTP作为隧道机制(Tunneling Mechanism)，通常是基于<a href="http://www.eaipatterns.com/EncapsulatedSynchronousIntegration.html" target="_blank" rel="external">远程过程调用(Remote Procedure Invocation)</a>的。</p>
+<p><img src="http://martinfowler.com/articles/images/richardsonMaturityModel/level0.png" alt=""><br>图2： Level 0交互的一个例子</p>
+<p>假设我需要和我的医生进行预约。我的预约软件首先需要知道在指定日期上我的医生的空闲时间，因此它会首先向医院预约系统发出一个请求来获取该信息。在Level 0的场景中，医院会通过某个URI来暴露出该服务端点(Service Endpoint)。然后我会向该URL发送一个文档作为请求，文档中包含了请求的所有细节。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">POST /appointmentService HTTP/1.1</div><div class="line">[various other headers]</div><div class="line"></div><div class="line">&lt;openSlotRequest date = &quot;2010-01-04&quot; doctor = &quot;mjones&quot;/&gt;</div></pre></td></tr></table></figure>
+<p>然后服务器会传回一个包含了所需信息的文档：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 200 OK</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;openSlotList&gt;</div><div class="line">  &lt;slot start = &quot;1400&quot; end = &quot;1450&quot;&gt;</div><div class="line">    &lt;doctor id = &quot;mjones&quot;/&gt;</div><div class="line">  &lt;/slot&gt;</div><div class="line">  &lt;slot start = &quot;1600&quot; end = &quot;1650&quot;&gt;</div><div class="line">    &lt;doctor id = &quot;mjones&quot;/&gt;</div><div class="line">  &lt;/slot&gt;</div><div class="line">&lt;/openSlotList&gt;</div></pre></td></tr></table></figure>
+<p>例子中我使用了XML，但是内容实际上可以是任何格式：JSON，YAML，键值对，或者其它自定义的格式。</p>
+<p>有了这些信息，下一步就是创建一个预约。这同样可以通过向某个端点(Endpoint)发送一个文档来完成。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">POST /appointmentService HTTP/1.1</div><div class="line">[various other headers]</div><div class="line"></div><div class="line">&lt;appointmentRequest&gt;</div><div class="line">  &lt;slot doctor = &quot;mjones&quot; start = &quot;1400&quot; end = &quot;1450&quot;/&gt;</div><div class="line">  &lt;patient id = &quot;jsmith&quot;/&gt;</div><div class="line">&lt;/appointmentRequest&gt;</div></pre></td></tr></table></figure>
+<p>如果一切正常的话，那么我能够收到一个预约成功的响应：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 200 OK</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;appointment&gt;</div><div class="line">  &lt;slot doctor = &quot;mjones&quot; start = &quot;1400&quot; end = &quot;1450&quot;/&gt;</div><div class="line">  &lt;patient id = &quot;jsmith&quot;/&gt;</div><div class="line">&lt;/appointment&gt;</div></pre></td></tr></table></figure>
+<p>如果发生了问题，比如有人在我前面预约上了，那么我会在响应体中收到某种错误信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 200 OK</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;appointmentRequestFailure&gt;</div><div class="line">  &lt;slot doctor = &quot;mjones&quot; start = &quot;1400&quot; end = &quot;1450&quot;/&gt;</div><div class="line">  &lt;patient id = &quot;jsmith&quot;/&gt;</div><div class="line">  &lt;reason&gt;Slot not available&lt;/reason&gt;</div><div class="line">&lt;/appointmentRequestFailure&gt;</div></pre></td></tr></table></figure>
+<p>到目前为止，这都是非常直观的基于RPC风格的系统。它是简单的，因为只有Plain Old XML(POX)在这个过程中被传输。如果你使用SOAP或者XML-RPC，原理上也是基本相同的，唯一的不同是你将XML消息包含在了某种特定的格式中。</p>
+<h3 id="LEVEL-1-资源"><a href="#LEVEL-1-资源" class="headerlink" title="LEVEL 1 - 资源"></a>LEVEL 1 - 资源</h3><p>在Richardson成熟度模型中，通往真正REST的第一步是引入资源(Resource)这一概念。所以相比将所有的请求发送到单个服务端点(Service Endpoint)，现在我们会和单独的资源进行交互。</p>
+<p><img src="http://martinfowler.com/articles/images/richardsonMaturityModel/level1.png" alt=""><br>图3：Level 1中加入了资源</p>
+<p>因此在我们的首个请求中，对指定医生会有一个对应资源：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">POST /doctors/mjones HTTP/1.1</div><div class="line">[various other headers]</div><div class="line"></div><div class="line">&lt;openSlotRequest date = &quot;2010-01-04&quot;/&gt;</div></pre></td></tr></table></figure>
+<p>响应会包含一些基本信息，但是每个时间窗口则作为一个资源，可以被单独处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 200 OK</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;openSlotList&gt;</div><div class="line">  &lt;slot id = &quot;1234&quot; doctor = &quot;mjones&quot; start = &quot;1400&quot; end = &quot;1450&quot;/&gt;</div><div class="line">  &lt;slot id = &quot;5678&quot; doctor = &quot;mjones&quot; start = &quot;1600&quot; end = &quot;1650&quot;/&gt;</div><div class="line">&lt;/openSlotList&gt;</div></pre></td></tr></table></figure>
+<p>有了这些资源，创建一个预约就是向某个特定的时间窗口发送请求：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">POST /slots/1234 HTTP/1.1</div><div class="line">[various other headers]</div><div class="line"></div><div class="line">&lt;appointmentRequest&gt;</div><div class="line">  &lt;patient id = &quot;jsmith&quot;/&gt;</div><div class="line">&lt;/appointmentRequest&gt;</div></pre></td></tr></table></figure>
+<p>如果一切顺利，会收到和前面类似的响应：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 200 OK</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;appointment&gt;</div><div class="line">  &lt;slot id = &quot;1234&quot; doctor = &quot;mjones&quot; start = &quot;1400&quot; end = &quot;1450&quot;/&gt;</div><div class="line">  &lt;patient id = &quot;jsmith&quot;/&gt;</div><div class="line">&lt;/appointment&gt;</div></pre></td></tr></table></figure>
+<p>目前的区别在于，如果某个人需要针对该预约做一些操作，比如预约一些检查，那么首先需要得到该预约资源，该资源的URI类似这样：<a href="http://royalhope.nhs.uk/slots/1234/appointment，然后向该资源发送请求。" target="_blank" rel="external">http://royalhope.nhs.uk/slots/1234/appointment，然后向该资源发送请求。</a></p>
+<p>对于像我这样喜欢以面向对象方式思考的人而言，这就好比对象的标识符(Object Identity)。不是通过传入参数而调用一个函数，而是通过调用某个特定对象上的某个方法，同时将其它信息作为参数传入到该方法中。</p>
+<h3 id="LEVEL-2-HTTP动词"><a href="#LEVEL-2-HTTP动词" class="headerlink" title="LEVEL 2 - HTTP动词"></a>LEVEL 2 - HTTP动词</h3><p>在LEVEL 0和LEVEL 1中一直使用的是HTTP POST来完成所有的交互，但是有些人会使用GET作为替代。在目前的级别上并不会有多大的区别，GET和POST都是作为隧道机制(Tunneling Mechanism)让你能够通过HTTP完成交互。LEVEL 2避免了这一点，它会尽可能根据HTTP协议定义的那样来合理使用HTTP动词。</p>
+<p><img src="http://martinfowler.com/articles/images/richardsonMaturityModel/level2.png" alt=""><br>图4：Level 2添加了HTTP动词</p>
+<p>获取医生的时间窗口信息，意味着需要使用GET。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">GET /doctors/mjones/slots?date=20100104&amp;status=open HTTP/1.1</div><div class="line">Host: royalhope.nhs.uk</div></pre></td></tr></table></figure>
+<p>响应和之前使用POST发送请求时一致：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 200 OK</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;openSlotList&gt;</div><div class="line">  &lt;slot id = &quot;1234&quot; doctor = &quot;mjones&quot; start = &quot;1400&quot; end = &quot;1450&quot;/&gt;</div><div class="line">  &lt;slot id = &quot;5678&quot; doctor = &quot;mjones&quot; start = &quot;1600&quot; end = &quot;1650&quot;/&gt;</div><div class="line">&lt;/openSlotList&gt;</div></pre></td></tr></table></figure>
+<p>在Level 2中，向上面那样使用GET来发送一个请求是至关重要的。HTTP将GET定义为一个安全的操作，它并不会对任何事物的状态造成影响。这也就允许我们可以以不同的顺序，若干次调用GET请求而每次还能够获取到相同的结果。一个重要的结论就是它能够允许参与到路由中的参与者使用缓存机制，该机制是让目前的Web运转的如此良好的关键因素之一。HTTP包含了许多方法来支持缓存，这些方法可以在通信过程中被所有的参与者使用。通过遵守HTTP的规则，我们可以很好地利用该能力。</p>
+<p>为了创建一个预约，我们需要使用一个能够改变状态的HTTP动词，POST或者PUT。这里我使用和前面相同的一个POST请求：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">POST /slots/1234 HTTP/1.1</div><div class="line">[various other headers]</div><div class="line"></div><div class="line">&lt;appointmentRequest&gt;</div><div class="line">  &lt;patient id = &quot;jsmith&quot;/&gt;</div><div class="line">&lt;/appointmentRequest&gt;</div></pre></td></tr></table></figure>
+<p>在使用POST和PUT的选择中所做的权衡取舍超出了我想在这篇文章阐述的内容，或许我会在将来的某一天专门为这个问题写一篇文章。但是我仍然还是需要指出一些人将POST和PUT的关系和CREATE以及UPDATE的关系做出关联，这是不正确的。在它们之中的选择和以上有很大的不同。</p>
+<p>即便我使用了和LEVEL 1中相同的POST请求，在远程服务响应时还是存在一个显著的区别。如果一切顺利，服务会返回一个201响应来表明这个世界上新增了一个资源。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 201 Created</div><div class="line">Location: slots/1234/appointment</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;appointment&gt;</div><div class="line">  &lt;slot id = &quot;1234&quot; doctor = &quot;mjones&quot; start = &quot;1400&quot; end = &quot;1450&quot;/&gt;</div><div class="line">  &lt;patient id = &quot;jsmith&quot;/&gt;</div><div class="line">&lt;/appointment&gt;</div></pre></td></tr></table></figure>
+<p>在201响应中包含了一个Location属性，它是一个URI。将来客户端可以通过GET请求获取到该资源的状态。以上的响应还包含了该资源的信息从而省去了一个获取该资源的请求。</p>
+<p>当出现问题时，还有一个不同之处，比如某人预约了该时段：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 409 Conflict</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;openSlotList&gt;</div><div class="line">  &lt;slot id = &quot;5678&quot; doctor = &quot;mjones&quot; start = &quot;1600&quot; end = &quot;1650&quot;/&gt;</div><div class="line">&lt;/openSlotList&gt;</div></pre></td></tr></table></figure>
+<p>以上响应的重要之处在于它使用了HTTP响应码来表明了问题所在。在上例中，409表明了该资源已经被更新了。相比使用200作为响应码再附带一个错误信息，在LEVEL 2中我们会明确地类似上面的响应方式。具体使用什么响应码是由协议设计者来决定，但是当错误发生的时候，应该会有不为2xx的响应码被返回。LEVEL 2引入了HTTP动词以及HTTP响应码。</p>
+<p>这里悄悄混入了一些不一致的地方。REST建议使用所有的HTTP动词，REST的初衷就是学习和借鉴Web。但是World-Wide Web实际上并没有很多地使用PUT以及DELETE。的确是有合理的原因来更多地使用PUT以及DELETE，但是Web并不是证据之一。</p>
+<p>Web提供的关键元素在于将安全的(比如GET操作)以及不安全的操作进行了严格的区分，再配合一些响应状态码来帮助交流过程中遇到的种种错误。</p>
+<h3 id="LEVEL-3-超媒体控制-Hypermedia-Controls"><a href="#LEVEL-3-超媒体控制-Hypermedia-Controls" class="headerlink" title="LEVEL 3 - 超媒体控制(Hypermedia Controls)"></a>LEVEL 3 - 超媒体控制(Hypermedia Controls)</h3><p>最后的一个级别引入了你可能已经听说过的一个概念，这个概念的缩写是不那么好看的HATEOAS(Hypertext As The Engine Of Application State)。它解决的问题是，如何从获取到的时间窗口列表知道该如何创建一个预约。</p>
+<p><img src="http://martinfowler.com/articles/images/richardsonMaturityModel/level3.png" alt=""><br>图5：Level 3添加了超媒体控制</p>
+<p>还是使用在Level 2中使用过的GET作为首个请求：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">GET /doctors/mjones/slots?date=20100104&amp;status=open HTTP/1.1</div><div class="line">Host: royalhope.nhs.uk</div></pre></td></tr></table></figure>
+<p>但是响应中添加了一个新元素：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 200 OK</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;openSlotList&gt;</div><div class="line">  &lt;slot id = &quot;1234&quot; doctor = &quot;mjones&quot; start = &quot;1400&quot; end = &quot;1450&quot;&gt;</div><div class="line">     &lt;link rel = &quot;/linkrels/slot/book&quot; </div><div class="line">           uri = &quot;/slots/1234&quot;/&gt;</div><div class="line">  &lt;/slot&gt;</div><div class="line">  &lt;slot id = &quot;5678&quot; doctor = &quot;mjones&quot; start = &quot;1600&quot; end = &quot;1650&quot;&gt;</div><div class="line">     &lt;link rel = &quot;/linkrels/slot/book&quot; </div><div class="line">           uri = &quot;/slots/5678&quot;/&gt;</div><div class="line">  &lt;/slot&gt;</div><div class="line">&lt;/openSlotList&gt;</div></pre></td></tr></table></figure>
+<p>每个时间窗口信息现在都包含了一个URI用来告诉我们如何创建一个预约。</p>
+<p>超媒体控制(Hypermedia Control)的关键在于它告诉我们下一步能够做什么，以及相应资源的URI。相比事先就知道了如何去哪个地址发送预约请求，响应中的超媒体控制直接在响应体中告诉了我们如何做。</p>
+<p>预约的POST请求和Level 2中类似：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">POST /slots/1234 HTTP/1.1</div><div class="line">[various other headers]</div><div class="line"></div><div class="line">&lt;appointmentRequest&gt;</div><div class="line">  &lt;patient id = &quot;jsmith&quot;/&gt;</div><div class="line">&lt;/appointmentRequest&gt;</div></pre></td></tr></table></figure>
+<p>然后在响应中包含了一系列的超媒体控制，用来告诉我们后面可以进行什么操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 201 Created</div><div class="line">Location: http://royalhope.nhs.uk/slots/1234/appointment</div><div class="line">[various headers]</div><div class="line"></div><div class="line">&lt;appointment&gt;</div><div class="line">  &lt;slot id = &quot;1234&quot; doctor = &quot;mjones&quot; start = &quot;1400&quot; end = &quot;1450&quot;/&gt;</div><div class="line">  &lt;patient id = &quot;jsmith&quot;/&gt;</div><div class="line">  &lt;link rel = &quot;/linkrels/appointment/cancel&quot;</div><div class="line">        uri = &quot;/slots/1234/appointment&quot;/&gt;</div><div class="line">  &lt;link rel = &quot;/linkrels/appointment/addTest&quot;</div><div class="line">        uri = &quot;/slots/1234/appointment/tests&quot;/&gt;</div><div class="line">  &lt;link rel = &quot;self&quot;</div><div class="line">        uri = &quot;/slots/1234/appointment&quot;/&gt;</div><div class="line">  &lt;link rel = &quot;/linkrels/appointment/changeTime&quot;</div><div class="line">        uri = &quot;/doctors/mjones/slots?date=20100104@status=open&quot;/&gt;</div><div class="line">  &lt;link rel = &quot;/linkrels/appointment/updateContactInfo&quot;</div><div class="line">        uri = &quot;/patients/jsmith/contactInfo&quot;/&gt;</div><div class="line">  &lt;link rel = &quot;/linkrels/help&quot;</div><div class="line">        uri = &quot;/help/appointment&quot;/&gt;</div><div class="line">&lt;/appointment&gt;</div></pre></td></tr></table></figure>
+<p>超媒体控制的一个显著优点在于它能够在保证客户端不受影响的条件下，改变服务器返回的URI方案。只要客户端查询”addTest”这一URI，后台开发团队可以根据需要随意修改与之对应的URI(除了最初的入口URI不能被修改)。</p>
+<p>另一个优点是它能够帮助客户端开发人员进行探索。其中的链接告诉了客户端开发人员下面可能需要执行的操作。它并不会告诉所有的信息：获取资源最新信息以及取消操作的control都指向了相同的URI-开发人员需要自行分辨哪个使用GET，哪个使用DELETE。但是至少它提供了一个思考的起点，当有需要时让开发人员去在协议文档中查看相应的URI。</p>
+<p>同样地，它也让服务器端的团队可以通过向响应中添加新的链接来增加功能。如果客户端开发人员留意到了以前未知的链接，那么就能够激起他们的探索欲望。</p>
+<p>目前并没有绝对的标准来规定如何表述超媒体控制(Hypermedia Control)。在这里我的做法是使用REST in Practice团队推荐的做法，它遵循ATOM(<a href="http://atompub.org/rfc4287.html" target="_blank" rel="external">RFC 4287</a>)。使用了一个<code>&lt;link&gt;</code>元素，其中的<code>uri</code>属性指明了目标URI，<code>rel</code>属性用来描述关系类型。意义明确的关系(比如<code>self</code>用来描述它自身)的URI是不加修饰的，任何特定于该服务器的都是一个完整的URI。ATOM规定了针对众所周知的linkrels的定义是<a href="http://www.iana.org/assignments/link-relations.html" target="_blank" rel="external">Registry of Link Relations</a>。当我写这篇文章时，还被ATOM目前的进展所限定，而ATOM目前被作为Level 3 REST服务的领导者。</p>
+<h3 id="Levels的意义-The-Meaning-of-the-Levels"><a href="#Levels的意义-The-Meaning-of-the-Levels" class="headerlink" title="Levels的意义(The Meaning of the Levels)"></a>Levels的意义(The Meaning of the Levels)</h3><p>我应该强调一下，Richardson成熟度模型(RMM)虽然是思考REST中有哪些元素的好方法，但是它并不直接定义REST中的级别。Roy Fielding也阐明了这一点：<a href="http://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven" target="_blank" rel="external">Level 3 RMM是REST的前置条件</a>。和软件中的众多专有名词一样，REST也有很多的定义，但是由于Roy Fielding创造了这个名词，他的定义会权威很多。</p>
+<p>我认为RMM的用处在于它提供了一个层层递进的思考RESTful背后本质思想的方法。正因为如此，我将它视为一个工具来帮助我们学习概念，而不是作为某种评估机制。我觉得现在还没有足够多的案例来确证RESTful是实现系统集成的正确方式，尽管我十分认为它是一个很有吸引力的方案，因此我也会在很多场合推荐使用它。</p>
+<p>将这些和Ian Robinson交流后，他强调了在Leonard Richardson首次发表RMM时，他觉得最有吸引力的一点是RMM和通用设计方法之间关系。</p>
+<ul>
+<li>Level 1 解释了如何通过分治法(Divide and Conquer)来处理复杂问题，将一个大型的服务端点(Service Endpoint)分解成多个资源。</li>
+<li>Level 2 引入了一套标准的动词，用来以相同的方式应对类似的场景，移除不要的变化。</li>
+<li>Level 3 引入了可发现行(Discoverability)，它可以使协议拥有自我描述(Self-documenting)的能力。</li>
+</ul>
+<p>结果就是，这一模型帮助我们思考我们想要提供的HTTP服务是何种类型的，同时也勾勒出人们和它进行交互时的期望。</p>
+<hr>
+<p><strong>P.S</strong></p>
+<p>最后几段感觉翻译的并不是很理想，也许是自己积累的还不够多。总感觉不那么通畅，如果有什么建议欢迎拍砖。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/REST/" rel="tag"># REST</a>
+          
+            <a href="/tags/Richardson成熟度模型/" rel="tag"># Richardson成熟度模型</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/06/Gulp-Workflow-在提交代码前使用jslint进行代码检查/" rel="next" title="[Gulp Workflow] 在提交代码前使用jslint进行代码检查">
+                <i class="fa fa-chevron-left"></i> [Gulp Workflow] 在提交代码前使用jslint进行代码检查
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/15/AngularJS面面观-2-scope中的Dirty-Checking-脏数据检查-Digest-Cycle/" rel="prev" title="[AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle">
+                [AngularJS面面观] 2. scope中的Dirty Checking(脏数据检查) --- Digest Cycle <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">149</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">91</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Richardson成熟度模型-Richardson-Maturity-Model-通往真正REST的步骤"><span class="nav-number">1.</span> <span class="nav-text">Richardson成熟度模型(Richardson Maturity Model) - 通往真正REST的步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LEVEL-0"><span class="nav-number">1.1.</span> <span class="nav-text">LEVEL 0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LEVEL-1-资源"><span class="nav-number">1.2.</span> <span class="nav-text">LEVEL 1 - 资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LEVEL-2-HTTP动词"><span class="nav-number">1.3.</span> <span class="nav-text">LEVEL 2 - HTTP动词</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LEVEL-3-超媒体控制-Hypermedia-Controls"><span class="nav-number">1.4.</span> <span class="nav-text">LEVEL 3 - 超媒体控制(Hypermedia Controls)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Levels的意义-The-Meaning-of-the-Levels"><span class="nav-number">1.5.</span> <span class="nav-text">Levels的意义(The Meaning of the Levels)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

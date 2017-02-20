@@ -302,6 +302,639 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/12/Effective-JavaScript-Item-50-优先使用遍历方法而非循环/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/12/Effective-JavaScript-Item-50-优先使用遍历方法而非循环/" itemprop="url">
+                  [Effective JavaScript] Item 50 优先使用遍历方法而非循环
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-12T10:06:00+08:00">
+                2014-11-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="优先使用遍历方法而非循环"><a href="#优先使用遍历方法而非循环" class="headerlink" title="优先使用遍历方法而非循环"></a>优先使用遍历方法而非循环</h2><p>在使用循环的时候，很容易违反DRY(Don’t Repeat Yourself)原则。这是因为我们通常会选择复制粘贴的方法来避免手写一段段的循环语句。但是这样做回让代码中出现大量重复代码，开发人员也在没有意义地”重复造轮子”。更重要的是，在复制粘贴的时候很容易忽视循环中的那些细节，比如起始索引值，终止判断条件等。</p>
+<p>比如以下的for循环就存在这个问题，假设n是集合对象的长度：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt;= n; i++) &#123; ... &#125;</div><div class="line"><span class="comment">// 终止条件错误，应该是i &lt; n</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">1</span>; i &lt; n; i++) &#123; ... &#125;</div><div class="line"><span class="comment">// 起始变量错误，应该是i = 0</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = n; i &gt;= <span class="number">0</span>; i--) &#123; ... &#125;</div><div class="line"><span class="comment">// 起始变量错误，应该是i = n - 1</span></div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = n - <span class="number">1</span>; i &gt; <span class="number">0</span>; i--) &#123; ... &#125;</div><div class="line"><span class="comment">// 终止条件错误，应该是i &gt;= 0</span></div></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/12/Effective-JavaScript-Item-50-优先使用遍历方法而非循环/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/11/Effective-JavaScript-Item-49-对于数组遍历，优先使用for循环，而不是for-in循环/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/11/Effective-JavaScript-Item-49-对于数组遍历，优先使用for循环，而不是for-in循环/" itemprop="url">
+                  [Effective JavaScript] Item 49 对于数组遍历，优先使用for循环，而不是for..in循环
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-11T09:49:00+08:00">
+                2014-11-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本系列作为Effective JavaScript的读书笔记。</p>
+<h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>对于下面这段代码，能看出最后的平均数是多少吗？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> scores = [<span class="number">98</span>, <span class="number">74</span>, <span class="number">85</span>, <span class="number">77</span>, <span class="number">93</span>, <span class="number">100</span>, <span class="number">89</span>];  </div><div class="line"><span class="keyword">var</span> total = <span class="number">0</span>;  </div><div class="line"><span class="keyword">for</span> (<span class="keyword">var</span> score <span class="keyword">in</span> scores) &#123;  </div><div class="line">    total += score;  </div><div class="line">&#125;  </div><div class="line"><span class="keyword">var</span> mean = total / scores.length;  </div><div class="line">mean; <span class="comment">// ?</span></div></pre></td></tr></table></figure>
+<p>通过计算，最后的结果应该是88。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/11/Effective-JavaScript-Item-49-对于数组遍历，优先使用for循环，而不是for-in循环/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/10/Effective-JavaScript-Item-47-绝不要向Object-prototype中添加可列举的-Enumerable-属性/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/10/Effective-JavaScript-Item-47-绝不要向Object-prototype中添加可列举的-Enumerable-属性/" itemprop="url">
+                  [Effective JavaScript] Item 47 绝不要向Object.prototype中添加可列举的(Enumerable)属性
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-10T10:02:00+08:00">
+                2014-11-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本系列作为Effective JavaScript的读书笔记。</p>
+<h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>如果你的代码中依赖于for..in循环来遍历Object类型中的属性的话，不要向Object.prototype中添加任何可列举的属性。</p>
+<p>但是在对JavaScript执行环境进行增强的时候，往往都需要向Object.prototype对象添加新的属性或者方法。比如可以添加一个方法用于得到某个对象中的所有的属性名：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Object</span>.prototype.allKeys = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> result = [];  </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> <span class="keyword">this</span>) &#123;  </div><div class="line">        result.push(key);  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/10/Effective-JavaScript-Item-47-绝不要向Object-prototype中添加可列举的-Enumerable-属性/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/09/Java-并发-Java并发编程实践-思维导图-第二章-线程安全性/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/09/Java-并发-Java并发编程实践-思维导图-第二章-线程安全性/" itemprop="url">
+                  [Java 并发] Java并发编程实践 思维导图 - 第二章 线程安全性
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-09T11:25:00+08:00">
+                2014-11-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>根据《Java并发编程实践》一书整理的思维导图。</p>
+<h2 id="第一部分"><a href="#第一部分" class="headerlink" title="第一部分"></a>第一部分</h2><p><img src="http://img.blog.csdn.net/20141109112454296?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/09/Java-并发-Java并发编程实践-思维导图-第二章-线程安全性/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/08/Java-并发-Java并发编程实践-思维导图-第一章-简介/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1249,641 +1882,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/02/Hibernate-Search-3-基础查询/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/11/02/Hibernate-Search-3-基础查询/" itemprop="url">
-                  [Hibernate Search] (3) 基础查询
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-02T11:30:00+08:00">
-                2014-11-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
-                    <span itemprop="name">工具, 库与框架</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/Hibernate-Search/" itemprop="url" rel="index">
-                    <span itemprop="name">Hibernate Search</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="基础查询"><a href="#基础查询" class="headerlink" title="基础查询"></a>基础查询</h1><p>目前我们只用到了基于关键字的查询，实际上Hibenrate Search DSL还提供了其它的查询方式，下面我们就来一探究竟。</p>
-<h2 id="映射API和查询API"><a href="#映射API和查询API" class="headerlink" title="映射API和查询API"></a>映射API和查询API</h2><p>对于映射API，我们可以通过使用Hibernate提供的注解来完成映射工作，同时我们也可以使用JPA提供的注解来完成。类似的，对于查询API，我们也可以从Hibernate和JPA提供的查询API中进行选择。每种方式都有它的优点和缺点，比如当我们使用Hibernate提供的查询API时，意味着可以使用更多的特性，毕竟Hibernate Search就是建立在Hibernate之上的。而当我们选择JPA的查询API时，意味着应用可以更方便的切换ORM的实现，比如我们想将Hibernate替换成EclipseLink。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/11/02/Hibernate-Search-3-基础查询/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/01/Hibernate-Search-2-实体类型的映射/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/11/01/Hibernate-Search-2-实体类型的映射/" itemprop="url">
-                  [Hibernate Search] (2) 实体类型的映射
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-01T09:31:00+08:00">
-                2014-11-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
-                    <span itemprop="name">工具, 库与框架</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/Hibernate-Search/" itemprop="url" rel="index">
-                    <span itemprop="name">Hibernate Search</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="实体类型映射"><a href="#实体类型映射" class="headerlink" title="实体类型映射"></a>实体类型映射</h2><p>在上一篇文章中，简要介绍了如何使用Hibernate Search来对一个实体进行全文搜索。</p>
-<p>然而，在真实的应用中，实体与实体之间的关系也许更为复杂。为了对复杂实体进行搜索，就需要让底层的Lucene查询也能够理解这些关系。</p>
-<p>下图反映了Database，Hibernate，Hibernate Search和Lucene之间的关系：</p>
-<p><img src="http://img.blog.csdn.net/20141101092918727?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/11/01/Hibernate-Search-2-实体类型的映射/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/31/Hibernate-Search-1-初识Hibernate-Search/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/10/31/Hibernate-Search-1-初识Hibernate-Search/" itemprop="url">
-                  [Hibernate Search] (1) 初识Hibernate Search
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-31T10:03:00+08:00">
-                2014-10-31
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
-                    <span itemprop="name">工具, 库与框架</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/工具-库与框架/Hibernate-Search/" itemprop="url" rel="index">
-                    <span itemprop="name">Hibernate Search</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="初识Hibernate-Search"><a href="#初识Hibernate-Search" class="headerlink" title="初识Hibernate Search"></a>初识Hibernate Search</h2><p>要让你的应用具备Hibernate Search赋予的全文搜索的能力，需要做以下三件事：</p>
-<ol>
-<li>给项目添加必要的依赖和配置信息</li>
-<li>给你的实体类添加必要的信息，从而让Lucene知道如何对它们进行索引(Indexing)</li>
-<li>在需要的地方使用符合Hibernate Search规范的查询来完成业务逻辑</li>
-</ol>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/10/31/Hibernate-Search-1-初识Hibernate-Search/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/30/Java-8-9-Lambda表达式对递归的优化-下-使用备忘录模式-Memoization-Pattern/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/10/30/Java-8-9-Lambda表达式对递归的优化-下-使用备忘录模式-Memoization-Pattern/" itemprop="url">
-                  [Java 8] (9) Lambda表达式对递归的优化(下) - 使用备忘录模式(Memoization Pattern)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-30T09:58:00+08:00">
-                2014-10-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="使用备忘录模式-Memoization-Pattern-提高性能"><a href="#使用备忘录模式-Memoization-Pattern-提高性能" class="headerlink" title="使用备忘录模式(Memoization Pattern)提高性能"></a>使用备忘录模式(Memoization Pattern)提高性能</h2><p>这个模式说白了，就是将需要进行大量计算的结果缓存起来，然后在下次需要的时候直接取得就好了。因此，底层只需要使用一个Map就够了。</p>
-<p>但是需要注意的是，只有一组参数对应得到的是同一个值时，该模式才有用武之地。</p>
-<p>在很多算法中，典型的比如分治法，动态规划(Dynamic Programming)等算法中，这个模式运用的十分广泛。 以动态规划来说，动态规划在求最优解的过程中，会将原有任务分解成若干个子任务，而这些子任务势必还会将自身分解成更小的任务。因此，从整体而言会有相当多的重复的小任务需要被求解。显然，当输入的参数相同时，一个任务只需要被求解一次就好了，求解之后将结果保存起来。待下次需要求解这个任务时，会首先查询这个任务是否已经被解决了，如果答案是肯定的，那么只需要直接返回结果就行了。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/10/30/Java-8-9-Lambda表达式对递归的优化-下-使用备忘录模式-Memoization-Pattern/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1931,7 +1929,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">145</span>
+                <span class="site-state-item-count">149</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1940,7 +1938,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1949,7 +1947,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-count">91</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
