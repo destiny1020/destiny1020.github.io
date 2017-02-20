@@ -1,0 +1,835 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,设计," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="数据建模(Modeling Your Data)ES是一头不同寻常的野兽，尤其是当你来自SQL的世界时。它拥有很多优势：性能，可扩展性，准实时的搜索，以及对大数据的分析能力。并且，它很容易上手！只需要下载就能够开始使用它了。
+但是它也不是魔法。为了更好的利用ES，你需要了解它从而让它能够满足你的需求。
+在ES中，处理实体之间的关系并不像关系型存储那样明显。在关系数据库中的黄金准则 - 数据规范化，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 数据建模 - 处理关联关系(1)">
+<meta property="og:url" content="http://rxjiang.com/2015/08/16/Elasticsearch-数据建模-处理关联关系-1/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="数据建模(Modeling Your Data)ES是一头不同寻常的野兽，尤其是当你来自SQL的世界时。它拥有很多优势：性能，可扩展性，准实时的搜索，以及对大数据的分析能力。并且，它很容易上手！只需要下载就能够开始使用它了。
+但是它也不是魔法。为了更好的利用ES，你需要了解它从而让它能够满足你的需求。
+在ES中，处理实体之间的关系并不像关系型存储那样明显。在关系数据库中的黄金准则 - 数据规范化，">
+<meta property="og:updated_time" content="2017-02-20T08:52:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 数据建模 - 处理关联关系(1)">
+<meta name="twitter:description" content="数据建模(Modeling Your Data)ES是一头不同寻常的野兽，尤其是当你来自SQL的世界时。它拥有很多优势：性能，可扩展性，准实时的搜索，以及对大数据的分析能力。并且，它很容易上手！只需要下载就能够开始使用它了。
+但是它也不是魔法。为了更好的利用ES，你需要了解它从而让它能够满足你的需求。
+在ES中，处理实体之间的关系并不像关系型存储那样明显。在关系数据库中的黄金准则 - 数据规范化，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2015/08/16/Elasticsearch-数据建模-处理关联关系-1/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 数据建模 - 处理关联关系(1) | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/08/16/Elasticsearch-数据建模-处理关联关系-1/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 数据建模 - 处理关联关系(1)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-16T23:55:00+08:00">
+                2015-08-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="数据建模-Modeling-Your-Data"><a href="#数据建模-Modeling-Your-Data" class="headerlink" title="数据建模(Modeling Your Data)"></a>数据建模(Modeling Your Data)</h1><p>ES是一头不同寻常的野兽，尤其是当你来自SQL的世界时。它拥有很多优势：性能，可扩展性，准实时的搜索，以及对大数据的分析能力。并且，它很容易上手！只需要下载就能够开始使用它了。</p>
+<p>但是它也不是魔法。为了更好的利用ES，你需要了解它从而让它能够满足你的需求。</p>
+<p>在ES中，处理实体之间的关系并不像关系型存储那样明显。在关系数据库中的黄金准则 - 数据规范化，在ES中并不适用。在<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/relations.html" target="_blank" rel="external">处理关联关系</a>，<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/nested-objects.html" target="_blank" rel="external">嵌套对象</a>和<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/parent-child.html" target="_blank" rel="external">父子关联关系</a>中，我们会讨论几种可行方案的优点和缺点。</p>
+<a id="more"></a>
+<p>紧接着在<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/scale.html" target="_blank" rel="external">为可扩展性而设计</a>中，我们会讨论ES提供的一些用来快速灵活实现扩展的特性。对于扩展，并没有一个可以适用于所有场景的解决方案。你需要考虑数据是如何在你的系统中流转的，从而恰当地对你的数据进行建模。针对基于时间的数据比如日志事件或者社交数据流的方案比相对静态的文档集合的方案是十分不同的。</p>
+<p>最后，我们会讨论一样在ES中不会扩展的东西。</p>
+<hr>
+<h1 id="处理关联关系-Handling-Relationships"><a href="#处理关联关系-Handling-Relationships" class="headerlink" title="处理关联关系(Handling Relationships)"></a>处理关联关系(Handling Relationships)</h1><p>在真实的世界中，关联关系很重要：博客文章有评论，银行账户有交易，客户有银行账户，订单有行项目，目录也拥有文件和子目录。</p>
+<p>在关系数据库中，处理关联关系的方式让你不会感到意外：</p>
+<ul>
+<li>每个实体(或者行，在关系世界中)可以通过一个主键唯一标识。</li>
+<li>实体是规范化了的。对于一个唯一的实体，它的数据仅被存储一次，而与之关联的实体则仅仅保存它的主键。改变一个实体的数据只能发生在一个地方。</li>
+<li>在查询期间，实体可以被联接(Join)，它让跨实体查询成为可能。</li>
+<li>对于单个实体的修改是原子性，一致性，隔离性和持久性的。(参考<a href="http://en.wikipedia.org/wiki/ACID_transactions" target="_blank" rel="external">ACID事务</a>获取更多相关信息。)</li>
+<li>绝大多数的关系型数据库都支持针对多个实体的ACID事务。</li>
+</ul>
+<p>但是关系型数据库也有它们的局限，除了在全文搜索领域它们拙劣的表现外。在查询期间联接实体是昂贵的 - 联接的实体越多，那么查询的代价就越大。对不同硬件上的实体执行联接操作的代价太大以至于它甚至是不切实际的。这就为在单个服务器上能够存储的数据量设下了一个限制。</p>
+<p>ES，像多数NoSQL数据库那样，将世界看作是平的。一个索引就是一系列独立文档的扁平集合。一个单一的文档应该包括用来判断它是否符合一个搜索请求的所有信息。</p>
+<p>虽然在ES中改变一份文档的数据是符合<a href="http://en.wikipedia.org/wiki/ACID_transactions" target="_blank" rel="external">ACIDic</a>的，涉及到多份文档的事务就不然了。在ES中，当事务失败后是没有办法将索引回滚到它之前的状态的。</p>
+<p>这个扁平化的世界有它的优势：</p>
+<ul>
+<li>索引是迅速且不需要上锁的。</li>
+<li>搜索是迅速且不需要上锁的。</li>
+<li>大规模的数据可以被分布到多个节点上，因为每份文档之间是独立的。</li>
+</ul>
+<p>但是关联关系很重要。我们需要以某种方式将扁平化的世界和真实的世界连接起来。在ES中，有4中常用的技术来管理关联数据：</p>
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/application-joins.html" target="_blank" rel="external">应用端联接(Application-side joins)</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/denormalization.html" target="_blank" rel="external">数据非规范化(Data denormalization)</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/nested-objects.html" target="_blank" rel="external">嵌套对象(Nested objects)</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/parent-child.html" target="_blank" rel="external">父子关联关系(Parent/child relationships)</a></li>
+</ul>
+<p>通常最终的解决方案会结合这些方案的几种。</p>
+<hr>
+<h2 id="应用端联接-Application-side-Joins"><a href="#应用端联接-Application-side-Joins" class="headerlink" title="应用端联接(Application-side Joins)"></a>应用端联接(Application-side Joins)</h2><p>我们可以通过在应用中实现联接来(部分)模拟一个关系型数据库。比如，当我们想要索引用户和他们的博客文章时。在关系型的世界中，我们可以这样做：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">PUT /my_index/user/1  (1)</div><div class="line">&#123;</div><div class="line">  "name":     "John Smith",</div><div class="line">  "email":    "john@smith.com",</div><div class="line">  "dob":      "1970/10/24"</div><div class="line">&#125;</div><div class="line"></div><div class="line">PUT /my_index/blogpost/2   (2)</div><div class="line">&#123;</div><div class="line">  "title":    "Relationships",</div><div class="line">  "body":     "It's complicated...",</div><div class="line">  "user":     1   (3)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1)(2) 索引，类型以及每份文档的ID一起构成了主键。</p>
+<p>(3) 博文通过保存了用户的ID来联接到用户。由于索引和类型是被硬编码到了应用中的，所以这里并不需要。</p>
+<p>通过用户ID等于1来找到对应的博文很容易：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">GET /my_index/blogpost/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "filtered": &#123;</div><div class="line">      "filter": &#123;</div><div class="line">        "term": &#123; "user": 1 &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>为了找到用户John的博文，我们可以执行两条查询：第一条查询用来得到所有名为John的用户的IDs，第二条查询通过这些IDs来得到对应文章：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">GET /my_index/user/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "match": &#123;</div><div class="line">      "name": "John"</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">GET /my_index/blogpost/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "filtered": &#123;</div><div class="line">      "filter": &#123;</div><div class="line">        "terms": &#123; "user": [1] &#125;   (1)</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) 传入到terms过滤器的值是第一条查询的结果。</p>
+<p>应用端联接最大的优势在于数据是规范化了的。改变用户的名字只需要在一个地方操作：用户对应的文档。劣势在于你需要在搜索期间运行额外的查询来联接文档。</p>
+<p>在这个例子中，只有一位用户匹配了第一条查询，但是在实际应用中可能轻易就得到了数以百万计的名为John的用户。将所有的IDs传入到第二个查询中会让该查询非常巨大，它需要执行百万计的term查询。</p>
+<p>这种方法在第一个实体的文档数量较小并且它们很少改变时合适(这个例子中实体指的是用户)。这就使得通过缓存结果来避免频繁查询成为可能。</p>
+<hr>
+<h2 id="反规范化你的数据-Denormalizing-Your-Data"><a href="#反规范化你的数据-Denormalizing-Your-Data" class="headerlink" title="反规范化你的数据(Denormalizing Your Data)"></a>反规范化你的数据(Denormalizing Your Data)</h2><p>让ES达到最好的搜索性能的方法是采用更直接的办法，通过在索引期间<a href="http://en.wikipedia.org/wiki/Denormalization" target="_blank" rel="external">反规范化</a>你的数据。通过在每份文档中包含冗余数据来避免联接。</p>
+<p>如果我们需要通过作者的名字来搜索博文，可以在博文对应的文档中直接包含该作者的名字：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">PUT /my_index/user/1</div><div class="line">&#123;</div><div class="line">  "name":     "John Smith",</div><div class="line">  "email":    "john@smith.com",</div><div class="line">  "dob":      "1970/10/24"</div><div class="line">&#125;</div><div class="line"></div><div class="line">PUT /my_index/blogpost/2</div><div class="line">&#123;</div><div class="line">  "title":    "Relationships",</div><div class="line">  "body":     "It's complicated...",</div><div class="line">  "user":     &#123;</div><div class="line">    "id":       1,</div><div class="line">    "name":     "John Smith" </div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>现在，我们可以通过一条查询来得到用户名为John的博文了：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">GET /my_index/blogpost/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "must": [</div><div class="line">        &#123; "match": &#123; "title":     "relationships" &#125;&#125;,</div><div class="line">        &#123; "match": &#123; "user.name": "John"          &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对数据的反规范化的优势在于速度。因为每份文档包含了用于判断是否匹配查询的所有数据，不需要执行代价高昂的联接操作。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/设计/" rel="tag"># 设计</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/07/22/Elasticsearch-向已存在的索引中添加自定义filter-analyzer/" rel="next" title="[Elasticsearch] 向已存在的索引中添加自定义filter/analyzer">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 向已存在的索引中添加自定义filter/analyzer
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/08/17/Elasticsearch-数据建模-处理关联关系-2/" rel="prev" title="[Elasticsearch] 数据建模 - 处理关联关系(2)">
+                [Elasticsearch] 数据建模 - 处理关联关系(2) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">140</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">83</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据建模-Modeling-Your-Data"><span class="nav-number">1.</span> <span class="nav-text">数据建模(Modeling Your Data)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#处理关联关系-Handling-Relationships"><span class="nav-number">2.</span> <span class="nav-text">处理关联关系(Handling Relationships)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#应用端联接-Application-side-Joins"><span class="nav-number">2.1.</span> <span class="nav-text">应用端联接(Application-side Joins)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反规范化你的数据-Denormalizing-Your-Data"><span class="nav-number">2.2.</span> <span class="nav-text">反规范化你的数据(Denormalizing Your Data)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

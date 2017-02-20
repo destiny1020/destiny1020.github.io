@@ -1,0 +1,914 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,设计," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="字段折叠(Field Collapsing)一个常见的需求是通过对某个特定的字段分组来展现搜索结果。我们或许希望通过对用户名分组来返回最相关的博文。对用户名分组意味着我们需要使用到terms聚合。为了对用户的全名进行分组，name字段需要有not_analyzed的原始值，如聚合和分析中解释的那样。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 数据建模 - 处理关联关系(2)">
+<meta property="og:url" content="http://rxjiang.com/2015/08/17/Elasticsearch-数据建模-处理关联关系-2/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="字段折叠(Field Collapsing)一个常见的需求是通过对某个特定的字段分组来展现搜索结果。我们或许希望通过对用户名分组来返回最相关的博文。对用户名分组意味着我们需要使用到terms聚合。为了对用户的全名进行分组，name字段需要有not_analyzed的原始值，如聚合和分析中解释的那样。">
+<meta property="og:updated_time" content="2017-02-20T08:53:51.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 数据建模 - 处理关联关系(2)">
+<meta name="twitter:description" content="字段折叠(Field Collapsing)一个常见的需求是通过对某个特定的字段分组来展现搜索结果。我们或许希望通过对用户名分组来返回最相关的博文。对用户名分组意味着我们需要使用到terms聚合。为了对用户的全名进行分组，name字段需要有not_analyzed的原始值，如聚合和分析中解释的那样。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2015/08/17/Elasticsearch-数据建模-处理关联关系-2/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 数据建模 - 处理关联关系(2) | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/08/17/Elasticsearch-数据建模-处理关联关系-2/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 数据建模 - 处理关联关系(2)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-17T00:04:00+08:00">
+                2015-08-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="字段折叠-Field-Collapsing"><a href="#字段折叠-Field-Collapsing" class="headerlink" title="字段折叠(Field Collapsing)"></a>字段折叠(Field Collapsing)</h2><p>一个常见的需求是通过对某个特定的字段分组来展现搜索结果。我们或许希望通过对用户名分组来返回最相关的博文。对用户名分组意味着我们需要使用到terms聚合。为了对用户的全名进行分组，name字段需要有not_analyzed的原始值，如<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/aggregations-and-analysis.html" target="_blank" rel="external">聚合和分析</a>中解释的那样。</p>
+<a id="more"></a>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">PUT /my_index/_mapping/blogpost</div><div class="line">&#123;</div><div class="line">  "properties": &#123;</div><div class="line">    "user": &#123;</div><div class="line">      "properties": &#123;</div><div class="line">        "name": &#123;   (1)</div><div class="line">          "type": "string",</div><div class="line">          "fields": &#123;</div><div class="line">            "raw": &#123;   (2)</div><div class="line">              "type":  "string",</div><div class="line">              "index": "not_analyzed"</div><div class="line">            &#125;</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) 字段用来支持全文搜索。<br>(2) 字段用来支持terms聚合来完成分组。</p>
+<p>然后添加一些数据：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">PUT /my_index/user/1</div><div class="line">&#123;</div><div class="line">  "name": "John Smith",</div><div class="line">  "email": "john@smith.com",</div><div class="line">  "dob": "1970/10/24"</div><div class="line">&#125;</div><div class="line"></div><div class="line">PUT /my_index/blogpost/2</div><div class="line">&#123;</div><div class="line">  "title": "Relationships",</div><div class="line">  "body": "It's complicated...",</div><div class="line">  "user": &#123;</div><div class="line">    "id": 1,</div><div class="line">    "name": "John Smith"</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">PUT /my_index/user/3</div><div class="line">&#123;</div><div class="line">  "name": "Alice John",</div><div class="line">  "email": "alice@john.com",</div><div class="line">  "dob": "1979/01/04"</div><div class="line">&#125;</div><div class="line"></div><div class="line">PUT /my_index/blogpost/4</div><div class="line">&#123;</div><div class="line">  "title": "Relationships are cool",</div><div class="line">  "body": "It's not complicated at all...",</div><div class="line">  "user": &#123;</div><div class="line">    "id": 3,</div><div class="line">    "name": "Alice John"</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>现在我们可以运行一个查询来获取关于relationships的博文，通过用户名为John对结果进行分组。这都要感谢<a href="http://bit.ly/1CrlWFQ" target="_blank" rel="external">top_hits聚合</a>:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">GET /my_index/blogpost/_search?search_type=count (1)</div><div class="line">&#123;</div><div class="line">  "query": &#123; (2)</div><div class="line">    "bool": &#123;</div><div class="line">      "must": [</div><div class="line">        &#123; "match": &#123; "title":     "relationships" &#125;&#125;,</div><div class="line">        &#123; "match": &#123; "user.name": "John"          &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;,</div><div class="line">  "aggs": &#123;</div><div class="line">    "users": &#123;</div><div class="line">      "terms": &#123;</div><div class="line">        "field":   "user.name.raw",      (3) </div><div class="line">        "order": &#123; "top_score": "desc" &#125; (4)</div><div class="line">      &#125;,</div><div class="line">      "aggs": &#123;</div><div class="line">        "top_score": &#123; "max":      &#123; "script":  "_score"           &#125;&#125;,  (5)</div><div class="line">        "blogposts": &#123; "top_hits": &#123; "_source": "title", "size": 5 &#125;&#125;   (6)</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) 我们感兴趣的博文在blogposts聚合中被返回了，因此我们可以通过设置<code>search_type=count</code>来禁用通常的搜索结果。</p>
+<p>(2) 该查询返回用户名为John，title匹配relationships的博文。</p>
+<p>(3) terms聚合为每个user.name.raw值创建一个桶。</p>
+<p>(4)(5) 在users聚合中，使用top_score聚合通过每个桶中拥有最高分值的文档进行排序。</p>
+<p>(6) top_hits聚合只返回每个用户的5篇最相关博文的title字段。</p>
+<p>部分响应如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">"hits": &#123;</div><div class="line">  "total":     2,</div><div class="line">  "max_score": 0,</div><div class="line">  "hits":      []    (1)</div><div class="line">&#125;,</div><div class="line">"aggregations": &#123;</div><div class="line">  "users": &#123;</div><div class="line">     "buckets": [</div><div class="line">        &#123;</div><div class="line">           "key":       "John Smith",    (2)</div><div class="line">           "doc_count": 1,</div><div class="line">           "blogposts": &#123;</div><div class="line">              "hits": &#123;    (3)</div><div class="line">                 "total":     1,</div><div class="line">                 "max_score": 0.35258877,</div><div class="line">                 "hits": [</div><div class="line">                    &#123;</div><div class="line">                       "_index": "my_index",</div><div class="line">                       "_type":  "blogpost",</div><div class="line">                       "_id":    "2",</div><div class="line">                       "_score": 0.35258877,</div><div class="line">                       "_source": &#123;</div><div class="line">                          "title": "Relationships"</div><div class="line">                       &#125;</div><div class="line">                    &#125;</div><div class="line">                 ]</div><div class="line">              &#125;</div><div class="line">           &#125;,</div><div class="line">           "top_score": &#123;    (4)</div><div class="line">              "value": 0.3525887727737427</div><div class="line">           &#125;</div><div class="line">        &#125;,</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>(1) hits数组为空因为我们设置了<code>search_type=count</code>。</p>
+<p>(2) 针对每个用户都有一个对应的桶。</p>
+<p>(3) 在每个用户的桶中，有一个blogposts.hits数组，它包含了该用户的相关度最高的搜索结果。</p>
+<p>(4) 用户桶通过用户最相关的博文进行排序。</p>
+<p>使用top_hits聚合等效于运行获取最相关博文及其对应用户的查询，然后针对每个用户运行同样的查询，来得到每个用户最相关的博文。可见使用top_hits更高效。</p>
+<p>每个桶中返回的top hits是通过运行一个基于原始主查询的迷你查询而来。该迷你查询也同样支持高亮(Highlighting)以及分页(Pagination)。</p>
+<hr>
+<h2 id="反规范化和并发-Denormalization-and-Concurrency"><a href="#反规范化和并发-Denormalization-and-Concurrency" class="headerlink" title="反规范化和并发(Denormalization and Concurrency)"></a>反规范化和并发(Denormalization and Concurrency)</h2><p>当然，数据反规范化也有弊端。首先，它会让索引变大，因为每篇博文的_source都变大了，与此同时需要索引的字段也变多了。通常这并不是一个大问题。写入到磁盘的数据会被高度压缩，而且磁盘存储空间也不贵。ES能够很从容地处理这些多出来的数据。</p>
+<p>更重要的弊端在于，如果用户修改了他的名字，他名下的所有博文都需要被更新。即使用户真的这么做了，一位用户也不太可能写了上千篇博文，因此通过<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/scan-scroll.html" target="_blank" rel="external">scroll</a>和<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/bulk.html" target="_blank" rel="external">bulk</a> APIs，更新也不会超过1秒。</p>
+<p>然而，让我们来考虑一个变化更常见，影响更深远和重要的复杂情景 - 并发。</p>
+<p>在这个例子中，我们通过ES来模拟一个拥有目录树的文件系统，就像Linux上的文件系统那样：根目录是/，每个目录都能包含文件和子目录。</p>
+<p>我们希望能够搜索某个目录下的文件，就像下面这样：</p>
+<p><code>grep &quot;some text&quot; /clinton/projects/elasticsearch/*</code></p>
+<p>它需要我们对文件的路径进行索引：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">PUT /fs/file/1</div><div class="line">&#123;</div><div class="line">  "name":     "README.txt", </div><div class="line">  "path":     "/clinton/projects/elasticsearch", </div><div class="line">  "contents": "Starting a new Elasticsearch project is easy..."</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>NOTE</strong></p>
+<p>说实在的，我们同时也应该一个目录下所有的文件和子目录进行索引，但是为了简洁起见，这里忽略了这一需求。</p>
+</blockquote>
+<p>我们还需要能够搜索某个目录下任意深度的文件，就像下面这样：</p>
+<p><code>grep -r &quot;some text&quot; /clinton</code></p>
+<p>为了支持这一需求，需要对路径层次进行索引：</p>
+<ul>
+<li>/clinton</li>
+<li>/clinton/projects</li>
+<li>/clinton/projects/elasticsearch</li>
+</ul>
+<p>该层次结构可以通过对path字段使用<a href="http://bit.ly/1AjGltZ" target="_blank" rel="external">path_hierarchy tokenizer</a>来自动生成：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">PUT /fs</div><div class="line">&#123;</div><div class="line">  "settings": &#123;</div><div class="line">    "analysis": &#123;</div><div class="line">      "analyzer": &#123;</div><div class="line">        "paths": &#123;   (1)</div><div class="line">          "tokenizer": "path_hierarchy"</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) 以上的自定义的分析器使用了path_hierarchy分词器，使用其默认设置。参见<a href="http://bit.ly/1AjGltZ" target="_blank" rel="external">path_hierarchy tokenizer</a></p>
+<p>文件类型的映射则像下面这样：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">PUT /fs/_mapping/file</div><div class="line">&#123;</div><div class="line">  "properties": &#123;</div><div class="line">    "name": &#123;   (1)</div><div class="line">      "type":  "string",</div><div class="line">      "index": "not_analyzed"</div><div class="line">    &#125;,</div><div class="line">    "path": &#123;   (2)</div><div class="line">      "type":  "string",</div><div class="line">      "index": "not_analyzed",</div><div class="line">      "fields": &#123;</div><div class="line">        "tree": &#123;   (3)</div><div class="line">          "type":     "string",</div><div class="line">          "analyzer": "paths"</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) name字段会包含完整的名字。</p>
+<p>(2)(3) path字段会包含完整的目录名，而path.tree字段会包含路径层次结构。</p>
+<p>一旦建立了该索引并完成了文件的索引，我们就能够执行如下查询，它搜索/client/projects/elasticsearch目录下包含有elasticsearch的文件：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">GET /fs/file/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "filtered": &#123;</div><div class="line">      "query": &#123;</div><div class="line">        "match": &#123;</div><div class="line">          "contents": "elasticsearch"</div><div class="line">        &#125;</div><div class="line">      &#125;,</div><div class="line">      "filter": &#123;</div><div class="line">        "term": &#123;   (1)</div><div class="line">          "path": "/clinton/projects/elasticsearch"</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) 只在该目录下搜索。</p>
+<p>任何存储于/clinton目录下的文件都会在path.tree字段中包含/clinton。因此我们可以通过下面的搜索来得到/clinton目录下的所有文件：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">GET /fs/file/_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "filtered": &#123;</div><div class="line">      "query": &#123;</div><div class="line">        "match": &#123;</div><div class="line">          "contents": "elasticsearch"</div><div class="line">        &#125;</div><div class="line">      &#125;,</div><div class="line">      "filter": &#123;</div><div class="line">        "term": &#123;   (1)</div><div class="line">          "path.tree": "/clinton"</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) 寻找该目录或其下任意子目录中的文件。</p>
+<h3 id="重命名文件和目录-Renaming-Files-and-Directories"><a href="#重命名文件和目录-Renaming-Files-and-Directories" class="headerlink" title="重命名文件和目录(Renaming Files and Directories)"></a>重命名文件和目录(Renaming Files and Directories)</h3><p>到目前为止还不错。文件重命挺简单 - 只需要一个简单的更新或者索引请求就行了。你甚至可以使用<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/optimistic-concurrency-control.html" target="_blank" rel="external">乐观并发控制(Optimistic Concurrency Control)</a>来确保你的更改不会和另一个用户的更改发生冲突。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">PUT /fs/file/1?version=2    (1)</div><div class="line">&#123;</div><div class="line">  "name":     "README.asciidoc",</div><div class="line">  "path":     "/clinton/projects/elasticsearch",</div><div class="line">  "contents": "Starting a new Elasticsearch project is easy..."</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) version值能够确保只有当索引中的文档拥有相同的version值时，更改才会生效。</p>
+<p>我们还可以对目录重命名，但是这意味着对该目录下的所有文件执行更新。这个操作或快或慢，取决于有多少文件需要被更新。我们需要做的是使用<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/scan-scroll.html" target="_blank" rel="external">scan-and-scroll</a>来获取所有的文件，然后使用<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/bulk.html" target="_blank" rel="external">bulk API</a>完成更新。这个过程并不是原子性的，但是所有的文件都能够被迅速地更新。</p>
+<hr>
+<h1 id="解决并发问题-Solving-Concurrency-Issues"><a href="#解决并发问题-Solving-Concurrency-Issues" class="headerlink" title="解决并发问题(Solving Concurrency Issues)"></a>解决并发问题(Solving Concurrency Issues)</h1><p>当我们允许多个用户同时对文件和目录进行重命名时，问题就来了。假设你对/clinton目录进行重命名，它包含了成百上千个文件。同时，另外一个用户重命名了/clinton/projects/elasticsearch/README.txt这个文件。该用户的更改虽然在你的操作之后，但是它完成的也许更快。</p>
+<p>下面两种情况中的一种会发生：</p>
+<ul>
+<li>你决定使用version值，这意味着你对文件README.txt的重命名操作会因为version冲突而失败。</li>
+<li>你不使用versioning，那么你的更改会直接覆盖掉另一用户的更改。</li>
+</ul>
+<p>问题的根源在ES并不支持<a href="http://en.wikipedia.org/wiki/ACID_transactions" target="_blank" rel="external">ACID事务</a>。对单个文档的更新虽然是符合ACID原则的，但是对多个文档的更新则不然。</p>
+<p>如果你使用的主要数据源是关系行数据库，而ES只是简单地被用来当作搜索引擎或者提升性能的方法，那么首先更新数据库，然后待这些更新操作成功后再将这些变更复制到ES中。这样的话，你就能受益于数据库对于ACID事务的支持了，它能保证ES中的所有更新顺序都是正确的。并发的问题在关系型数据库中被处理了。</p>
+<p>如果你没有使用关系型数据源，那么这些并发问题就需要在ES中完成。下面有三种可行的方案，这些方案都涉及到了某种形式的锁：</p>
+<ul>
+<li>全局锁(Global Locking)</li>
+<li>文档锁(Document Locking)</li>
+<li>树锁(Tree Locking)</li>
+</ul>
+<blockquote>
+<p><strong>TIP</strong></p>
+<p>以上提到的方案都可以通过应用了相同原则的外部系统实现。</p>
+</blockquote>
+<h3 id="全局锁-Global-Locking"><a href="#全局锁-Global-Locking" class="headerlink" title="全局锁(Global Locking)"></a>全局锁(Global Locking)</h3><p>我们可以通过在任何时候只允许一个进程执行更新操作来完全避免并发性的问题。大多数的修改只设计很少的几个文件，完成的也相当快。对于顶层目录的重命名也许会阻塞其它变更操作更久一点，但是这种情况发生的频率也会更低一些。</p>
+<p>因为在ES中文档级别的变更是满足ACID的，我们可以将一份文档是否存在作为一个全局锁。为了获取一个锁，我们尝试去创建一个全局锁文档：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">PUT /fs/lock/global/_create</div><div class="line">&#123;&#125;</div></pre></td></tr></table></figure>
+<p>如果上述的创建请求由于发生了冲突而失败了，就表明另一个进程已经被授权得到了全局锁，我们只能稍后重试。如果上述请求成功了，我们就拥有了全局锁从而可以进行后续的变更操作。一旦这些操作完成了，必须通过删除全局锁文档来释放它：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">DELETE /fs/lock/global</div></pre></td></tr></table></figure>
+<p>取决于变更的频繁程度和它们需要消耗的时间，全局锁对系统的性能或许会有相当程度的限制。可以通过实现更加细粒度的锁来增加并行性。</p>
+<h3 id="文档锁-Document-Locking"><a href="#文档锁-Document-Locking" class="headerlink" title="文档锁(Document Locking)"></a>文档锁(Document Locking)</h3><p>相比于对整个文件系统上锁，我们可以通过上面提到的技术来对单个文档完成锁定。一个进程可以使用<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/scan-scroll.html" target="_blank" rel="external">scan-and-scroll</a>请求来获取到变更会影响到的所有文档的IDs，然后对每份文档创建一个锁文件：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">PUT /fs/lock/_bulk</div><div class="line">&#123; "create": &#123; "_id": 1&#125;&#125;   (1)</div><div class="line">&#123; "process_id": 123    &#125;   (2)</div><div class="line">&#123; "create": &#123; "_id": 2&#125;&#125;</div><div class="line">&#123; "process_id": 123    &#125;</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>(1) 锁文档的ID需要和被锁定的文档的ID一致。</p>
+<p>(2) process_id是将要执行变更操作进程的唯一ID。</p>
+<p>如果某些文档已经被锁了，那么部分bulk请求会失败，只好重试。</p>
+<p>当然，如果我们试图再次去锁定所有的文档，对于那些已经被我们锁定的文档，前面使用的创建语句会失败！相比一个简单的创建语句，我们需要使用带有upsert参数的update请求：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">if ( ctx._source.process_id != process_id ) &#123;   (1)</div><div class="line">  assert false;   (2)</div><div class="line">&#125;</div><div class="line">ctx.op = 'noop';  (3)</div></pre></td></tr></table></figure>
+<p>(1) process_id是我们传入到脚本中的参数。</p>
+<p>(2) assert false会抛出一个异常，它导致更新失败。</p>
+<p>(3) 将op从update修改为noop能够防止update请求真的执行变更操作，而仍然返回成功。</p>
+<p>完整的update请求如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">POST /fs/lock/1/_update</div><div class="line">&#123;</div><div class="line">  "upsert": &#123; "process_id": 123 &#125;,</div><div class="line">  "script": "if ( ctx._source.process_id != process_id )</div><div class="line">  &#123; assert false &#125;; ctx.op = 'noop';"</div><div class="line">  "params": &#123;</div><div class="line">    "process_id": 123</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果文档并不存在，upsert会执行insert操作 - 就和之前使用的create请求一样。但是，如果文档存在，脚本会查看文档中保存的process_id。如果它和我们的相同，就会放弃update(noop)并返回成功。如果它和我们的不同，那么assert false就会抛出一个异常告诉我们锁定失败了。</p>
+<p>一旦所有的锁都别成功创建了，重命名操作就开始了。在这之后，我们必须释放所有的锁，通过delete-by-query请求来完成：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">POST /fs/_refresh   (1)</div><div class="line"></div><div class="line">DELETE /fs/lock/_query</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "term": &#123;</div><div class="line">      "process_id": 123</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) refresh调用保证了所有的锁文档对delete-by-query请求是可见的。</p>
+<p>文档级别的锁拥有更加细粒度的访问控制，但是为百万计的文档创建锁是非常昂贵的。在某些场合下，比如前面例子中出现的目录树，可以通过更少的工作来达到细粒度的锁定。</p>
+<h3 id="树锁-ree-Locking"><a href="#树锁-ree-Locking" class="headerlink" title="树锁(ree Locking)"></a>树锁(ree Locking)</h3><p>相比像前面那样对每份文档上锁，也可以支队目录树的部分上锁。我们需要对重命名的文档或者目录拥有独占性访问，可以通过独占性锁文档实现：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123; <span class="attr">"lock_type"</span>: <span class="string">"exclusive"</span> &#125;</div></pre></td></tr></table></figure>
+<p>同时我们也需要对上层目录使用分享锁：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"lock_type"</span>:  <span class="string">"shared"</span>,</div><div class="line">  <span class="attr">"lock_count"</span>: <span class="number">1</span>   (<span class="number">1</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) lock_count记录了拥有该分享锁的进程数量。</p>
+<p>对/clinton/projects/elasticsearch/README.txt重命名的进程需要该文件的独占锁，以及针对目录/clinton，/clinton/projects和/clinton/projects/elasticsearch的分享锁。</p>
+<p>对于独占锁，可以通过简单的创建请求来实现，但是分享锁需要带有脚本的update请求来实现：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">if (ctx._source.lock_type == 'exclusive') &#123;</div><div class="line">  assert false;   (1)</div><div class="line">&#125;</div><div class="line">ctx._source.lock_count++   (2)</div></pre></td></tr></table></figure>
+<p>(1) 如果lock_type是独占性的，那么assert语句会抛出一个异常，导致update请求失败。</p>
+<p>(2) 否则，增加lock_count。</p>
+<p>该脚本能够处理当锁文档已经存在的情况，但是我们仍然需要使用upsert来处理它不存在时的情况。完整的update请求如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">POST /fs/lock/%2Fclinton/_update   (1)</div><div class="line">&#123;</div><div class="line">  "upsert": &#123;   (2)</div><div class="line">    "lock_type":  "shared",</div><div class="line">    "lock_count": 1</div><div class="line">  &#125;,</div><div class="line">  "script": "if (ctx._source.lock_type == 'exclusive')</div><div class="line">  &#123; assert false &#125;; ctx._source.lock_count++"</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) 文档的ID是/clinton，再进行URL编码后变成了%2fclinton。</p>
+<p>(2) 当文档不存在时，upsert代表的文档会被插入。</p>
+<p>一旦我们成功获取了文件所在目录的所有上级目录的分享锁后，就可以尝试去创建一个针对该文件的独占锁了：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">PUT /fs/lock/%2Fclinton%2fprojects%2felasticsearch%2fREADME.txt/_create</div><div class="line">&#123; "lock_type": "exclusive" &#125;</div></pre></td></tr></table></figure>
+<p>现在，如果另外的某个人想要对/clinton目录重命名，他们就需要获取该目录的独占锁：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">PUT /fs/lock/%2Fclinton/_create</div><div class="line">&#123; "lock_type": "exclusive" &#125;</div></pre></td></tr></table></figure>
+<p>该请求会失败，因为一个拥有相同ID的锁文档已经存在了。该用户只好等待我们的操作完成并释放锁。独占锁可以被删除：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">DELETE /fs/lock/%2Fclinton%2fprojects%2felasticsearch%2fREADME.txt</div></pre></td></tr></table></figure>
+<p>而分享锁需要另一个脚本来减少lock_count的计数，如果该计数减少到了0,就删除它：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">if (--ctx._source.lock_count == 0) &#123;</div><div class="line">  ctx.op = 'delete'   (1)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>(1) 一旦lock_count为0，ctx.op就从update变成delete。</p>
+<p>对每个上级目录都需要以相反的顺序执行update请求，从最长的目录到最短的目录：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">POST /fs/lock/%2Fclinton%2fprojects%2felasticsearch/_update</div><div class="line">&#123;</div><div class="line">  "script": "if (--ctx._source.lock_count == 0) &#123; ctx.op = 'delete' &#125; "</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>树锁通过最少的代价实现了细粒度的并发控制。当然，它并不能适用于每个场景 - 数据模型必须要有类似目录树这种结构才行。</p>
+<blockquote>
+<p><strong>NOTE</strong></p>
+<p>以上的三种方案 - 全局锁，文档锁和树锁 - 都没有处理关于锁的最棘手的问题：如果持有锁的进程挂了怎么办？</p>
+<p>一个进程的意外挂掉给我们留下了两个问题：</p>
+<ul>
+<li>我们如何知道我们可以释放被挂掉的进程持有的锁？</li>
+<li>我们如何清理挂掉的进程没有完成的工作？</li>
+</ul>
+<p>这些话题都超出了本书的范畴，但是如果你决定使用锁，就需要考虑一下它们。</p>
+</blockquote>
+<p>尽管反规范化对于很多项目而言都是一个好的选择，由于需要锁的支持，会导致较为复杂的实现。相比之下，ES提供了另外两种模型来处理关联的实体：嵌套对象(Nested Objects)和父子关系(Parent-Child Relationship)。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/设计/" rel="tag"># 设计</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/16/Elasticsearch-数据建模-处理关联关系-1/" rel="next" title="[Elasticsearch] 数据建模 - 处理关联关系(1)">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 数据建模 - 处理关联关系(1)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/08/28/Elasticsearch-常用查询和操作总结/" rel="prev" title="[Elasticsearch] 常用查询和操作总结">
+                [Elasticsearch] 常用查询和操作总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">140</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">83</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#字段折叠-Field-Collapsing"><span class="nav-number">1.</span> <span class="nav-text">字段折叠(Field Collapsing)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反规范化和并发-Denormalization-and-Concurrency"><span class="nav-number">2.</span> <span class="nav-text">反规范化和并发(Denormalization and Concurrency)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重命名文件和目录-Renaming-Files-and-Directories"><span class="nav-number">2.1.</span> <span class="nav-text">重命名文件和目录(Renaming Files and Directories)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决并发问题-Solving-Concurrency-Issues"><span class="nav-number"></span> <span class="nav-text">解决并发问题(Solving Concurrency Issues)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#全局锁-Global-Locking"><span class="nav-number">0.1.</span> <span class="nav-text">全局锁(Global Locking)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文档锁-Document-Locking"><span class="nav-number">0.2.</span> <span class="nav-text">文档锁(Document Locking)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#树锁-ree-Locking"><span class="nav-number">0.3.</span> <span class="nav-text">树锁(ree Locking)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
