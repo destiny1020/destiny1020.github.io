@@ -1,0 +1,786 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,源码分析,原型继承," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="上一节中我们探讨了遍历scope树形继承结构的过程。本节继续讨论一下在继承结构下产生的属性覆盖问题，以及scope的一些特殊情况：隔离scope以及为scope显式指定其父亲scope。
+##属性覆盖(Attribute Shadowing)
+属性覆盖这个问题或许会对Angular新手造成一定的困扰，尽管从本质上而言，它的成因还是基于JavaScript中原型继承这一概念。
+那么让我们看看属性覆盖">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS面面观] 8. scope继承 - 属性覆盖，隔离scope以及指定scope的parent">
+<meta property="og:url" content="http://rxjiang.com/2016/07/03/AngularJS面面观-8-scope继承-属性覆盖，隔离scope以及指定scope的parent/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="上一节中我们探讨了遍历scope树形继承结构的过程。本节继续讨论一下在继承结构下产生的属性覆盖问题，以及scope的一些特殊情况：隔离scope以及为scope显式指定其父亲scope。
+##属性覆盖(Attribute Shadowing)
+属性覆盖这个问题或许会对Angular新手造成一定的困扰，尽管从本质上而言，它的成因还是基于JavaScript中原型继承这一概念。
+那么让我们看看属性覆盖">
+<meta property="og:updated_time" content="2017-02-20T10:14:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS面面观] 8. scope继承 - 属性覆盖，隔离scope以及指定scope的parent">
+<meta name="twitter:description" content="上一节中我们探讨了遍历scope树形继承结构的过程。本节继续讨论一下在继承结构下产生的属性覆盖问题，以及scope的一些特殊情况：隔离scope以及为scope显式指定其父亲scope。
+##属性覆盖(Attribute Shadowing)
+属性覆盖这个问题或许会对Angular新手造成一定的困扰，尽管从本质上而言，它的成因还是基于JavaScript中原型继承这一概念。
+那么让我们看看属性覆盖">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/07/03/AngularJS面面观-8-scope继承-属性覆盖，隔离scope以及指定scope的parent/"/>
+
+
+
+
+
+  <title> [AngularJS面面观] 8. scope继承 - 属性覆盖，隔离scope以及指定scope的parent | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/03/AngularJS面面观-8-scope继承-属性覆盖，隔离scope以及指定scope的parent/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS面面观] 8. scope继承 - 属性覆盖，隔离scope以及指定scope的parent
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-03T16:47:00+08:00">
+                2016-07-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一节中我们探讨了遍历scope树形继承结构的过程。本节继续讨论一下在继承结构下产生的属性覆盖问题，以及scope的一些特殊情况：隔离scope以及为scope显式指定其父亲scope。</p>
+<p>##属性覆盖(Attribute Shadowing)</p>
+<p>属性覆盖这个问题或许会对Angular新手造成一定的困扰，尽管从本质上而言，它的成因还是基于JavaScript中原型继承这一概念。</p>
+<p>那么让我们看看属性覆盖到底是怎么一回事：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> parent = <span class="keyword">new</span> Scope();</div><div class="line"><span class="keyword">var</span> child = parent.$<span class="keyword">new</span>();</div><div class="line"></div><div class="line">parent.name = <span class="string">'parent name'</span>;</div><div class="line">child.name = <span class="string">'child name'</span>;</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>上述代码创建了两个scope，之间的关系一目了然。基于原型继承的机制，child其实也创建了仅属于自己的name属性，这个name属性覆盖了其parent的name属性。这个过程就叫做属性覆盖。</p>
+<p>那么为什么这个属性覆盖有时会对新手造成困扰呢？因为在某些情况下，需要完成的操作是覆盖父scope中的属性值，习惯了Java等面向对象语言的开发者可能会直接调用<code>child.name = &#39;child name&#39;;</code>来试图完成覆盖。这样一来，即便是在父scope中访问name属性时，它的值就应该是child name。让我们看看实际上会发生什么：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">&lt;html ng-app=<span class="string">"testApp"</span>&gt;</div><div class="line"><span class="xml"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span></div><div class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"//cdn.bootcss.com/angular.js/1.5.7/angular.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></div><div class="line">    <span class="keyword">var</span> mod = angular.module(<span class="string">'testApp'</span>, []);</div><div class="line">    mod.controller(<span class="string">'mainCtrl'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">$scope</span>) </span>&#123;</div><div class="line">      $scope.name = <span class="string">'parent name'</span>;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    mod.controller(<span class="string">'subCtrl'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">$scope</span>) </span>&#123;</div><div class="line">      $scope.name = <span class="string">'child name'</span>;</div><div class="line">    &#125;)</div><div class="line">  <span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">body</span> <span class="attr">ng-controller</span>=<span class="string">"mainCtrl"</span>&gt;</span></div><div class="line">  Parent name: &#123;&#123; name &#125;&#125;</div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">ng-controller</span>=<span class="string">"subCtrl"</span>&gt;</span></div><div class="line">    Child name: &#123;&#123; name &#125;&#125; <span class="tag">&lt;<span class="name">br</span>/&gt;</span></div><div class="line">    From Child name: &#123;&#123; $parent.name &#125;&#125;</div><div class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>上述代码会在浏览器中显示如下信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Parent name: parent name</div><div class="line">Child name: child name </div><div class="line">From Child name: parent name</div></pre></td></tr></table></figure></p>
+<p>可见，父scope中的scope并没有被覆盖，仍然是以前的值。</p>
+<p>出现这样的行为，让很多新手不知如何是好。这其实是不了解JavaScript原型继承机制导致的。事实上，当我们调用<code>child.name = &#39;child name&#39;;</code>后，child scope上也会被创建出一个新的name属性，这个name属性和父scope上的name属性除了名字相同，是没有其它任何关系的。</p>
+<p>那么如何解决覆盖父scope上属性这一问题呢，其实有两种方案：<br>第一种：在子scope上调用<code>$scope.$parent.name = &#39;child name&#39;</code>。</p>
+<p>第二种：将父scope的属性放在放入到一个对象中去，然后在子scope中进行修改：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$scope.user = &#123;<span class="attr">name</span>: <span class="string">'parent name'</span>&#125;;  <span class="comment">// 父scope中的声明方式</span></div><div class="line"></div><div class="line">$scope.user.name = <span class="string">'child name'</span>;  <span class="comment">// 子scope中的覆盖方式</span></div></pre></td></tr></table></figure></p>
+<p>在实际项目代码中，第二种是更好的实现方式。这种方式也算是scope间共享数据的一种方式，尽管不是很规范。比如，可以在rootScope中定义一个对象$root，那么这个对象对所有其它scope都是可见的，因此就能够将一些公用数据放置其中。</p>
+<p>那么为什么说这种方式不规范呢？因为随着项目规模的增大，各种类型的公用数据都可以被放入其中，久而久之其中的数据就失去了可控性。更好的实践不是通过$rootScope去共享数据，而是通过angular提供的另外一项机制：factory。factory可以被看作是一个单粒对象。在整个angular应用中只有一个实例，因此是放置公用数据的理想场所。同时，根据公用数据的类型不同，还可以针对类型声明不同的factory。</p>
+<p>##隔离scope<br>当创建一个子scope后，该scope就能够访问父scope上的属性和方法了。在大多数场景中这个特性是实用的，毕竟我们也不希望重复定义一大堆的属性和方法。但是在某些场景下，我们并不希望创建出来的scope能够自由地访问父scope中定义的属性和方法。这个时候，隔离scope就派上用场了。隔离scope从继承结构上而言，和正常的scope没什么两样，但是它的特殊之处在于它没法访问父scope上的属性和方法了。这是怎么做到的呢：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> child;</div><div class="line"></div><div class="line">parent = parent || <span class="keyword">this</span>;</div><div class="line"></div><div class="line"><span class="keyword">if</span> (isolate) &#123;</div><div class="line">  child = <span class="keyword">new</span> Scope();</div><div class="line">  child.$root = <span class="keyword">this</span>.$root;</div><div class="line">&#125; <span class="keyword">else</span> &#123;</div><div class="line">  <span class="comment">// non-isolated scope</span></div><div class="line">  <span class="keyword">if</span> (!<span class="keyword">this</span>.$$ChildScope) &#123;</div><div class="line">    <span class="keyword">this</span>.$$ChildScope = createChildScopeClass(<span class="keyword">this</span>);</div><div class="line">  &#125;</div><div class="line">  child = <span class="keyword">new</span> <span class="keyword">this</span>.$$ChildScope();</div><div class="line">&#125;</div><div class="line">child.$parent = parent;</div><div class="line">child.$$prevSibling = parent.$$childTail;</div></pre></td></tr></table></figure>
+<p>以上代码摘自Scope的<code>$new</code>方法。该方法的具体执行过程在介绍<a href="http://blog.csdn.net/dm_vincent/article/details/51613496" target="_blank" rel="external">scope生命周期</a>的时候讨论过。这里就不赘述了，这里是想强调创建隔离scope的过程。对于隔离scope而言，它的<code>$root</code>属性需要被指定成用来创建该隔离scope的那个scope，也就是<code>scope.$new(true)</code>中的被调用的scope。<code>$root</code>属性在哪里被用到了我暂时还并没有找到答案，至少在<code>rootScope</code>的源代码中并没有发现它的用武之地。我想也许会在其它的模块中会被用到吧，待发现之后再来更新这一部分的内容。</p>
+<p>除了没有用原型继承来创建子scope外，隔离scope和普通的scope并没有其它的不同之处。比如parent的指向，继承数的结构设置等等。</p>
+<p>隔离scope在自定义angular指令(directive)中用的非常多。这样做的目的也是让定义的指令更加灵活，复用性更强，不会受制于它的外部环境。由于隔离scope没法访问父scope的任何属性和方法，因此它就是一张白纸，而显然为了完成业务逻辑，就算是隔离scope也是需要数据的。这些数据的注入过程是通过directive提供的机制完成的，具体而言是通过@，=以及&amp;三种操作符完成的。详情会在分析指令机制的时候进行分析。</p>
+<p>##指定scope的parent</p>
+<p>最后，简单介绍一下如何制定scope的parent以及它有什么具体作用。<code>$new</code>方法的签名是这样的：<code>$new: function(isolate, parent)</code>。这就是说，在创建scope的时候，还能够指定待创建scope的parent。而结合前面的那段代码片段，我们可以发现parent更多的关注在scope树形继承的结构上，也就是scope之间如何组织的。而scope是否是隔离的(第一个参数isolate)，关注点在scope是否采用原型继承进行创建。这两者是两个概念，在没有阅读这段代码之前，确实非常容易将这两个概念混为一谈。</p>
+<p>那么在什么时候需要指定scope的parent呢？目前看来，并没有什么作用。但是在后面介绍指令的transclusion(国内一些文献翻译成”透传”)时，就能够发现其中的奥妙啦。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/原型继承/" rel="tag"># 原型继承</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/12/AngularJS面面观-7-scope继承与digest循环-scope树结构的遍历/" rel="next" title="[AngularJS面面观] 7. scope继承与digest循环 - scope树结构的遍历">
+                <i class="fa fa-chevron-left"></i> [AngularJS面面观] 7. scope继承与digest循环 - scope树结构的遍历
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/07/04/AngularJS面面观-9-scope事件机制-基本概念以及生命周期/" rel="prev" title="[AngularJS面面观] 9. scope事件机制 - 基本概念以及生命周期">
+                [AngularJS面面观] 9. scope事件机制 - 基本概念以及生命周期 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">151</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">91</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
