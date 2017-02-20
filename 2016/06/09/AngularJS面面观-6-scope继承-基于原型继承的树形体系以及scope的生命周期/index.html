@@ -91,7 +91,7 @@
 <meta property="og:site_name" content="RXJIANG's Home">
 <meta property="og:description" content="写过Angular应用的同学们或多或少都会注意到Angular框架在幕后会根据应用结构创建很多个scope，这些scope也许是继承自它的父节点的scope，也可能是隔离scope(Isolated Scope)。但是它们最终的父节点都是$rootScope。$rootScope是全局唯一的一个scope，它由Angular在应用启动之初就被创建。
 现在我们就来探究一下scope的树形继承结构。具">
-<meta property="og:updated_time" content="2017-02-20T10:09:51.000Z">
+<meta property="og:updated_time" content="2017-02-20T10:21:41.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[AngularJS面面观] 6. scope继承 - 基于原型继承的树形体系以及scope的生命周期">
 <meta name="twitter:description" content="写过Angular应用的同学们或多或少都会注意到Angular框架在幕后会根据应用结构创建很多个scope，这些scope也许是继承自它的父节点的scope，也可能是隔离scope(Isolated Scope)。但是它们最终的父节点都是$rootScope。$rootScope是全局唯一的一个scope，它由Angular在应用启动之初就被创建。
@@ -435,7 +435,8 @@
 <li>isolated: 它是一个布尔值。用于指定创建的scope是否为一个隔离scope。</li>
 <li>parent：它传入另外一个scope对象。传入的scope对象会被指定为当前正在创建的scope的父亲。</li>
 </ol>
-<p>那么，首先我们来看看当这两个参数什么都不传会发生些什么。<br>如果不传入parent，那么当前被调用的scope对象会被作为新创建的scope的父亲：<code>parent = parent || this</code>。</p>
+<p>那么，首先我们来看看当这两个参数什么都不传会发生些什么。<br>如果不传入parent，那么当前被调用的scope对象会被作为新创建的scope的父亲：</p>
+<p><code>parent = parent || this</code>。</p>
 <p>然后会判断当前scope上是否存在<code>$$ChildScope</code>这个属性，如果不存在则创建一个：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">createChildScopeClass</span>(<span class="params">parent</span>) </span>&#123;</div><div class="line">  <span class="function"><span class="keyword">function</span> <span class="title">ChildScope</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">this</span>.$$watchers = <span class="keyword">this</span>.$$nextSibling =</div><div class="line">        <span class="keyword">this</span>.$$childHead = <span class="keyword">this</span>.$$childTail = <span class="literal">null</span>;</div><div class="line">    <span class="keyword">this</span>.$$listeners = &#123;&#125;;</div><div class="line">    <span class="keyword">this</span>.$$listenerCount = &#123;&#125;;</div><div class="line">    <span class="keyword">this</span>.$$watchersCount = <span class="number">0</span>;</div><div class="line">    <span class="keyword">this</span>.$id = nextUid();</div><div class="line">    <span class="keyword">this</span>.$$ChildScope = <span class="literal">null</span>;</div><div class="line">  &#125;</div><div class="line">  ChildScope.prototype = parent;</div><div class="line">  <span class="keyword">return</span> ChildScope;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>可见，在这里设置了子scope的原型继承关系：<code>ChildScope.prototype = parent</code>。</p>
@@ -587,7 +588,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">151</span>
+                <span class="site-state-item-count">152</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -605,7 +606,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">91</span>
+                <span class="site-state-item-count">92</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

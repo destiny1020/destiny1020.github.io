@@ -1,0 +1,842 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,源码分析,事件机制," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在上一篇文章中，介绍了事件机制背后的订阅-发布模式以及angular事件的生命周期。
+本文继续介绍和事件机制相关的几个重要组成部分：
+
+事件对象的组成
+事件与scope继承树-$emit以及$broadcast 
+事件的停止传播以及阻止默认行为">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS面面观] 10. scope事件机制 - $emit, $broadcast以及事件对象">
+<meta property="og:url" content="http://rxjiang.com/2016/07/10/AngularJS面面观-10-scope事件机制-emit-broadcast以及事件对象/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="在上一篇文章中，介绍了事件机制背后的订阅-发布模式以及angular事件的生命周期。
+本文继续介绍和事件机制相关的几个重要组成部分：
+
+事件对象的组成
+事件与scope继承树-$emit以及$broadcast 
+事件的停止传播以及阻止默认行为">
+<meta property="og:image" content="http://img.blog.csdn.net/20160703213054925">
+<meta property="og:updated_time" content="2017-02-20T10:20:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS面面观] 10. scope事件机制 - $emit, $broadcast以及事件对象">
+<meta name="twitter:description" content="在上一篇文章中，介绍了事件机制背后的订阅-发布模式以及angular事件的生命周期。
+本文继续介绍和事件机制相关的几个重要组成部分：
+
+事件对象的组成
+事件与scope继承树-$emit以及$broadcast 
+事件的停止传播以及阻止默认行为">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160703213054925">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2016/07/10/AngularJS面面观-10-scope事件机制-emit-broadcast以及事件对象/"/>
+
+
+
+
+
+  <title> [AngularJS面面观] 10. scope事件机制 - $emit, $broadcast以及事件对象 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/07/10/AngularJS面面观-10-scope事件机制-emit-broadcast以及事件对象/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS面面观] 10. scope事件机制 - $emit, $broadcast以及事件对象
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-10T22:50:00+08:00">
+                2016-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在上一篇文章中，介绍了事件机制背后的订阅-发布模式以及angular事件的生命周期。</p>
+<p>本文继续介绍和事件机制相关的几个重要组成部分：</p>
+<ol>
+<li>事件对象的组成</li>
+<li>事件与scope继承树-<code>$emit</code>以及<code>$broadcast</code> </li>
+<li>事件的停止传播以及阻止默认行为</li>
+</ol>
+<a id="more"></a>
+<h2 id="事件对象的组成"><a href="#事件对象的组成" class="headerlink" title="事件对象的组成"></a>事件对象的组成</h2><p>在调用事件回调函数的时候，事件对象会被构建出来并传入到回调函数中去。那么这个事件对象包含了哪些字段呢？由于事件的触发入口只有下面将会介绍的<code>$emit</code>以及<code>$broadcast</code>，所以弄清楚在相应代码中事件对象是如何构建出来的就可以了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// $emit</span></div><div class="line">$emit: <span class="function"><span class="keyword">function</span>(<span class="params">name, args</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> empty = [],</div><div class="line">      namedListeners,</div><div class="line">      scope = <span class="keyword">this</span>,</div><div class="line">      stopPropagation = <span class="literal">false</span>,</div><div class="line">      event = &#123;</div><div class="line">        <span class="attr">name</span>: name,</div><div class="line">        <span class="attr">targetScope</span>: scope,</div><div class="line">        <span class="attr">stopPropagation</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;stopPropagation = <span class="literal">true</span>;&#125;,</div><div class="line">        <span class="attr">preventDefault</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">          event.defaultPrevented = <span class="literal">true</span>;</div><div class="line">        &#125;,</div><div class="line">        <span class="attr">defaultPrevented</span>: <span class="literal">false</span></div><div class="line">      &#125;,</div><div class="line">      listenerArgs = concat([event], <span class="built_in">arguments</span>, <span class="number">1</span>),</div><div class="line">      i, length;</div><div class="line"></div><div class="line">  <span class="comment">// ...</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// $broadcast</span></div><div class="line">$broadcast: <span class="function"><span class="keyword">function</span>(<span class="params">name, args</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> target = <span class="keyword">this</span>,</div><div class="line">      current = target,</div><div class="line">      next = target,</div><div class="line">      event = &#123;</div><div class="line">        <span class="attr">name</span>: name,</div><div class="line">        <span class="attr">targetScope</span>: target,</div><div class="line">        <span class="attr">preventDefault</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">          event.defaultPrevented = <span class="literal">true</span>;</div><div class="line">        &#125;,</div><div class="line">        <span class="attr">defaultPrevented</span>: <span class="literal">false</span></div><div class="line">      &#125;;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (!target.$$listenerCount[name]) <span class="keyword">return</span> event;</div><div class="line">  <span class="keyword">var</span> listenerArgs = concat([event], <span class="built_in">arguments</span>, <span class="number">1</span>),</div><div class="line">      listeners, i, length;</div><div class="line"></div><div class="line">  <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>两者的构建方法略有差别，但是共通的部分也不少，列举如下：</p>
+<ol>
+<li>name：事件的名称，起的作用相当于是key，是scope中两个事件相关字典对象的key。</li>
+<li>targetScope：初始值都被设为当前scope。</li>
+<li>preventDefault以及defaultPrevented：是一个函数。调用后会将本来为false的defaultPrevented置为true。</li>
+</ol>
+<p>另外在<code>$emit</code>中的事件对象还有一个<code>stopPropagation</code>函数。用来将<code>stopPropagation</code>标志位设置为true。</p>
+<p>在构建完成基本的事件对象后，还会根据该对象和实际传入到<code>$emit</code>以及<code>$broadcast</code>中的参数构建出一个数组对象，这个数组对象才是真正会被传入到回调函数中的参数：<code>listenerArgs</code>。</p>
+<p>这个concat函数定义在Angular.js中：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 其中的slice对象就是Array类型上的slice方法</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">concat</span>(<span class="params">array1, array2, index</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> array1.concat(slice.call(array2, index));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>因此<code>concat([event], arguments, 1)</code>的作用就是构建出一个形为[event, arg1, arg2, arg3, …]的数组。<br>如果对JavaScript函数中的arguments参数作用不熟悉，可以参考这篇文章：<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/arguments" target="_blank" rel="external">MDN官方文档</a>。</p>
+<p>除了在event对象构建之初就能够确定的<code>targetScope</code>，在事件在scope树形结构中流转的时候还会在event对象上创建另外一个名为<code>currentScope</code>的字段。这两个字段的命名完全是参照DOM事件的命名方式：</p>
+<p>DOM事件：事件发生的DOM节点为<code>target</code>，事件捕获/冒泡过程中的流转经由DOM节点为<code>currentTarget</code>。<br>Angular事件：事件发生的scope为<code>targetScope</code>，事件向上传递/向下广播过程中流转经由的scope为<code>currentScope</code>。</p>
+<p>这样对比一下是不是一目了然呢。</p>
+<h2 id="事件与scope继承树"><a href="#事件与scope继承树" class="headerlink" title="事件与scope继承树"></a>事件与scope继承树</h2><p>为了继续讨论后面的内容，我画了一张scope树形结构图作为例子(还是请忽略我的绘图技术，随手画的。囧)。<br><img src="http://img.blog.csdn.net/20160703213054925" alt="这里写图片描述"></p>
+<p>该结构由5个节点组成：其中4是一个隔离scope(其中的I表示Isolated)。<br>并假设每个节点上都注册有一定数量的事件。</p>
+<h3 id="向上传递的-emit"><a href="#向上传递的-emit" class="headerlink" title="向上传递的$emit"></a>向上传递的$emit</h3><p>创建好了事件对象，下面来看看事件是如何向上传递的，在传递的过程中有哪些值得留意的行为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">$emit: <span class="function"><span class="keyword">function</span>(<span class="params">name, args</span>) </span>&#123;</div><div class="line">  <span class="comment">// 创建事件对象以及各种变量的声明</span></div><div class="line">  <span class="comment">// ......</span></div><div class="line"></div><div class="line">  <span class="comment">// 遍历开始</span></div><div class="line">  <span class="keyword">do</span> &#123;</div><div class="line">    namedListeners = scope.$$listeners[name] || empty;</div><div class="line">    event.currentScope = scope;</div><div class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>, length = namedListeners.length; i &lt; length; i++) &#123;</div><div class="line">      <span class="comment">// 如果存在被注销的回调函数，则整理回调函数数组以消除null元素</span></div><div class="line">      <span class="keyword">if</span> (!namedListeners[i]) &#123;</div><div class="line">        namedListeners.splice(i, <span class="number">1</span>);</div><div class="line">        i--;</div><div class="line">        length--;</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">try</span> &#123;</div><div class="line">        <span class="comment">// 执行当前scope上注册的所有name对应的回调函数</span></div><div class="line">        namedListeners[i].apply(<span class="literal">null</span>, listenerArgs);</div><div class="line">      &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">        $exceptionHandler(e);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 如果任何回调设置了stopPropagation，那么终止冒泡过程</span></div><div class="line">    <span class="keyword">if</span> (stopPropagation) &#123;</div><div class="line">      event.currentScope = <span class="literal">null</span>;</div><div class="line">      <span class="keyword">return</span> event;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 向上遍历</span></div><div class="line">    scope = scope.$parent;</div><div class="line">  &#125; <span class="keyword">while</span> (scope);</div><div class="line"></div><div class="line">  event.currentScope = <span class="literal">null</span>;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> event;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>值得留意的有以下几个地方：</p>
+<ol>
+<li>处理回调函数中空元素的逻辑。首先想想什么情况下才会出现这种情况呢？纵观和事件相关的代码，发现只有在注销的时候才会将数组元素置空。那么在遍历的过程中为什么需要处理呢？难道遍历中会发生事件的注销吗？答案是：是的，在回调函数就有可能把它自己给注销了。当只需要调用一次某个回调函数的时候，就会出现这种情况。</li>
+<li>在以此遍历每个回调函数的时候：<code>namedListeners[i].apply(null, listenerArgs)</code>，传入的参数都是listenerArgs。也就是说，如果第一个回调函数改变了event或者是其它参数，后续的回调函数就能够发现并根据参数作出合适的处理。这个特性在一些场景下会有用武之地，比如第一个回调如果计算得到了一个值，就可以将该值放入到参数中供后续的回调函数使用。</li>
+<li><code>preventDefault</code>这个flag并没有在遍历过程中被使用，这个flag可以在回调函数中使用，根据其值执行不同的业务逻辑。也可以在其它需要的地方使用，因为它也是返回的事件对象上的一个属性，这一点和<code>stopPropagation</code>不一样，后者并不是事件对象上的属性。</li>
+<li>返回event对象之前，会清空其中定义的<code>currentScope</code>属性。因为该属性随着遍历会发生变化，因此将它暴露出去没有意义，在返回之前清空。</li>
+<li>检测是否<code>stopPropagation</code>的逻辑发生在循环当前scope的所有回调之后。这样做能够保证当前scope上的所有回调都会被执行。</li>
+</ol>
+<p>拿之前的scope继承结构作为例子，当在4号隔离scope上调用$emit时，遍历的顺序是4-&gt;2-&gt;1。</p>
+<h3 id="向下广播的-broadcast"><a href="#向下广播的-broadcast" class="headerlink" title="向下广播的$broadcast"></a>向下广播的$broadcast</h3><p><code>$broadcast</code>的整体结构也非常清晰：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">$broadcast: <span class="function"><span class="keyword">function</span>(<span class="params">name, args</span>) </span>&#123;</div><div class="line">  <span class="comment">// 创建事件对象以及各种变量的声明</span></div><div class="line">  <span class="comment">// ......</span></div><div class="line"></div><div class="line">  <span class="keyword">if</span> (!target.$$listenerCount[name]) <span class="keyword">return</span> event;</div><div class="line"></div><div class="line">  <span class="keyword">while</span> ((current = next)) &#123;</div><div class="line">    event.currentScope = current;</div><div class="line">    listeners = current.$$listeners[name] || [];</div><div class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>, length = listeners.length; i &lt; length; i++) &#123;</div><div class="line">      <span class="comment">// 如果存在被注销的回调函数，则整理回调函数数组以消除null元素</span></div><div class="line">      <span class="keyword">if</span> (!listeners[i]) &#123;</div><div class="line">        listeners.splice(i, <span class="number">1</span>);</div><div class="line">        i--;</div><div class="line">        length--;</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      <span class="keyword">try</span> &#123;</div><div class="line">        listeners[i].apply(<span class="literal">null</span>, listenerArgs);</div><div class="line">      &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">        $exceptionHandler(e);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 和digest循环中一样的深度优先遍历(DFS)</span></div><div class="line">    <span class="comment">// 不同点：会检查$$listenerCount</span></div><div class="line">    <span class="keyword">if</span> (!(next = ((current.$$listenerCount[name] &amp;&amp; current.$$childHead) ||</div><div class="line">        (current !== target &amp;&amp; current.$$nextSibling)))) &#123;</div><div class="line">      <span class="keyword">while</span> (current !== target &amp;&amp; !(next = current.$$nextSibling)) &#123;</div><div class="line">        current = current.$parent;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  event.currentScope = <span class="literal">null</span>;</div><div class="line">  <span class="keyword">return</span> event;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>值得留意的有以下几点：</p>
+<ol>
+<li><code>$emit</code>值得留意的几个点的前四个，在向下广播的过程中同样出现了。</li>
+<li>不可<code>stopPropagation</code>：和<code>$emit</code>不一样的是，在<code>$broadcast</code>的过程中，不可以终止遍历。这也许和深度优先遍历的算法特点相关，<code>currentScope</code>的流转过程并没有像<code>$emit</code>中那么清晰。所以贸然地设置<code>stopPropagation</code>并没有多少意义。所以angular干脆就在<code>$broadcast</code>中不提供这个功能了。</li>
+<li>遍历的方式为深度优先遍历(DFS)，关于这种遍历方式的讨论，在<a href="http://blog.csdn.net/dm_vincent/article/details/51614721" target="_blank" rel="external">这篇文章</a>中进行了详尽描述。但也不是任何时候在某个scope上调用$broadcast，就会跑一边以该scope为根节点，所在子树的遍历的。这个时候前面介绍的回调函数的计数器字典对象就派上用场了：<code>if (!target.$$listenerCount[name]) return event;</code>只有当该子树拥有的对应回调函数数量大于0的时候，才会遍历。这也算是性能上的一个小优化吧。否则在没有注册回调函数的情况下，每次都遍历只会浪费性能。</li>
+</ol>
+<h2 id="事件的停止传播以及阻止默认行为"><a href="#事件的停止传播以及阻止默认行为" class="headerlink" title="事件的停止传播以及阻止默认行为"></a>事件的停止传播以及阻止默认行为</h2><p>关于这一点，其实在上面介绍<code>$emit</code>和<code>$broadcast</code>方法的时候，就已经提及了。这里再做一次总结：</p>
+<ol>
+<li><code>$emit</code>在遍历过程中可以让事件停止传播，但<code>$broadcast</code>的遍历不行。</li>
+<li>是否阻止了默认行为在事件机制本身中并不会被用到，但是由于它是事件对象上的一个属性，而事件对象在调用了<code>$emit</code>和<code>$broadcast</code>后都会被作为返回值返回。因此应用程序逻辑可以根据该属性做出合适的处理。</li>
+</ol>
+<hr>
+<p>至此关于angular中的事件机制就介绍完毕了。<br>下一篇文章会介绍事件机制在angular框架中的应用。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/事件机制/" rel="tag"># 事件机制</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/04/AngularJS面面观-9-scope事件机制-基本概念以及生命周期/" rel="next" title="[AngularJS面面观] 9. scope事件机制 - 基本概念以及生命周期">
+                <i class="fa fa-chevron-left"></i> [AngularJS面面观] 9. scope事件机制 - 基本概念以及生命周期
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">152</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">92</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#事件对象的组成"><span class="nav-number">1.</span> <span class="nav-text">事件对象的组成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事件与scope继承树"><span class="nav-number">2.</span> <span class="nav-text">事件与scope继承树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#向上传递的-emit"><span class="nav-number">2.1.</span> <span class="nav-text">向上传递的$emit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#向下广播的-broadcast"><span class="nav-number">2.2.</span> <span class="nav-text">向下广播的$broadcast</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事件的停止传播以及阻止默认行为"><span class="nav-number">3.</span> <span class="nav-text">事件的停止传播以及阻止默认行为</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
