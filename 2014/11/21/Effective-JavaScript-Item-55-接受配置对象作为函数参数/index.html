@@ -1,0 +1,813 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="设计模式,最佳实践,JavaScript,Effective JavaScript," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="接受配置对象作为函数参数虽然保持函数接受的参数的顺序很重要，但是当函数能够接受的参数达到一定数量时，也会让用户很头疼：
+1234var alert = new Alert(100, 75, 300, 200,    &quot;Error&quot;, message,    &quot;blue&quot;, &quot;white&quot;, &quot;black&quot;,    &quot;error&quot;, true);
+随着函数的不断重构和进化，它能够接受的参数也许会越来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Effective JavaScript] Item 55 接受配置对象作为函数参数">
+<meta property="og:url" content="http://rxjiang.com/2014/11/21/Effective-JavaScript-Item-55-接受配置对象作为函数参数/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="接受配置对象作为函数参数虽然保持函数接受的参数的顺序很重要，但是当函数能够接受的参数达到一定数量时，也会让用户很头疼：
+1234var alert = new Alert(100, 75, 300, 200,    &quot;Error&quot;, message,    &quot;blue&quot;, &quot;white&quot;, &quot;black&quot;,    &quot;error&quot;, true);
+随着函数的不断重构和进化，它能够接受的参数也许会越来">
+<meta property="og:updated_time" content="2017-02-20T00:56:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Effective JavaScript] Item 55 接受配置对象作为函数参数">
+<meta name="twitter:description" content="接受配置对象作为函数参数虽然保持函数接受的参数的顺序很重要，但是当函数能够接受的参数达到一定数量时，也会让用户很头疼：
+1234var alert = new Alert(100, 75, 300, 200,    &quot;Error&quot;, message,    &quot;blue&quot;, &quot;white&quot;, &quot;black&quot;,    &quot;error&quot;, true);
+随着函数的不断重构和进化，它能够接受的参数也许会越来">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/11/21/Effective-JavaScript-Item-55-接受配置对象作为函数参数/"/>
+
+
+
+
+
+  <title> [Effective JavaScript] Item 55 接受配置对象作为函数参数 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/21/Effective-JavaScript-Item-55-接受配置对象作为函数参数/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Effective JavaScript] Item 55 接受配置对象作为函数参数
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-21T10:05:00+08:00">
+                2014-11-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="接受配置对象作为函数参数"><a href="#接受配置对象作为函数参数" class="headerlink" title="接受配置对象作为函数参数"></a>接受配置对象作为函数参数</h2><p>虽然保持函数接受的参数的顺序很重要，但是当函数能够接受的参数达到一定数量时，也会让用户很头疼：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> alert = <span class="keyword">new</span> Alert(<span class="number">100</span>, <span class="number">75</span>, <span class="number">300</span>, <span class="number">200</span>,</div><div class="line">    <span class="string">"Error"</span>, message,</div><div class="line">    <span class="string">"blue"</span>, <span class="string">"white"</span>, <span class="string">"black"</span>,</div><div class="line">    <span class="string">"error"</span>, <span class="literal">true</span>);</div></pre></td></tr></table></figure>
+<p>随着函数的不断重构和进化，它能够接受的参数也许会越来越多，最终就像上面的例子那样。</p>
+<a id="more"></a>
+<p>对于这种情况，JavaScript可以使用一个配置对象来替代以上的所有参数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> alert = <span class="keyword">new</span> Alert(&#123;</div><div class="line">    <span class="attr">x</span>: <span class="number">100</span>, <span class="attr">y</span>: <span class="number">75</span>,</div><div class="line">    <span class="attr">width</span>: <span class="number">300</span>, <span class="attr">height</span>: <span class="number">200</span>,</div><div class="line">    <span class="attr">title</span>: <span class="string">"Error"</span>, <span class="attr">message</span>: message,</div><div class="line">    <span class="attr">titleColor</span>: <span class="string">"blue"</span>, <span class="attr">bgColor</span>: <span class="string">"white"</span>, <span class="attr">textColor</span>: <span class="string">"black"</span>,</div><div class="line">    <span class="attr">icon</span>: <span class="string">"error"</span>, <span class="attr">modal</span>: <span class="literal">true</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>这样做虽然会让代码稍微冗长一些，但是毫无疑问它的好处是很明显的：配置对象中的每个属性的名字就好比是一份文档，来告诉用户这个属性是干什么用的。特别是对于布尔值，单独的传入true和false是很难判断它的真实意图的。</p>
+<p>使用这种方式的另外一个好处是，所有的属性都是可选的。如果配置对象中没有出现某个属性，那么就是用默认值来代替它。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> alert = <span class="keyword">new</span> Alert(); <span class="comment">// use all default parameter values</span></div></pre></td></tr></table></figure>
+<p>如果函数需要接受必须的参数，那么最好还是将它放在配置对象的外面，就像下面这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> alert = <span class="keyword">new</span> Alert(app, message, &#123;</div><div class="line">    <span class="attr">width</span>: <span class="number">150</span>, <span class="attr">height</span>: <span class="number">100</span>,</div><div class="line">    <span class="attr">title</span>: <span class="string">"Error"</span>,</div><div class="line">    <span class="attr">titleColor</span>: <span class="string">"blue"</span>, <span class="attr">bgColor</span>: <span class="string">"white"</span>, <span class="attr">textColor</span>: <span class="string">"black"</span>,</div><div class="line">    <span class="attr">icon</span>: <span class="string">"error"</span>, <span class="attr">modal</span>: <span class="literal">true</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>配置对象中的所有属性都是函数能够接受的可选参数，而app和message则是必须要传入的参数。</p>
+<p>对于配置对象的处理，可以像下面这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Alert</span>(<span class="params">parent, message, opts</span>) </span>&#123;</div><div class="line">    opts = opts || &#123;&#125;; <span class="comment">// default to an empty options object</span></div><div class="line">    <span class="keyword">this</span>.width = opts.width === <span class="literal">undefined</span> ? <span class="number">320</span> : opts.width;</div><div class="line">    <span class="keyword">this</span>.height = opts.height === <span class="literal">undefined</span></div><div class="line">                ? <span class="number">240</span></div><div class="line">                : opts.height;</div><div class="line">    <span class="keyword">this</span>.x = opts.x === <span class="literal">undefined</span></div><div class="line">            ? (parent.width / <span class="number">2</span>) - (<span class="keyword">this</span>.width / <span class="number">2</span>)</div><div class="line">            : opts.x;</div><div class="line">    <span class="keyword">this</span>.y = opts.y === <span class="literal">undefined</span></div><div class="line">            ? (parent.height / <span class="number">2</span>) - (<span class="keyword">this</span>.height / <span class="number">2</span>)</div><div class="line">            : opts.y;</div><div class="line">    <span class="keyword">this</span>.title = opts.title || <span class="string">"Alert"</span>;</div><div class="line">    <span class="keyword">this</span>.titleColor = opts.titleColor || <span class="string">"gray"</span>;</div><div class="line">    <span class="keyword">this</span>.bgColor = opts.bgColor || <span class="string">"white"</span>;</div><div class="line">    <span class="keyword">this</span>.textColor = opts.textColor || <span class="string">"black"</span>;</div><div class="line">    <span class="keyword">this</span>.icon = opts.icon || <span class="string">"info"</span>;</div><div class="line">    <span class="keyword">this</span>.modal = !!opts.modal;</div><div class="line">    <span class="keyword">this</span>.message = message;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对于可选的配置对象，首先使用Item 54中介绍的方法当它在真值判断中返回false时，使用空对象替换它。</p>
+<p>上述的代码还有进一步优化的空间：通过使用对象扩展或者合并的函数。在很多JavaScript的库和框架中都有一个extend函数，它接受一个目标对象和一个源对象，然后将源对象中的属性拷贝到目标对象中：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Alert</span>(<span class="params">parent, message, opts</span>) </span>&#123;</div><div class="line">    opts = extend(&#123;</div><div class="line">        <span class="attr">width</span>: <span class="number">320</span>,</div><div class="line">        <span class="attr">height</span>: <span class="number">240</span></div><div class="line">    &#125;);</div><div class="line">    opts = extend(&#123;</div><div class="line">        <span class="attr">x</span>: (parent.width / <span class="number">2</span>) - (opts.width / <span class="number">2</span>),</div><div class="line">        <span class="attr">y</span>: (parent.height / <span class="number">2</span>) - (opts.height / <span class="number">2</span>),</div><div class="line">        <span class="attr">title</span>: <span class="string">"Alert"</span>,</div><div class="line">        <span class="attr">titleColor</span>: <span class="string">"gray"</span>,</div><div class="line">        <span class="attr">bgColor</span>: <span class="string">"white"</span>,</div><div class="line">        <span class="attr">textColor</span>: <span class="string">"black"</span>,</div><div class="line">        <span class="attr">icon</span>: <span class="string">"info"</span>,</div><div class="line">        <span class="attr">modal</span>: <span class="literal">false</span></div><div class="line">    &#125;, opts);</div><div class="line"></div><div class="line">    <span class="keyword">this</span>.width = opts.width;</div><div class="line">    <span class="keyword">this</span>.height = opts.height;</div><div class="line">    <span class="keyword">this</span>.x = opts.x;</div><div class="line">    <span class="keyword">this</span>.y = opts.y;</div><div class="line">    <span class="keyword">this</span>.title = opts.title;</div><div class="line">    <span class="keyword">this</span>.titleColor = opts.titleColor;</div><div class="line">    <span class="keyword">this</span>.bgColor = opts.bgColor;</div><div class="line">    <span class="keyword">this</span>.textColor = opts.textColor;</div><div class="line">    <span class="keyword">this</span>.icon = opts.icon;</div><div class="line">    <span class="keyword">this</span>.modal = opts.modal;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>通过extend函数，不再需要时常对每个属性进行判断。上述代码中的第一个extend函数用来在width和height属性没有被设置使设置默认值，因为在第二个extend函数中会根据它们进行计算。</p>
+<p>如果所有的属性最终会被赋值到this对象上，那么以上代码可以简化成下面这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Alert</span>(<span class="params">parent, message, opts</span>) </span>&#123;</div><div class="line">    opts = extend(&#123;</div><div class="line">        <span class="attr">width</span>: <span class="number">320</span>,</div><div class="line">        <span class="attr">height</span>: <span class="number">240</span></div><div class="line">    &#125;);</div><div class="line">    opts = extend(&#123;</div><div class="line">        <span class="attr">x</span>: (parent.width / <span class="number">2</span>) - (opts.width / <span class="number">2</span>),</div><div class="line">        <span class="attr">y</span>: (parent.height / <span class="number">2</span>) - (opts.height / <span class="number">2</span>),</div><div class="line">        <span class="attr">title</span>: <span class="string">"Alert"</span>,</div><div class="line">        <span class="attr">titleColor</span>: <span class="string">"gray"</span>,</div><div class="line">        <span class="attr">bgColor</span>: <span class="string">"white"</span>,</div><div class="line">        <span class="attr">textColor</span>: <span class="string">"black"</span>,</div><div class="line">        <span class="attr">icon</span>: <span class="string">"info"</span>,</div><div class="line">        <span class="attr">modal</span>: <span class="literal">false</span></div><div class="line">    &#125;, opts);</div><div class="line">    extend(<span class="keyword">this</span>, opts);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>extend函数的实现通常都会遍历源对象的属性，然后如果该属性的值不是undefined时，会将它拷贝到目标对象上：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">extend</span>(<span class="params">target, source</span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span> (source) &#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> source) &#123;</div><div class="line">            <span class="keyword">var</span> val = source[key];</div><div class="line">            <span class="keyword">if</span> (<span class="keyword">typeof</span> val !== <span class="string">"undefined"</span>) &#123;</div><div class="line">                target[key] = val;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> target;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>使用可选的配置对象来让API更具可读性。</li>
+<li>配置参数中的属性都应该是函数的可选参数。</li>
+<li>使用extend工具函数来简化使用了配置对象的代码。</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+            <a href="/tags/最佳实践/" rel="tag"># 最佳实践</a>
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/Effective-JavaScript/" rel="tag"># Effective JavaScript</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/20/Effective-JavaScript-Item-54-将undefined视为没有值/" rel="next" title="[Effective JavaScript] Item 54 将undefined视为没有值">
+                <i class="fa fa-chevron-left"></i> [Effective JavaScript] Item 54 将undefined视为没有值
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/11/23/Java-并发-Java并发编程实践-思维导图-第五章-基础构建模块/" rel="prev" title="[Java 并发] Java并发编程实践 思维导图 - 第五章 基础构建模块">
+                [Java 并发] Java并发编程实践 思维导图 - 第五章 基础构建模块 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#接受配置对象作为函数参数"><span class="nav-number">1.</span> <span class="nav-text">接受配置对象作为函数参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

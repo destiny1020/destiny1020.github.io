@@ -1,0 +1,878 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,分布式,存储," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本文翻译自Elasticsearch官方指南的distributed document store一章。
+分布式文档存储在上一章中，我们一直在介绍索引数据和获取数据的方法。但是我们省略了很多关于数据是如何在集群中被分布(Distributed)和获取(Fetched)的技术细节。这实际上是有意为之 - 你真的不需要了解数据在ES中是如何被分布的。它能工作就足够了。
+在本章中，我们将会深入到这些内部">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 分布式文档存储">
+<meta property="og:url" content="http://rxjiang.com/2014/11/18/Elasticsearch-分布式文档存储/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="本文翻译自Elasticsearch官方指南的distributed document store一章。
+分布式文档存储在上一章中，我们一直在介绍索引数据和获取数据的方法。但是我们省略了很多关于数据是如何在集群中被分布(Distributed)和获取(Fetched)的技术细节。这实际上是有意为之 - 你真的不需要了解数据在ES中是如何被分布的。它能工作就足够了。
+在本章中，我们将会深入到这些内部">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202133031847?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202133046279?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202133059388?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202133109754?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202133120732?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202133130583?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2017-02-20T00:40:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 分布式文档存储">
+<meta name="twitter:description" content="本文翻译自Elasticsearch官方指南的distributed document store一章。
+分布式文档存储在上一章中，我们一直在介绍索引数据和获取数据的方法。但是我们省略了很多关于数据是如何在集群中被分布(Distributed)和获取(Fetched)的技术细节。这实际上是有意为之 - 你真的不需要了解数据在ES中是如何被分布的。它能工作就足够了。
+在本章中，我们将会深入到这些内部">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20161202133031847?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/11/18/Elasticsearch-分布式文档存储/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 分布式文档存储 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/18/Elasticsearch-分布式文档存储/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 分布式文档存储
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-18T09:53:00+08:00">
+                2014-11-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/distributed-docs.html" target="_blank" rel="external">distributed document store</a>一章。</p>
+<h2 id="分布式文档存储"><a href="#分布式文档存储" class="headerlink" title="分布式文档存储"></a>分布式文档存储</h2><p>在上一章中，我们一直在介绍索引数据和获取数据的方法。但是我们省略了很多关于数据是如何在集群中被分布(Distributed)和获取(Fetched)的技术细节。这实际上是有意为之 - 你真的不需要了解数据在ES中是如何被分布的。它能工作就足够了。</p>
+<p>在本章中，我们将会深入到这些内部技术细节中，来帮助你了解你的数据是如何被存储在一个分布式系统中的。</p>
+<a id="more"></a>
+<h3 id="路由一份文档-Document-到一个分片-Shard"><a href="#路由一份文档-Document-到一个分片-Shard" class="headerlink" title="路由一份文档(Document)到一个分片(Shard)"></a>路由一份文档(Document)到一个分片(Shard)</h3><p>当你索引一份文档时，它会被保存到一个主要分片(Primary Shard)上。那么ES是如何知道该文档应该被保存到哪个分片上呢？当我们创建了一份新文档，ES是如何知道它究竟应该保存到分片1或者分片2上的呢？</p>
+<p>这个过程不能是随机的，因为将来我们或许还需要获取该文档。实际上，这个过程是通过一个非常简单的公式决定的：</p>
+<blockquote>
+<p>shard = hash(routing) % number_of_primary_shards</p>
+</blockquote>
+<p>以上的routing的值是一个任意的字符串，它默认被设置成文档的_id字段，但是也可以被设置成其他指定的值。这个routing字符串会被传入到一个哈希函数(Hash Function)来得到一个数字，然后该数字会和索引中的主要分片数进行模运算来得到余数。这个余数的范围应该总是在0和number_of_primary_shards - 1之间，它就是一份文档被存储到的分片的号码。</p>
+<p>这就解释了为什么索引中的主要分片数量只能在索引创建时被指定，并且将来都不能在被更改：如果主要分片数量在索引创建后改变了，那么之前的所有路由结果都会变的不正确，从而导致文档不能被正确地获取。</p>
+<blockquote>
+<p>用户有时会认为将主要分片数量固定下来会让将来对索引的水平扩展(Scale Out)变的困难。实际上，有些技术能够让你根据需要方便地进行水平扩展。我们会在<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scale.html" target="_blank" rel="external">Designing for scale</a>中介绍这些技术。</p>
+</blockquote>
+<p>所有的文档API(get, index, delete, buli, update和mget)都接受一个routing参数，它用来定制从文档到分片的映射。一个特定的routing值能够确保所有相关文档 - 比如属于相同用户的所有文档 - 都会被存储在相同的分片上。我们会在<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scale.html" target="_blank" rel="external">Designing for scale</a>中详细介绍为什么你可能会这样做。</p>
+<h3 id="主要分片-Primary-Shard-和副本分片-Replica-Shard-是如何交互的"><a href="#主要分片-Primary-Shard-和副本分片-Replica-Shard-是如何交互的" class="headerlink" title="主要分片(Primary Shard)和副本分片(Replica Shard)是如何交互的"></a>主要分片(Primary Shard)和副本分片(Replica Shard)是如何交互的</h3><p>为了解释这个问题，假设我们有一个包含3个节点(Node)的集群(Cluster)。它含有一个拥有2个主要分片的名为blogs的索引。每个主要分片有2个副本分片。拥有相同数据的两个分片绝不会被分配到同一个节点上，所以这个集群的构成可能会像下图这样：</p>
+<p><img src="http://img.blog.csdn.net/20161202133031847?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>我们可以向集群中的任意一个节点发送请求。每个节点都有足够的能力来处理请求。每个节点都知道集群中的每份文档的位置，因此能够将请求转发到相应的节点。在下面的例子中，我们会将所有的请求都发送到节点1上，这个节点被称为请求节点(Requesting Node)。</p>
+<p>TIP 当发送请求时，最好采用一种循环(Round-robin)的方式来将请求依次发送到每个节点上，从而做到分担负载。</p>
+<h3 id="文档的创建，索引和删除"><a href="#文档的创建，索引和删除" class="headerlink" title="文档的创建，索引和删除"></a>文档的创建，索引和删除</h3><p>创建，索引和删除的请求都是写操作(Write Operations)，它们都应该首先在主要分片(Primary Shard)上成功完成，然后才能被拷贝关联的副本分片(Replica Shard)上。</p>
+<p><img src="http://img.blog.csdn.net/20161202133046279?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>这个过程如上图所示。下面我们列举出图中用来完成创建，索引和删除文档的每个步骤：</p>
+<ol>
+<li>客户端(Client)向节点1发送了一个用于创建，索引或是删除的请求。</li>
+<li>节点使用该文档的_id字段来决定了它应该属于分片0。因此请求会被转发到节点3，因为分片0的主要分片目前被分配在节点3上。</li>
+<li>节点3会在文档对应的主要分片上执行这个请求。如果执行成功了，那么它会将该请求并行地转发到对应副本分片所在的节点1和节点2上。一旦所有的副本分片都成功完成了该请求，那么节点3就会向请求节点(Requesting Node)报告执行成功，然后节点3就能够向客户端发送一个请求执行成功的响应了。</li>
+</ol>
+<p>当客户端接收到了执行成功的响应时，在主要分片和其关联的所有副本分片中，发送的文档已经被成功更新了。至此，你的修改就完成了。</p>
+<p>在这个过程中还存在一些可选的参数用来对此过程进行调整，可能地如以牺牲数据安全的代价来增加性能。因为ES本身已经足够快了，所以这些可选参数很少被使用，但是为了完整性还是会对它们进行解释：</p>
+<h4 id="replication"><a href="#replication" class="headerlink" title="replication"></a>replication</h4><p>replication的默认值是sync。它会导致主要分片将等待副本分片上的执行成功响应，然后才会将执行成功响应发送到请求节点。 如果你将replication设置成async，那么它会导致成功响应会在请求在主要分片上成功执行后就会被发送到客户端。它仍然会将请求转发到副本分片所在的节点上，只是你将无法得知请求在副本分片上是否能成功执行。 提到这个选项的目的是为了让你不要使用它。默认的sync值能够让ES处理各种系统中的数据压力。而使用了async可能会因为发送了过多无需等待其完成的请求而让ES处于过载的状态。</p>
+<h4 id="consistency"><a href="#consistency" class="headerlink" title="consistency"></a>consistency</h4><p>默认情况下，主要分片需要通过仲裁(Quorum)，即确认大部分分片拷贝(分片拷贝可以使主要分片或者副本分片，两者均可)有效时，才会发起一个写操作。这样做的目的是为了防止将数据写入到网络中”错误的一侧(Wrong Side)”。仲裁的定义如下：</p>
+<blockquote>
+<p>int( (primary + number_of_replicas) / 2 ) + 1</p>
+</blockquote>
+<p>consistency的值可以是one(仅主要分片)，all(主要分片和所有副本分片)，或者是默认的quorum - 大部分分片拷贝。</p>
+<p>注意number_of_replicas是指定在索引设置中的副本分片的数量，不是当前处于活动状态的副本分片数量。如果你在索引中指定了有3个副本分片的话，那么quorum的值就是：</p>
+<blockquote>
+<p>int( (primary + 3 replicas) / 2 ) + 1 = 3</p>
+</blockquote>
+<p>那么当只启动了两个节点时，那么就无法满足quorum，从而导致无法索引或者删除任何文档。</p>
+<p>timeout</p>
+<p>如果没有足够的分片拷贝会如何呢？ES会等待，希望有更多的分片会出现。默认它会等待1分钟。如果需要可以将这个时间设置的短一些：100表示的是100毫秒，30s表示的是30秒。</p>
+<blockquote>
+<p><strong>NOTE</strong> </p>
+<p>一个新的索引默认会有1个副本分片，那么为了满足quorum则需要有两个活动的分片拷贝。但是，当ES运行在一个单一节点的集群上时，这些默认设置会阻止用户做任何有用的操作(比如索引等写操作)。为了防止这个问题，只有当number_of_replicas大于1时，quorum才需要被满足。</p>
+</blockquote>
+<h3 id="获取文档"><a href="#获取文档" class="headerlink" title="获取文档"></a>获取文档</h3><p>文档能够通过主要分片(Primary Shard)或者任意一个副本分片(Replica Shard)获取。</p>
+<p><img src="http://img.blog.csdn.net/20161202133059388?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>上图展示了获取文档的过程，每个步骤解释如下：</p>
+<ol>
+<li>客户端(Client)发送一个请求到节点1。</li>
+<li>该节点利用文档的_id字段来判断该文档属于分片0。分片0的分片拷贝(主要分片或者是副本分片)存在于所有的3个节点上。这一次，它将请求转发到了节点2。</li>
+<li>节点2将文档返回给节点1，节点1随即将文档返回给客户端。</li>
+</ol>
+<p>对于读请求(Read Request)，请求节点(Requesting Node)每次都会选择一个不同的分片拷贝来实现负载均衡 - 循环使用所有的分片拷贝。</p>
+<p>可能存在这种情况，当一份文档正在被索引时，该文档在主要分片已经就绪了，但是还未被拷贝到其他副本分片上。此时副本分片或许报告文档不存在(译注：此时有读请求来获取该文档)，然而主要分片能够成功返回需要的文档 。一旦索引请求返回给用户的响应是成功，那么文档在主要分片以及所有副本分片上都是可用的。</p>
+<h3 id="文档的部分更新-Partial-Update"><a href="#文档的部分更新-Partial-Update" class="headerlink" title="文档的部分更新(Partial Update)"></a>文档的部分更新(Partial Update)</h3><p>update API会结合读和写来完成一次部分更新。</p>
+<p><img src="http://img.blog.csdn.net/20161202133109754?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>下面对部分更新的步骤进行解释：</p>
+<ol>
+<li>客户端发送一个更新请求到节点1。</li>
+<li>节点1将请求转发到节点3，因为主要分片被分配在该节点上。</li>
+<li>节点3从主要分片中获取对应的文档，修改JSON文档中的_source字段，然后试图在该主要分片中对修改后的文档重新索引(Reindex)。如果该文档已经另外一个进程给修改了，那么它会根据retry_on_conflict设置的次数重试。</li>
+<li>如果节点3能够成功更新文档，它会将新版本的文档通过并行的方式给转发到副本分片所在的节点1和节点2上，也让它们进行重索引的操作。一旦所有的副本节点也执行成功，节点3就会将这一消息发送给请求节点(Requesting Node，此处就是节点1)。然后请求节点给客户端返回响应。</li>
+</ol>
+<p>update API也能够接受接受routing，’replication’，’consistency’和’timeout’参数。</p>
+<blockquote>
+<p>基于文档的复制</p>
+<p>当一个主要分片将修改转发给它的副本分片时，它不会转达更新请求。它转发的是新版本的完整文档。需要记住这些转发到副本分片的请求是异步的，也就是说它们到达的顺序和发送的顺序是不确定的。如果ES仅仅是转发修改，那么这些修改就可能以错误地顺序被接受，从而导致数据的损毁。</p>
+</blockquote>
+<h3 id="多文档模式-Multi-Document-Patterns"><a href="#多文档模式-Multi-Document-Patterns" class="headerlink" title="多文档模式(Multi-Document Patterns)"></a>多文档模式(Multi-Document Patterns)</h3><p>mget和bulk API的行为模式和单个的文档操作是类似的。区别主要在于请求节点知道每份文档被保存在那个分片上，因此就能够将一个多文档请求(Multi-Document Request)给拆分为针对每个分片的多文档请求，然后并行地将这些请求转发到对应的节点上。</p>
+<p>一旦它从每个节点上获得了答案，它会将这些答案整理成一个单独的响应并返回给客户端。</p>
+<p><img src="http://img.blog.csdn.net/20161202133120732?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>使用一个mget请求来获取多份文档的步骤如下：</p>
+<ol>
+<li>客户端发送一个mget请求到节点1。</li>
+<li>节点1为每个分片(可以是主要分片或者副本分片)创建一个mget请求，然后将它们并行地转发到其他分片所在的节点。一旦节点1获得了所有的结果，就会将结果组装成响应最后返回给客户端。</li>
+</ol>
+<p>每份文档都可以设置routing参数，通过传入一个docs数组来完成。</p>
+<p><img src="http://img.blog.csdn.net/20161202133130583?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>使用一个bulk请求来完成对多份文档的创建，索引，删除及更新的步骤如下：</p>
+<ol>
+<li>客户端发送一个bulk请求到节点1。</li>
+<li>节点1为每个分片(只能是主要分片)创建一个bulk请求，然后将它们并行地转发到其他主要分片所在的节点。</li>
+<li>主要分片会逐个执行bulk请求中出现的指令。当每个指令成功完成后，主要分片会将新的文档(或者删除的)并行地转发到它关联的所有副本分片上，然后执行下一条指令。一旦所有的副本分片对所有的指令都确定其成功了，那么当前节点就会向请求节点(Requesting Node)发送成功的响应，最后请求节点会整理所有的响应并最终发送响应给客户端。</li>
+</ol>
+<p>bulk API也能够在整个请求的顶部接受replication和consistency参数，在每个具体的请求中接受routing参数。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/存储/" rel="tag"># 存储</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/17/Elasticsearch-集群的工作原理-第一部分/" rel="next" title="[Elasticsearch] 集群的工作原理 - 第一部分">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 集群的工作原理 - 第一部分
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/11/19/Elasticsearch-分布式搜索/" rel="prev" title="[Elasticsearch] 分布式搜索">
+                [Elasticsearch] 分布式搜索 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式文档存储"><span class="nav-number">1.</span> <span class="nav-text">分布式文档存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#路由一份文档-Document-到一个分片-Shard"><span class="nav-number">1.1.</span> <span class="nav-text">路由一份文档(Document)到一个分片(Shard)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主要分片-Primary-Shard-和副本分片-Replica-Shard-是如何交互的"><span class="nav-number">1.2.</span> <span class="nav-text">主要分片(Primary Shard)和副本分片(Replica Shard)是如何交互的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文档的创建，索引和删除"><span class="nav-number">1.3.</span> <span class="nav-text">文档的创建，索引和删除</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#replication"><span class="nav-number">1.3.1.</span> <span class="nav-text">replication</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#consistency"><span class="nav-number">1.3.2.</span> <span class="nav-text">consistency</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取文档"><span class="nav-number">1.4.</span> <span class="nav-text">获取文档</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文档的部分更新-Partial-Update"><span class="nav-number">1.5.</span> <span class="nav-text">文档的部分更新(Partial Update)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多文档模式-Multi-Document-Patterns"><span class="nav-number">1.6.</span> <span class="nav-text">多文档模式(Multi-Document Patterns)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

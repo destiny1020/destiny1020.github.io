@@ -1,0 +1,804 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,Elasticsearch," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="使用AngularJS为基于Elasticsearch的应用创建前端如果使用Elasticsearch使用应用的数据源，我们可以很方便的使用AngularJS结合Elasticsearch提供的相关模块为它创建一个前端。
+以创建一个简单的员工信息花名册为例。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS/Elasticsearch] 使用AngularJS为基于Elasticsearch的应用创建前端">
+<meta property="og:url" content="http://rxjiang.com/2014/12/02/AngularJS-Elasticsearch-使用AngularJS为基于Elasticsearch的应用创建前端/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="使用AngularJS为基于Elasticsearch的应用创建前端如果使用Elasticsearch使用应用的数据源，我们可以很方便的使用AngularJS结合Elasticsearch提供的相关模块为它创建一个前端。
+以创建一个简单的员工信息花名册为例。">
+<meta property="og:updated_time" content="2017-02-20T03:10:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS/Elasticsearch] 使用AngularJS为基于Elasticsearch的应用创建前端">
+<meta name="twitter:description" content="使用AngularJS为基于Elasticsearch的应用创建前端如果使用Elasticsearch使用应用的数据源，我们可以很方便的使用AngularJS结合Elasticsearch提供的相关模块为它创建一个前端。
+以创建一个简单的员工信息花名册为例。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/12/02/AngularJS-Elasticsearch-使用AngularJS为基于Elasticsearch的应用创建前端/"/>
+
+
+
+
+
+  <title> [AngularJS/Elasticsearch] 使用AngularJS为基于Elasticsearch的应用创建前端 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/02/AngularJS-Elasticsearch-使用AngularJS为基于Elasticsearch的应用创建前端/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS/Elasticsearch] 使用AngularJS为基于Elasticsearch的应用创建前端
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-02T10:10:00+08:00">
+                2014-12-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="使用AngularJS为基于Elasticsearch的应用创建前端"><a href="#使用AngularJS为基于Elasticsearch的应用创建前端" class="headerlink" title="使用AngularJS为基于Elasticsearch的应用创建前端"></a>使用AngularJS为基于Elasticsearch的应用创建前端</h1><p>如果使用Elasticsearch使用应用的数据源，我们可以很方便的使用AngularJS结合Elasticsearch提供的相关模块为它创建一个前端。</p>
+<p>以创建一个简单的员工信息花名册为例。</p>
+<a id="more"></a>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>准备工作分为以下两个方面：</p>
+<h3 id="添加前端依赖"><a href="#添加前端依赖" class="headerlink" title="添加前端依赖"></a>添加前端依赖</h3><ol>
+<li>安装Bower</li>
+<li>在bower.json中添加对于AngularJS和Elasticsearch的依赖：</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">"dependencies": &#123;</div><div class="line">    "angular": "~1.2.15",</div><div class="line">    "elasticsearch": "~2.4.0"</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="准备运行时环境"><a href="#准备运行时环境" class="headerlink" title="准备运行时环境"></a>准备运行时环境</h3><p>对于简单的应用和Demo，可以直接使用Node环境中提供的http-server，非常简单快捷。</p>
+<ol>
+<li>安装Node</li>
+<li>安装http-server，通过命令：npm install -g http-server</li>
+</ol>
+<h2 id="配置AngularJS以及ES-Client"><a href="#配置AngularJS以及ES-Client" class="headerlink" title="配置AngularJS以及ES Client"></a>配置AngularJS以及ES Client</h2><h3 id="配置AngularJS"><a href="#配置AngularJS" class="headerlink" title="配置AngularJS"></a>配置AngularJS</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> rosterApp = angular.module(<span class="string">'rosterApp'</span>, [<span class="string">'elasticsearch'</span>]);</div></pre></td></tr></table></figure>
+<h3 id="配置Elasticsearch-Client"><a href="#配置Elasticsearch-Client" class="headerlink" title="配置Elasticsearch Client"></a>配置Elasticsearch Client</h3><p>对于一个只读的应用，我们只需要将搜索的功能暴露出来。可以通过自定义一个factory来实现：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">rosterApp.factory(<span class="string">'rosterService'</span>,</div><div class="line">    [<span class="string">'$q'</span>, <span class="string">'esFactory'</span>, <span class="string">'$location'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">$q, elasticsearch, $location</span>)</span>&#123;</div><div class="line">        <span class="keyword">var</span> client = elasticsearch(&#123;</div><div class="line">            <span class="attr">host</span>: $location.host() + <span class="string">":9200"</span></div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        <span class="keyword">var</span> search = <span class="function"><span class="keyword">function</span>(<span class="params">term, offset</span>)</span>&#123;</div><div class="line">            <span class="keyword">var</span> deferred = $q.defer();</div><div class="line">            <span class="keyword">var</span> query = &#123;</div><div class="line">                <span class="string">"match"</span>: &#123;</div><div class="line">                    <span class="string">"_all"</span>: term</div><div class="line">                &#125;</div><div class="line">            &#125;;</div><div class="line"></div><div class="line">            client.search(&#123;</div><div class="line">                <span class="string">"index"</span>: <span class="string">'roster'</span>,</div><div class="line">                <span class="string">"type"</span>: <span class="string">'employee'</span>,</div><div class="line">                <span class="string">"body"</span>: &#123;</div><div class="line">                    <span class="string">"size"</span>: <span class="number">10</span>,</div><div class="line">                    <span class="string">"from"</span>: (offset || <span class="number">0</span>) * <span class="number">10</span>,</div><div class="line">                    <span class="string">"query"</span>: query</div><div class="line">                &#125;</div><div class="line">            &#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params">result</span>) </span>&#123;</div><div class="line">                <span class="keyword">var</span> ii = <span class="number">0</span>, hits_in, hits_out = [];</div><div class="line">                hits_in = (result.hits || &#123;&#125;).hits || [];</div><div class="line">                <span class="keyword">for</span>(;ii &lt; hits_in.length; ii++)&#123;</div><div class="line">                    hits_out.push(hits_in[ii]._source);</div><div class="line">                &#125;</div><div class="line">                deferred.resolve(hits_out);</div><div class="line">            &#125;, deferred.reject);</div><div class="line"></div><div class="line">            <span class="keyword">return</span> deferred.promise;</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> &#123;</div><div class="line">            <span class="string">"search"</span>: search</div><div class="line">        &#125;;</div><div class="line">    &#125;]</div><div class="line">);</div></pre></td></tr></table></figure>
+<p>在以上定义的factory中，我们只暴露了search方法。该方法调用了client的search方法完成基于关键字的搜索。</p>
+<h2 id="控制器-Controller"><a href="#控制器-Controller" class="headerlink" title="控制器(Controller)"></a>控制器(Controller)</h2><p>下面需要做的就是实现一个控制器来完成页面与上述search方法的交互：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">rosterApp.controller(<span class="string">'rosterCtrl'</span>,</div><div class="line">    [<span class="string">'rosterService'</span>, <span class="string">'$scope'</span>, <span class="string">'$location'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">rosterService, $scope, $location</span>)</span>&#123;</div><div class="line">        $scope.employees = [];</div><div class="line">        $scope.page = <span class="number">0</span>;</div><div class="line">        $scope.allResults = <span class="literal">false</span>;</div><div class="line">        $scope.searchTerm = <span class="string">''</span>;</div><div class="line"></div><div class="line">        $scope.search = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">            $scope.page = <span class="number">0</span>;</div><div class="line">            $scope.employees = [];</div><div class="line">            $scope.allResults = <span class="literal">false</span>;</div><div class="line">            $location.search(&#123;<span class="string">'q'</span>: $scope.searchTerm&#125;);</div><div class="line">            $scope.loadMore();</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        $scope.loadMore = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">            rosterService.search($scope.searchTerm, $scope.page++).then(<span class="function"><span class="keyword">function</span>(<span class="params">results</span>)</span>&#123;</div><div class="line">                <span class="keyword">if</span>(results.length !== <span class="number">10</span>)&#123;</div><div class="line">                    $scope.allResults = <span class="literal">true</span>;</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                <span class="keyword">var</span> ii = <span class="number">0</span>;</div><div class="line">                <span class="keyword">for</span>(;ii &lt; results.length; ii++)&#123;</div><div class="line">                    $scope.employees.push(results[ii]);</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        $scope.loadMore();</div><div class="line">    &#125;]</div><div class="line">);</div></pre></td></tr></table></figure>
+<p>search方法用来执行搜索，loadMore方法用于加载更多记录。</p>
+<h2 id="页面"><a href="#页面" class="headerlink" title="页面"></a>页面</h2><p>页面主要用于展示Employee对象的具体属性。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">ng-app</span>=<span class="string">'rosterApp'</span> <span class="attr">ng-controller</span>=<span class="string">'rosterCtrl'</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">header</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Employee Search<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">header</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">section</span> <span class="attr">class</span>=<span class="string">'searchField'</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">form</span> <span class="attr">ng-submit</span>=<span class="string">'search()'</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">input</span> <span class="attr">ng-model</span>=<span class="string">'searchTerm'</span> <span class="attr">type</span>=<span class="string">'text'</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">'submit'</span> <span class="attr">value</span>=<span class="string">'Search for employees'</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">form</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">section</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">section</span> <span class="attr">class</span>=<span class="string">'results'</span>&gt;</span></div><div class="line">       <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">'no-employees'</span> <span class="attr">ng-hide</span>=<span class="string">'employees.length'</span>&gt;</span>No results<span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">       <span class="tag">&lt;<span class="name">article</span> <span class="attr">class</span>=<span class="string">'employee'</span> <span class="attr">ng-cloak</span> <span class="attr">ng-repeat</span>=<span class="string">'employee in employees'</span>&gt;</span></div><div class="line">           <span class="tag">&lt;<span class="name">h2</span>&gt;</span></div><div class="line">              <span class="tag">&lt;<span class="name">a</span> <span class="attr">ng-href</span>=<span class="string">'&#123;&#123;employee.link&#125;&#125;'</span>&gt;</span>&#123;&#123;employee.name&#125;&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">           <span class="tag">&lt;/<span class="name">h2</span>&gt;</span></div><div class="line">           <span class="tag">&lt;<span class="name">ul</span>&gt;</span></div><div class="line">              <span class="tag">&lt;<span class="name">li</span> <span class="attr">ng-repeat</span>=<span class="string">'historyItem in employee.historyItems'</span>&gt;</span>&#123;&#123; historyItem &#125;&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></div><div class="line">           <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></div><div class="line">           <span class="tag">&lt;<span class="name">p</span>&gt;</span></div><div class="line">              &#123;&#123;employee.introduction&#125;&#125;</div><div class="line">              <span class="tag">&lt;<span class="name">a</span> <span class="attr">ng-href</span>=<span class="string">'&#123;&#123;employee.link&#125;&#125;'</span>&gt;</span>More information...<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">           <span class="tag">&lt;/<span class="name">p</span>&gt;</span></div><div class="line">       <span class="tag">&lt;/<span class="name">article</span>&gt;</span></div><div class="line">       <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">'load-more'</span> <span class="attr">ng-cloak</span> <span class="attr">ng-hide</span>=<span class="string">'allResults'</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">a</span> <span class="attr">ng-click</span>=<span class="string">'loadMore()'</span>&gt;</span>More...<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">       <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">section</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
+<h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>进入工程目录，运行http-server。访问<a href="http://localhost:8080。" target="_blank" rel="external">http://localhost:8080。</a></p>
+<p>当需要使用不同的查询类型时，通过修改search方法中query的创建部分即可。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/12/01/Elasticsearch-索引管理-五-默认映射，重索引，索引别名/" rel="next" title="[Elasticsearch] 索引管理 (五) - 默认映射，重索引，索引别名">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 索引管理 (五) - 默认映射，重索引，索引别名
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/03/Elasticsearch-全文搜索-一-基础概念和match查询/" rel="prev" title="[Elasticsearch] 全文搜索 (一) - 基础概念和match查询">
+                [Elasticsearch] 全文搜索 (一) - 基础概念和match查询 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#使用AngularJS为基于Elasticsearch的应用创建前端"><span class="nav-number">1.</span> <span class="nav-text">使用AngularJS为基于Elasticsearch的应用创建前端</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备工作"><span class="nav-number">1.1.</span> <span class="nav-text">准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加前端依赖"><span class="nav-number">1.1.1.</span> <span class="nav-text">添加前端依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准备运行时环境"><span class="nav-number">1.1.2.</span> <span class="nav-text">准备运行时环境</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置AngularJS以及ES-Client"><span class="nav-number">1.2.</span> <span class="nav-text">配置AngularJS以及ES Client</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#配置AngularJS"><span class="nav-number">1.2.1.</span> <span class="nav-text">配置AngularJS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置Elasticsearch-Client"><span class="nav-number">1.2.2.</span> <span class="nav-text">配置Elasticsearch Client</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#控制器-Controller"><span class="nav-number">1.3.</span> <span class="nav-text">控制器(Controller)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#页面"><span class="nav-number">1.4.</span> <span class="nav-text">页面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行"><span class="nav-number">1.5.</span> <span class="nav-text">运行</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

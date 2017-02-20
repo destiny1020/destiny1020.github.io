@@ -1,0 +1,832 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,全文搜索," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="翻译自官方指南的全文搜索一章。
+全文搜索(Full Text Search)现在我们已经讨论了搜索结构化数据的一些简单用例，是时候开始探索全文搜索了 - 如何在全文字段中搜索来找到最相关的文档。
+对于全文搜索而言，最重要的两个方面是：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 全文搜索 (一) - 基础概念和match查询">
+<meta property="og:url" content="http://rxjiang.com/2014/12/03/Elasticsearch-全文搜索-一-基础概念和match查询/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="翻译自官方指南的全文搜索一章。
+全文搜索(Full Text Search)现在我们已经讨论了搜索结构化数据的一些简单用例，是时候开始探索全文搜索了 - 如何在全文字段中搜索来找到最相关的文档。
+对于全文搜索而言，最重要的两个方面是：">
+<meta property="og:updated_time" content="2017-02-20T02:42:40.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 全文搜索 (一) - 基础概念和match查询">
+<meta name="twitter:description" content="翻译自官方指南的全文搜索一章。
+全文搜索(Full Text Search)现在我们已经讨论了搜索结构化数据的一些简单用例，是时候开始探索全文搜索了 - 如何在全文字段中搜索来找到最相关的文档。
+对于全文搜索而言，最重要的两个方面是：">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/12/03/Elasticsearch-全文搜索-一-基础概念和match查询/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 全文搜索 (一) - 基础概念和match查询 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/03/Elasticsearch-全文搜索-一-基础概念和match查询/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 全文搜索 (一) - 基础概念和match查询
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-03T10:04:00+08:00">
+                2014-12-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>翻译自官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/full-text-search.html" target="_blank" rel="external">全文搜索</a>一章。</p>
+<h2 id="全文搜索-Full-Text-Search"><a href="#全文搜索-Full-Text-Search" class="headerlink" title="全文搜索(Full Text Search)"></a>全文搜索(Full Text Search)</h2><p>现在我们已经讨论了搜索结构化数据的一些简单用例，是时候开始探索全文搜索了 - 如何在全文字段中搜索来找到最相关的文档。</p>
+<p>对于全文搜索而言，最重要的两个方面是：</p>
+<a id="more"></a>
+<p><strong>相关度(Relevance)</strong></p>
+<p>查询的结果按照它们对查询本身的相关度进行排序的能力，相关度可以通过TF/IDF，参见<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/relevance-intro.html" target="_blank" rel="external">什么是相关度</a>，地理位置的邻近程度(Proximity to a Geo-location)，模糊相似性(Fuzzy Similarity)或者其它算法进行计算。</p>
+<p><strong>解析(Analysis)</strong></p>
+<p>解析用来将一块文本转换成单独的，规范化的词条(Tokens)，参见<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/analysis-intro.html" target="_blank" rel="external">解析和解析器(Analysis and Analyzers)</a>，用来完成：(a)倒排索引(Inverted Index)的创建；(b)倒排索引的查询。</p>
+<p>一旦我们开始讨论相关度或者解析，也就意味着我们踏入了查询(Query)的领域，而不再是过滤器(Filter)。</p>
+<h3 id="基于词条-Term-based-和全文-Full-text"><a href="#基于词条-Term-based-和全文-Full-text" class="headerlink" title="基于词条(Term-based)和全文(Full-text)"></a>基于词条(Term-based)和全文(Full-text)</h3><p>尽管所有的查询都会执行某种程度的相关度计算，并不是所有的查询都存在解析阶段。除了诸如bool或者function_score这类完全不对文本进行操作的特殊查询外，对于文本的查询可以被划分两个种类：</p>
+<h4 id="基于词条的查询-Term-based-Queries"><a href="#基于词条的查询-Term-based-Queries" class="headerlink" title="基于词条的查询(Term-based Queries)"></a>基于词条的查询(Term-based Queries)</h4><p>类似term和fuzzy的查询是不含有解析阶段的低级查询(Low-level Queries)。它们在单一词条上进行操作。一个针对词条Foo的term查询会在倒排索引中寻找该词条的精确匹配(Exact term)，然后对每一份含有该词条的文档通过TF/IDF进行相关度_score的计算。</p>
+<p>尤其需要记住的是term查询只会在倒排索引中寻找该词条的精确匹配 - 它不会匹配诸如foo或者FOO这样的变体。它不在意词条是如何被保存到索引中。如果你索引了[“Foo”, “Bar”]到一个not_analyzed字段中，或者将Foo Bar索引到一个使用whitespace解析器的解析字段(Analyzed Field)中，它们都会在倒排索引中得到两个词条：”Foo”以及”Bar”。</p>
+<h4 id="全文查询-Full-text-Queries"><a href="#全文查询-Full-text-Queries" class="headerlink" title="全文查询(Full-text Queries)"></a>全文查询(Full-text Queries)</h4><p>类似match或者query_string这样的查询是高级查询(High-level Queries)，它们能够理解一个字段的映射：</p>
+<ul>
+<li>如果你使用它们去查询一个date或者integer字段，它们会将查询字符串分别当做日期或者整型数。</li>
+<li>如果你查询一个精确值(not_analyzed)字符串字段，它们会将整个查询字符串当做一个单独的词条。</li>
+<li>但是如果你查询了一个全文字段(analyzed)，它们会首先将查询字符串传入到合适的解析器，用来得到需要查询的词条列表。<br>一旦查询得到了一个词条列表，它就会使用列表中的每个词条来执行合适的低级查询，然后将得到的结果进行合并，最终产生每份文档的相关度分值。</li>
+</ul>
+<p>我们会在后续章节中详细讨论这个过程。</p>
+<hr>
+<p>在很少的情况下，你才需要直接使用基于词条的查询(Term-based Queries)。通常你需要查询的是全文，而不是独立的词条，而这个工作通过高级的全文查询来完成会更加容易(在内部它们最终还是使用的基于词条的低级查询)。</p>
+<p>如果你发现你确实需要在一个not_analyzed字段上查询一个精确值，那么考虑一下你是否真的需要使用查询，而不是使用过滤器。</p>
+<p>单词条查询通常都代表了一个二元的yes|no问题，这类问题通常使用过滤器进行表达更合适，因此它们也能够得益于<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/filter-caching.html" target="_blank" rel="external">过滤器缓存(Filter Caching)</a>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">    "query": &#123;</div><div class="line">        "filtered": &#123;</div><div class="line">            "filter": &#123;</div><div class="line">                "term": &#123; "gender": "female" &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="match查询"><a href="#match查询" class="headerlink" title="match查询"></a>match查询</h4><p>在你需要对任何字段进行查询时，match查询应该是你的首选。它是一个高级全文查询，意味着它知道如何处理全文字段(Full-text, analyzed)和精确值字段(Exact-value，not_analyzed)。</p>
+<p>即便如此，match查询的主要使用场景仍然是全文搜索。让我们通过一个简单的例子来看看全文搜索时如何工作的。</p>
+<p>索引一些数据</p>
+<p>首先，我们会创建一个新的索引并通过<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/bulk.html" target="_blank" rel="external">bulk API</a>索引一些文档：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">DELETE /my_index </div><div class="line"></div><div class="line">PUT /my_index</div><div class="line">&#123; "settings": &#123; "number_of_shards": 1 &#125;&#125; </div><div class="line"></div><div class="line">POST /my_index/my_type/_bulk</div><div class="line">&#123; "index": &#123; "_id": 1 &#125;&#125;</div><div class="line">&#123; "title": "The quick brown fox" &#125;</div><div class="line">&#123; "index": &#123; "_id": 2 &#125;&#125;</div><div class="line">&#123; "title": "The quick brown fox jumps over the lazy dog" &#125;</div><div class="line">&#123; "index": &#123; "_id": 3 &#125;&#125;</div><div class="line">&#123; "title": "The quick brown fox jumps over the quick dog" &#125;</div><div class="line">&#123; "index": &#123; "_id": 4 &#125;&#125;</div><div class="line">&#123; "title": "Brown fox brown dog" &#125;</div></pre></td></tr></table></figure>
+<p>注意到以上在创建索引时，我们设置了number_of_shards为1：在稍后的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/relevance-is-broken.html" target="_blank" rel="external">相关度坏掉了(Relevance is broken)</a>一节中，我们会解释为何这里创建了一个只有一个主分片(Primary shard)的索引。</p>
+<h4 id="单词查询-Single-word-query"><a href="#单词查询-Single-word-query" class="headerlink" title="单词查询(Single word query)"></a>单词查询(Single word query)</h4><p>第一个例子我们会解释在使用match查询在一个全文字段中搜索一个单词时，会发生什么：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">GET /my_index/my_type/_search</div><div class="line">&#123;</div><div class="line">    "query": &#123;</div><div class="line">        "match": &#123;</div><div class="line">            "title": "QUICK!"</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>ES会按照如下的方式执行上面的match查询：</p>
+<ol>
+<li><p>检查字段类型</p>
+<p> title字段是一个全文字符串字段(analyzed)，意味着查询字符串也需要被分析。</p>
+</li>
+<li><p>解析查询字符串</p>
+<p> 查询字符串”QUICK!”会被传入到标准解析器中，得到的结果是单一词条”quick”。因为我们得到的只有一个词条，match查询会使用一个term低级查询来执行查询。</p>
+</li>
+<li><p>找到匹配的文档</p>
+<p> term查询会在倒排索引中查询”quick”，然后获取到含有该词条的文档列表，在这个例子中，文档1，2，3会被返回。</p>
+</li>
+<li><p>对每份文档打分</p>
+<p> term查询会为每份匹配的文档计算其相关度分值_score，该分值通过综合考虑词条频度(Term Frequency)(“quick”在匹配的每份文档的title字段中出现的频繁程度)，倒排频度(Inverted Document Frequency)(“quick”在整个索引中的所有文档的title字段中的出现程度)，以及每个字段的长度(较短的字段会被认为相关度更高)来得到。参考<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/relevance-intro.html" target="_blank" rel="external">什么是相关度(What is Relevance?)</a></p>
+</li>
+</ol>
+<p>这个过程会给我们下面的结果(有省略)：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">"hits": [</div><div class="line"> &#123;</div><div class="line">    "_id":      "1",</div><div class="line">    "_score":   0.5, </div><div class="line">    "_source": &#123;</div><div class="line">       "title": "The quick brown fox"</div><div class="line">    &#125;</div><div class="line"> &#125;,</div><div class="line"> &#123;</div><div class="line">    "_id":      "3",</div><div class="line">    "_score":   0.44194174, </div><div class="line">    "_source": &#123;</div><div class="line">       "title": "The quick brown fox jumps over the quick dog"</div><div class="line">    &#125;</div><div class="line"> &#125;,</div><div class="line"> &#123;</div><div class="line">    "_id":      "2",</div><div class="line">    "_score":   0.3125, </div><div class="line">    "_source": &#123;</div><div class="line">       "title": "The quick brown fox jumps over the lazy dog"</div><div class="line">    &#125;</div><div class="line"> &#125;</div><div class="line">]</div></pre></td></tr></table></figure>
+<p>文档1最相关，因为它的title字段短，意味着quick在它所表达的内容中占比较大。 文档3比文档2的相关度更高，因为quick出现了两次。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/全文搜索/" rel="tag"># 全文搜索</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/12/02/AngularJS-Elasticsearch-使用AngularJS为基于Elasticsearch的应用创建前端/" rel="next" title="[AngularJS/Elasticsearch] 使用AngularJS为基于Elasticsearch的应用创建前端">
+                <i class="fa fa-chevron-left"></i> [AngularJS/Elasticsearch] 使用AngularJS为基于Elasticsearch的应用创建前端
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/04/Elasticsearch-全文搜索-二-多词查询及查询的合并/" rel="prev" title="[Elasticsearch] 全文搜索 (二) - 多词查询及查询的合并">
+                [Elasticsearch] 全文搜索 (二) - 多词查询及查询的合并 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#全文搜索-Full-Text-Search"><span class="nav-number">1.</span> <span class="nav-text">全文搜索(Full Text Search)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基于词条-Term-based-和全文-Full-text"><span class="nav-number">1.1.</span> <span class="nav-text">基于词条(Term-based)和全文(Full-text)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基于词条的查询-Term-based-Queries"><span class="nav-number">1.1.1.</span> <span class="nav-text">基于词条的查询(Term-based Queries)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全文查询-Full-text-Queries"><span class="nav-number">1.1.2.</span> <span class="nav-text">全文查询(Full-text Queries)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#match查询"><span class="nav-number">1.1.3.</span> <span class="nav-text">match查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#单词查询-Single-word-query"><span class="nav-number">1.1.4.</span> <span class="nav-text">单词查询(Single word query)</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

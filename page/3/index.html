@@ -302,7 +302,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/29/Java-8-8-Lambda表达式对递归的优化-上-使用尾递归/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/20/Effective-JavaScript-Item-54-将undefined视为没有值/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -327,8 +327,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/10/29/Java-8-8-Lambda表达式对递归的优化-上-使用尾递归/" itemprop="url">
-                  [Java 8] (8) Lambda表达式对递归的优化(上) - 使用尾递归
+                <a class="post-title-link" href="/2014/11/20/Effective-JavaScript-Item-54-将undefined视为没有值/" itemprop="url">
+                  [Effective JavaScript] Item 54 将undefined视为没有值
                 </a>
               
             
@@ -344,165 +344,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-29T09:56:00+08:00">
-                2014-10-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="递归优化"><a href="#递归优化" class="headerlink" title="递归优化"></a>递归优化</h2><p>很多算法都依赖于递归，典型的比如分治法(Divide-and-Conquer)。但是普通的递归算法在处理规模较大的问题时，常常会出现StackOverflowError。处理这个问题，我们可以使用一种叫做尾调用(Tail-Call Optimization)的技术来对递归进行优化。同时，还可以通过暂存子问题的结果来避免对子问题的重复求解，这个优化方法叫做备忘录(Memoization)。</p>
-<p>本文首先对尾递归进行介绍，下一票文章中会对备忘录模式进行介绍。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/10/29/Java-8-8-Lambda表达式对递归的优化-上-使用尾递归/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/28/Effective-JavaScript-Item-46-优先使用数组而不是Object类型来表示有顺序的集合/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/10/28/Effective-JavaScript-Item-46-优先使用数组而不是Object类型来表示有顺序的集合/" itemprop="url">
-                  [Effective JavaScript] Item 46 优先使用数组而不是Object类型来表示有顺序的集合
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-28T16:27:00+08:00">
-                2014-10-28
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-20T10:24:00+08:00">
+                2014-11-20
               </time>
             
 
@@ -571,12 +414,17 @@
 
       
         
-          <p>本系列作为Effective JavaScript的读书笔记。</p>
-<h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>ECMAScript标准并没有规定对JavaScript的Object类型中的属性的存储顺序。</p>
-<p>但是在使用for..in循环对Object中的属性进行遍历的时候，确实是需要依赖于某种顺序的。正因为ECMAScript没有对这个顺序进行明确地规范，所以每个JavaScript执行引擎都能够根据自身的特点进行实现，那么在不同的执行环境中就不能保证for..in循环的行为一致性了。</p>
+          <h2 id="将undefined视为”没有值”"><a href="#将undefined视为”没有值”" class="headerlink" title="将undefined视为”没有值”"></a>将undefined视为”没有值”</h2><p>JavaScript中的undefined是一个特殊的值：当JavaScript没有提供具体的值时，它就会产生undefined。</p>
+<p>比如：</p>
+<ol>
+<li>未被赋值的变量的初始值就是undefined</li>
+<li>访问对象中不存在的属性会得到undefined</li>
+<li>没有返回值的函数，undefined会作为其返回值</li>
+<li>函数的参数没有提供时，它的值就是undefined</li>
+</ol>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/10/28/Effective-JavaScript-Item-46-优先使用数组而不是Object类型来表示有顺序的集合/#more" rel="contents">
+            <a class="btn" href="/2014/11/20/Effective-JavaScript-Item-54-将undefined视为没有值/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -617,7 +465,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/27/Java-8-7-利用Stream类型的懒操作/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/19/Elasticsearch-分布式搜索/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -642,8 +490,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/10/27/Java-8-7-利用Stream类型的懒操作/" itemprop="url">
-                  [Java 8] (7) 利用Stream类型的懒操作
+                <a class="post-title-link" href="/2014/11/19/Elasticsearch-分布式搜索/" itemprop="url">
+                  [Elasticsearch] 分布式搜索
                 </a>
               
             
@@ -659,8 +507,484 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-27T10:14:00+08:00">
-                2014-10-27
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-19T10:10:00+08:00">
+                2014-11-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="分布式搜索"><a href="#分布式搜索" class="headerlink" title="分布式搜索"></a>分布式搜索</h2><p>本文翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/distributed-search.html">Distributed Search Execution</a>一章。</p>
+<p>在继续之前，我们将绕一段路来谈谈在分布式环境中，搜索是如何执行的。和在分布式文档存储(Distributed Document Store)中讨论的基本CRUD操作相比，这个过程会更加复杂一些。</p>
+<p>一个CRUD操作会处理一个文档，该文档有唯一的_index，_type和路由值(Routing Value，它默认情况下就是文档的_id)组合。这意味着我们能够知道该文档被保存在集群中的哪个分片(Shard)上。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/19/Elasticsearch-分布式搜索/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/18/Elasticsearch-分布式文档存储/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/18/Elasticsearch-分布式文档存储/" itemprop="url">
+                  [Elasticsearch] 分布式文档存储
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-18T09:53:00+08:00">
+                2014-11-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本文翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/distributed-docs.html">distributed document store</a>一章。</p>
+<h2 id="分布式文档存储"><a href="#分布式文档存储" class="headerlink" title="分布式文档存储"></a>分布式文档存储</h2><p>在上一章中，我们一直在介绍索引数据和获取数据的方法。但是我们省略了很多关于数据是如何在集群中被分布(Distributed)和获取(Fetched)的技术细节。这实际上是有意为之 - 你真的不需要了解数据在ES中是如何被分布的。它能工作就足够了。</p>
+<p>在本章中，我们将会深入到这些内部技术细节中，来帮助你了解你的数据是如何被存储在一个分布式系统中的。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/18/Elasticsearch-分布式文档存储/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/17/Elasticsearch-集群的工作原理-第一部分/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/17/Elasticsearch-集群的工作原理-第一部分/" itemprop="url">
+                  [Elasticsearch] 集群的工作原理 - 第一部分
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-17T10:25:00+08:00">
+                2014-11-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本文翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/distributed-cluster.html">life inside a cluster</a>一章。</p>
+<p>ES就是为高可用和可扩展而生的。扩展可以通过购置性能更强的服务器(垂直扩展或者向上扩展，Vertical Scale/Scaling Up)，亦或是通过购置更多的服务器(水平扩展或者向外扩展，Horizontal Scale/Scaling Out)来完成。</p>
+<p>尽管ES能够利用更强劲的硬件，垂直扩展毕竟还是有它的极限。真正的可扩展性来自于水平扩展 - 通过向集群中添加更多的节点来分布负载，增加可靠性。</p>
+<p>在大多数数据库中，水平扩展通常都需要你对应用进行一次大的重构来利用更多的节点。相反，ES天生就是分布式的：它知道如何管理多个节点来完成扩展和实现高可用性。这也意味着你的应用不需要在乎这一点。</p>
+<p>在本章中，我们会介绍如何建立集群(Cluster)，节点(Node)和分片(Shard)来根据你的需求完成扩展，同时也能够保证即使发生硬件故障你的数据也会安然无恙。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/17/Elasticsearch-集群的工作原理-第一部分/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/16/Java-并发-Java并发编程实践-思维导图-第四章-对象的组合/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/16/Java-并发-Java并发编程实践-思维导图-第四章-对象的组合/" itemprop="url">
+                  [Java 并发] Java并发编程实践 思维导图 - 第四章 对象的组合
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-16T09:53:00+08:00">
+                2014-11-16
               </time>
             
 
@@ -729,13 +1053,11 @@
 
       
         
-          <h2 id="利用Stream类型的“懒”操作"><a href="#利用Stream类型的“懒”操作" class="headerlink" title="利用Stream类型的“懒”操作"></a>利用Stream类型的“懒”操作</h2><p>代码中的很多操作都是Eager的，比如在发生方法调用的时候，参数会立即被求值。总体而言，使用Eager方式让编码本身更加简单，然而使用Lazy的方式通常而言，即意味着更好的效率。</p>
-<p>本篇文章就是为了展示Java 8中新特性是如何让我们能够更方便的写出Lazy方式代码。</p>
-<h3 id="延迟初始化"><a href="#延迟初始化" class="headerlink" title="延迟初始化"></a>延迟初始化</h3><p>对于会消耗较多资源的对象，使用延迟初始化是比较好的选择。这不仅能够节省一些资源，同时也能够加快对象的创建速度，从而从整体上提升性能。</p>
-<p>但是对一个对象实现延迟初始化时，需要注意的一点就是这些实现细节不应该暴露给用户，即用户能够按照正常的流程来使用该对象。</p>
+          <p>根据《Java并发编程实践》一书整理的思维导图。</p>
+<h2 id="第一部分"><a href="#第一部分" class="headerlink" title="第一部分"></a>第一部分</h2><p><img src="http://img.blog.csdn.net/20141116095148796?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/10/27/Java-8-7-利用Stream类型的懒操作/#more" rel="contents">
+            <a class="btn" href="/2014/11/16/Java-并发-Java并发编程实践-思维导图-第四章-对象的组合/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -776,7 +1098,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/26/Java-8-6-Lambda与资源管理/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/16/Effective-JavaScript-Item-63-注意异步调用中可能会被忽略的异常/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -801,8 +1123,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/10/26/Java-8-6-Lambda与资源管理/" itemprop="url">
-                  [Java 8] (6) Lambda与资源管理
+                <a class="post-title-link" href="/2014/11/16/Effective-JavaScript-Item-63-注意异步调用中可能会被忽略的异常/" itemprop="url">
+                  [Effective JavaScript] Item 63 注意异步调用中可能会被忽略的异常
                 </a>
               
             
@@ -818,8 +1140,480 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-26T11:33:00+08:00">
-                2014-10-26
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-16T09:22:00+08:00">
+                2014-11-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>异常处理是异步编程的一个难点。在同步的代码中，异常能够很容易地通过try catch语句来完成：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    f();</div><div class="line">    g();</div><div class="line">    h();</div><div class="line">&#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">    <span class="comment">// handle any error that occurred...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/16/Effective-JavaScript-Item-63-注意异步调用中可能会被忽略的异常/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/15/Effective-JavaScript-Item-62-在异步调用中使用嵌套或者命名的回调函数/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/15/Effective-JavaScript-Item-62-在异步调用中使用嵌套或者命名的回调函数/" itemprop="url">
+                  [Effective JavaScript] Item 62 在异步调用中使用嵌套或者命名的回调函数
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-15T09:40:00+08:00">
+                2014-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>在一开始，理解异步程序的调用顺序会有些困难。比如，下面的程序中，starting会先被打印出来，然后才是finished：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">downloadAsync(<span class="string">"file.txt"</span>, <span class="function"><span class="keyword">function</span>(<span class="params">file</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"finished"</span>);</div><div class="line">&#125;);</div><div class="line"><span class="built_in">console</span>.log(<span class="string">"starting"</span>);</div></pre></td></tr></table></figure>
+<p>downloadAsync方法在执行之后会立即返回，它只是为下载这个行为注册了一个回调函数而已。 由于JavaScript”运行到完成(Run-to-completion)”的特点，当前执行的代码不会被中断，因此会先打印出starting。直到下载完成之后，JavaScript从事件队列中拿到下载对应的回调函数并执行后，finished才会被输出。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/15/Effective-JavaScript-Item-62-在异步调用中使用嵌套或者命名的回调函数/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/14/Effective-JavaScript-Item-61-不要阻塞事件队列/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/14/Effective-JavaScript-Item-61-不要阻塞事件队列/" itemprop="url">
+                  [Effective JavaScript] Item 61 不要阻塞事件队列
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-14T12:32:00+08:00">
+                2014-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>JavaScript处理并发事件的机制是十分友好和强大的，它结合了事件队列(Event Queue)/事件循环并发(Event-loop Concurrency)和一套异步调用API。这因为这一点，JavaScript不仅可以在浏览器环境中运行，还可以在桌面应用和服务器应用中运行，如Node.js。</p>
+<p>令人奇怪的是，ECMAScript标准时至今日对并发这个问题还是只字未提。所以以下提到的各种并发方面的注意事项只是基于JavaScript本身语言特性总结得到的。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/11/14/Effective-JavaScript-Item-61-不要阻塞事件队列/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/13/Java-并发-Java并发编程实践-思维导图-第三章-对象的共享/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2014/11/13/Java-并发-Java并发编程实践-思维导图-第三章-对象的共享/" itemprop="url">
+                  [Java 并发] Java并发编程实践 思维导图 - 第三章 对象的共享
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-13T10:11:00+08:00">
+                2014-11-13
               </time>
             
 
@@ -888,11 +1682,11 @@
 
       
         
-          <h2 id="资源处理"><a href="#资源处理" class="headerlink" title="资源处理"></a>资源处理</h2><p>Java本身自带了垃圾回收(Garbage Collection)功能，但是只有垃圾回收的目标是内部资源(Internal Resource)，典型的比如堆上分配的内存区域等。对于外部资源(External Resource)，如数据库连接，文件句柄，套接字等资源，还是需要在程序中进行显式回收的。</p>
-<p>使用Lambda表达式可以实现一种叫做Execute Around的模式，用来处理外部资源的回收。关于Execute Around模式，可以参考这个<a href="http://stackoverflow.com/questions/341971/what-is-the-execute-around-idiom">链接</a>。</p>
+          <p>根据《Java并发编程实践》一书整理的思维导图。</p>
+<h2 id="第一部分"><a href="#第一部分" class="headerlink" title="第一部分"></a>第一部分</h2><p><img src="http://img.blog.csdn.net/20141113100959789?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG1fdmluY2VudA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/10/26/Java-8-6-Lambda与资源管理/#more" rel="contents">
+            <a class="btn" href="/2014/11/13/Java-并发-Java并发编程实践-思维导图-第三章-对象的共享/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -933,7 +1727,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/25/Java-8-5-使用Lambda表达式进行设计/">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/12/Effective-JavaScript-Item-51-在类数组对象上重用数组方法/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Ruixiang">
@@ -958,8 +1752,8 @@
             
               
                 
-                <a class="post-title-link" href="/2014/10/25/Java-8-5-使用Lambda表达式进行设计/" itemprop="url">
-                  [Java 8] (5) 使用Lambda表达式进行设计
+                <a class="post-title-link" href="/2014/11/12/Effective-JavaScript-Item-51-在类数组对象上重用数组方法/" itemprop="url">
+                  [Effective JavaScript] Item 51 在类数组对象上重用数组方法
                 </a>
               
             
@@ -975,8 +1769,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-25T06:37:00+08:00">
-                2014-10-25
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-12T16:52:00+08:00">
+                2014-11-12
               </time>
             
 
@@ -1009,8 +1803,8 @@
                 
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
+                  <a href="/categories/编程语言/JavaScript/" itemprop="url" rel="index">
+                    <span itemprop="name">JavaScript</span>
                   </a>
                 </span>
 
@@ -1045,807 +1839,12 @@
 
       
         
-          <h2 id="使用Lambda表达式进行设计"><a href="#使用Lambda表达式进行设计" class="headerlink" title="使用Lambda表达式进行设计"></a>使用Lambda表达式进行设计</h2><p>在前面的几篇文章中，我们已经见识到了Lambda表达式是如何让代码变的更加紧凑和简洁的。</p>
-<p>这一篇文章主要会介绍Lambda表达式如何改变程序的设计，如何让程序变的更加轻量级和简洁。如何让接口的使用变得更加流畅和直观。</p>
+          <h2 id="重点"><a href="#重点" class="headerlink" title="重点"></a>重点</h2><p>Array.prototype对象上的标准方法被设计为也可以在其它对象上重用 - 即使不是继承自Array的对象。因此，在JavaScript中存折一些类数组对象(Array-like Objects)。</p>
+<p>一个典型的例子是函数的arguments对象，在Item 22中对它进行过介绍。该对象并不继承自Array.prototype，所以我们不能直接调用arguments.forEach来对其中的元素进行遍历。但是，我们可以通过首先得到forEach方法的对象，然后调用call方法(可以参考Item 20)：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">highlight</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    [].forEach.call(<span class="built_in">arguments</span>, <span class="function"><span class="keyword">function</span>(<span class="params">widget</span>) </span>&#123;</div><div class="line">        widget.setBackground(<span class="string">"yellow"</span>);</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/10/25/Java-8-5-使用Lambda表达式进行设计/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/24/Java-8-4-列举目录下的所有文件和监视文件变化/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/10/24/Java-8-4-列举目录下的所有文件和监视文件变化/" itemprop="url">
-                  [Java 8] (4) 列举目录下的所有文件和监视文件变化
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-24T10:18:00+08:00">
-                2014-10-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="列举目录中的所有文件"><a href="#列举目录中的所有文件" class="headerlink" title="列举目录中的所有文件"></a>列举目录中的所有文件</h2><p>首先给出代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Files.list(Paths.get(<span class="string">"."</span>)).forEach(System.out::println);</div></pre></td></tr></table></figure>
-<p>Files.list方法得到的是一个Stream类型的对象，它代表了目标路径下所有的文件。如果只想获取目标路径下的所有目录文件：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Files.list(Paths.get(<span class="string">"."</span>))</div><div class="line">    .filter(Files::isDirectory)</div><div class="line">    .forEach(System.out::println);</div></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/10/24/Java-8-4-列举目录下的所有文件和监视文件变化/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/23/Java-8-3-字符串遍历和Comparator接口/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/10/23/Java-8-3-字符串遍历和Comparator接口/" itemprop="url">
-                  [Java 8] (3) 字符串遍历和Comparator接口
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-23T09:16:00+08:00">
-                2014-10-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="遍历一个字符串"><a href="#遍历一个字符串" class="headerlink" title="遍历一个字符串"></a>遍历一个字符串</h2><p>在Java 8中，CharSequence接口新添加了一个方法叫做chars()，方法的签名是这个样子的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">default</span> IntStream <span class="title">chars</span><span class="params">()</span></span></div></pre></td></tr></table></figure>
-<p>default关键字修饰的接口方法是Java 8中新添加的特性，目的是向接口中添加已经实现的方法。chars()方法返回了一个IntStream类型，所以chars()实际上是为所有实现了CharSequence接口的类型(String类，StringBuffer类，StringBuilder类等)开启了通往函数式编程和Lambda表达式的大门。</p>
-<p>既然得到了IntStream类型的实例，那么下一步就可以使用内部遍历器forEach进行遍历了：</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/10/23/Java-8-3-字符串遍历和Comparator接口/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/22/Java-Performance-数据库性能最佳实践-JPA缓存/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/10/22/Java-Performance-数据库性能最佳实践-JPA缓存/" itemprop="url">
-                  [Java Performance] 数据库性能最佳实践 - JPA缓存
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-22T10:13:00+08:00">
-                2014-10-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="JPA缓存-JPA-Caching"><a href="#JPA缓存-JPA-Caching" class="headerlink" title="JPA缓存(JPA Caching)"></a>JPA缓存(JPA Caching)</h2><p>JPA有两种类型的缓存：</p>
-<ul>
-<li>EntityManager自身就是一种缓存。事务中从数据库获取的和写入到数据库的数据会被缓存(什么样的数据会被缓存，在后面有介绍)。在一个程序中也许会有很多个不同的EntityManager实例，每一个实例运行着不同的事务，拥有着它们自己的缓存。</li>
-<li>当EntityManager提交一个事务后，它缓存的所有数据就会被合并到一个全局的缓存中。所有的EntityManager都能够访问这个全局的缓存。</li>
-</ul>
-<p>全局缓存被称为二级缓存(Level 2 Cache)，而EntityManager拥有的本地缓存被称为一级缓存(Level 1 Cache)。所有的JPA实现都拥有一级缓存，并且对它没有什么可以调优的。而二级缓存就不同了：大多数JPA实现都提供了二级缓存，但是有些并没有把启用它作为默认选项，比如Hibernate。一旦启用了二级缓存，它的设置会对性能产生较大的影响。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/10/22/Java-Performance-数据库性能最佳实践-JPA缓存/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/21/Java-8-2-Lambda在集合中的使用/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/10/21/Java-8-2-Lambda在集合中的使用/" itemprop="url">
-                  [Java 8] (2) Lambda在集合中的使用
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-21T09:54:00+08:00">
-                2014-10-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="Lambda在集合中的使用"><a href="#Lambda在集合中的使用" class="headerlink" title="Lambda在集合中的使用"></a>Lambda在集合中的使用</h2><h3 id="列表的遍历"><a href="#列表的遍历" class="headerlink" title="列表的遍历"></a>列表的遍历</h3><p>提起对于集合的遍历，恐怕下面的这种方式已经是一种思维定式了吧：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> List&lt;String&gt; friends = Arrays.asList(<span class="string">"Brian"</span>, <span class="string">"Nate"</span>, <span class="string">"Neal"</span>, <span class="string">"Raju"</span>, <span class="string">"Sara"</span>, <span class="string">"Scott"</span>);</div><div class="line"></div><div class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; friends.size(); i++) &#123;</div><div class="line">    System.out.println(friends.get(i));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>但是仔细想想，以上的代码似乎出现了过多的细节，比如循环变量i的出现。在做简单的遍历操作时，循环变量实际上是不必要的，只有在对某个特定位置的元素执行某个特殊操作时，循环变量的使用才有意义。所以，在Java中引入了增强的for循环，在这种循环方式中，循环变量是不必要的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>(String name : friends) &#123;</div><div class="line">    System.out.println(name);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/10/21/Java-8-2-Lambda在集合中的使用/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/10/20/Java-Performance-数据库性能最佳实践-JPA和读写优化/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="Ruixiang">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2014/10/20/Java-Performance-数据库性能最佳实践-JPA和读写优化/" itemprop="url">
-                  [Java Performance] 数据库性能最佳实践 - JPA和读写优化
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-10-20T10:06:00+08:00">
-                2014-10-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/编程语言/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="数据库性能最佳实践"><a href="#数据库性能最佳实践" class="headerlink" title="数据库性能最佳实践"></a>数据库性能最佳实践</h2><p>当应用需要连接数据库时，那么应用的性能就可能收到数据库性能的影响。比如当数据库的I/O能力存在限制，或者因缺失了索引而导致执行的SQL语句需要对整张表进行遍历。对于这些问题，仅仅对应用代码进行优化可能是不够，还需要了解数据库的知识和特点。</p>
-<h3 id="示例数据库"><a href="#示例数据库" class="headerlink" title="示例数据库"></a>示例数据库</h3><p>该数据库表示了128只股票在1年内(261个工作日)的股价信息。</p>
-<p>其中有两张表：STOCKPRICE和STOCKOPTIONPRICE。 STOCKPRICE中使用股票代码作为主键，另外还有日期字段。它有33408条记录(128 <em> 261)。 STOCKOPTIONPRICE中存放了每只股票在每天的5个Options，主键是股票代码，另外还有日期字段和表示Option号码的一个整型字段。它有167040条记录(128 </em> 261 * 5)。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014/10/20/Java-Performance-数据库性能最佳实践-JPA和读写优化/#more" rel="contents">
+            <a class="btn" href="/2014/11/12/Effective-JavaScript-Item-51-在类数组对象上重用数组方法/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1881,7 +1880,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1924,7 +1923,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-count">109</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1933,7 +1932,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1942,7 +1941,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

@@ -1,0 +1,825 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,集群," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本文翻译自Elasticsearch官方指南的life inside a cluster一章。
+ES就是为高可用和可扩展而生的。扩展可以通过购置性能更强的服务器(垂直扩展或者向上扩展，Vertical Scale/Scaling Up)，亦或是通过购置更多的服务器(水平扩展或者向外扩展，Horizontal Scale/Scaling Out)来完成。
+尽管ES能够利用更强劲的硬件，垂直扩展毕竟还">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 集群的工作原理 - 第一部分">
+<meta property="og:url" content="http://rxjiang.com/2014/11/17/Elasticsearch-集群的工作原理-第一部分/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="本文翻译自Elasticsearch官方指南的life inside a cluster一章。
+ES就是为高可用和可扩展而生的。扩展可以通过购置性能更强的服务器(垂直扩展或者向上扩展，Vertical Scale/Scaling Up)，亦或是通过购置更多的服务器(水平扩展或者向外扩展，Horizontal Scale/Scaling Out)来完成。
+尽管ES能够利用更强劲的硬件，垂直扩展毕竟还">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202131927394?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20161202131945301?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2017-02-20T00:31:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 集群的工作原理 - 第一部分">
+<meta name="twitter:description" content="本文翻译自Elasticsearch官方指南的life inside a cluster一章。
+ES就是为高可用和可扩展而生的。扩展可以通过购置性能更强的服务器(垂直扩展或者向上扩展，Vertical Scale/Scaling Up)，亦或是通过购置更多的服务器(水平扩展或者向外扩展，Horizontal Scale/Scaling Out)来完成。
+尽管ES能够利用更强劲的硬件，垂直扩展毕竟还">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20161202131927394?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/11/17/Elasticsearch-集群的工作原理-第一部分/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 集群的工作原理 - 第一部分 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/11/17/Elasticsearch-集群的工作原理-第一部分/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 集群的工作原理 - 第一部分
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-11-17T10:25:00+08:00">
+                2014-11-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/distributed-cluster.html" target="_blank" rel="external">life inside a cluster</a>一章。</p>
+<p>ES就是为高可用和可扩展而生的。扩展可以通过购置性能更强的服务器(垂直扩展或者向上扩展，Vertical Scale/Scaling Up)，亦或是通过购置更多的服务器(水平扩展或者向外扩展，Horizontal Scale/Scaling Out)来完成。</p>
+<p>尽管ES能够利用更强劲的硬件，垂直扩展毕竟还是有它的极限。真正的可扩展性来自于水平扩展 - 通过向集群中添加更多的节点来分布负载，增加可靠性。</p>
+<p>在大多数数据库中，水平扩展通常都需要你对应用进行一次大的重构来利用更多的节点。相反，ES天生就是分布式的：它知道如何管理多个节点来完成扩展和实现高可用性。这也意味着你的应用不需要在乎这一点。</p>
+<p>在本章中，我们会介绍如何建立集群(Cluster)，节点(Node)和分片(Shard)来根据你的需求完成扩展，同时也能够保证即使发生硬件故障你的数据也会安然无恙。</p>
+<a id="more"></a>
+<h2 id="一个空的集群"><a href="#一个空的集群" class="headerlink" title="一个空的集群"></a>一个空的集群</h2><p>如果我们启动了一个没有任何数据和索引的节点(Node)，我们的集群(Cluster)看起来就像下面这样：</p>
+<p><img src="http://img.blog.csdn.net/20161202131927394?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>一个节点会运行一个ES的实例，而一个集群则会包含拥有相同cluster.name的一个或者多个节点，这些节点共同工作来完成数据共享和负载分担。随着节点被添加到集群，或者从集群中被删除，集群会通过自身调节来将数据均匀分布。</p>
+<p>集群中的一个节点会被选为主节点(Master Node)，它负责管理整个集群的变化，如创建或者删除一个索引(Index)，向集群中添加或者删除节点。主节点并不需要参与到文档级别的变化或者搜索中，这意味着虽然只有一个主节点，但它并不会随着流量的增加而成为瓶颈。任何节点都可以成为主节点。在我们的例子中只有一个节点，所以它就承担了主节点的功能。</p>
+<p>对于用户，可以和集群中的任意节点进行通信，包括主节点。每个节点都知道每份文档的存放位置，并且能够将请求转发到持有所需数据的节点。用户通信的节点会负责将需要的数据从各个节点收集起来，然后返回给用户。以上整个过程都会由ES透明地进行管理。</p>
+<h2 id="集群健康指标-Cluster-Health"><a href="#集群健康指标-Cluster-Health" class="headerlink" title="集群健康指标(Cluster Health)"></a>集群健康指标(Cluster Health)</h2><p>在一个ES集群中，有很多可以被监测的统计数据，但是其中最重要的是集群健康指标，它会以green，yellow和red来报告集群的健康状态。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># Retrieve the cluster health</div><div class="line">GET /_cluster/health</div></pre></td></tr></table></figure>
+<p>当集群中没有任何索引时，它会返回如下信息：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">   <span class="attr">"cluster_name"</span>: <span class="string">"elasticsearch"</span>,</div><div class="line">   <span class="attr">"status"</span>: <span class="string">"green"</span>,</div><div class="line">   <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</div><div class="line">   <span class="attr">"number_of_nodes"</span>: <span class="number">1</span>,</div><div class="line">   <span class="attr">"number_of_data_nodes"</span>: <span class="number">1</span>,</div><div class="line">   <span class="attr">"active_primary_shards"</span>: <span class="number">0</span>,</div><div class="line">   <span class="attr">"active_shards"</span>: <span class="number">0</span>,</div><div class="line">   <span class="attr">"relocating_shards"</span>: <span class="number">0</span>,</div><div class="line">   <span class="attr">"initializing_shards"</span>: <span class="number">0</span>,</div><div class="line">   <span class="attr">"unassigned_shards"</span>: <span class="number">0</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>status字段提供的值反应了集群整体的健康程度。它的值的意义如下：</p>
+<ul>
+<li>green：所有的主分片(Primary Shard)和副本分片(Replica Shard)都处于活动状态</li>
+<li>yellow：所有的主分片都处于活动状态，但是并不是所有的副本分片都处于活跃状态</li>
+<li>red：不是所有的主分片都处于活动状态</li>
+</ul>
+<p>在本章剩下的部分中，我们会解释什么是主分片和副本分片，以及以上的几种颜色状态信息所带来的实际影响。</p>
+<h2 id="添加索引"><a href="#添加索引" class="headerlink" title="添加索引"></a>添加索引</h2><p>为了向ES中添加数据，我们需要一个索引(Index) - 它是一个用来存储相关数据的地方。实际上，一个索引实际上只是一个”逻辑命名空间(Logical Namespace)”，用来指向一个或者多个物理分片(Physical Shard)。</p>
+<p>一个分片就是底层的”工作单元(Worker Unit)”，它拥有索引中所有数据的一部分。在<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/inside-a-shard.html" target="_blank" rel="external">分片</a>一章中，会对分片的工作方式进行详细说明，但是就现在而言，我们只需要知道一个分片就是一个Lucene的实例，一个分片本身就是一个完整的搜索引擎。我们的文档会被存储和索引在分片中，但是应用是不会直接和分片进行交互的。相反地，应用和索引进行交互。</p>
+<p>ES通过分片将数据分布在集群中。可以将分片想象成数据的容器。文档会被存储在分片中，而分片则会被分配到集群中的节点中。随着集群的扩大和虽小，ES会自动地将分片在节点之间进行迁移，以保证集群能够保持一种平衡。</p>
+<p>一个分片可以是主分片(Primary Shard)或者副本分片(Replica Shard)。索引中的每份文档都属于一个主分片，所以主分片的数量就决定了你的索引能够存储的最大数据量。</p>
+<blockquote>
+<p>尽管在理论上，一个主分片能够容纳的最大数据量并没有限制，但是在实际生产中这个限制是存在的。分片的最大空间完全取决于你的用例：硬件条件，文档的大小和复杂度，如何索引和查询文档，以及期望的响应时间。</p>
+</blockquote>
+<p>一个副本分片则只是一个主分片的拷贝。副本用来提供数据冗余，用来保护数据在发生硬件故障是不会丢失，同时也能够处理像搜索和获取文档这样的读请求。</p>
+<p>主分片的数量在索引建立之初就会被确定下来，而副本分片的数量则可以在任何时候被更改。</p>
+<p>让我们在当前只有一个节点的集群中创建一个新的blogs索引。默认情况下，索引会拥有5个主分片，但是为了演示，我们会让索引有3个主分片和1个副本分片(每个主分片都有1个副本分片)：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">PUT /blogs</div><div class="line">&#123;</div><div class="line">   "settings" : &#123;</div><div class="line">      "number_of_shards" : 3,</div><div class="line">      "number_of_replicas" : 1</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>此时我们的集群就变成这样了：</p>
+<p><img src="http://img.blog.csdn.net/20161202131945301?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>这个时候我们如果检查集群的健康状态，会得到如下的结果：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">   <span class="attr">"cluster_name"</span>:          <span class="string">"elasticsearch"</span>,</div><div class="line">   <span class="attr">"status"</span>:                <span class="string">"yellow"</span>, </div><div class="line">   <span class="attr">"timed_out"</span>:             <span class="literal">false</span>,</div><div class="line">   <span class="attr">"number_of_nodes"</span>:       <span class="number">1</span>,</div><div class="line">   <span class="attr">"number_of_data_nodes"</span>:  <span class="number">1</span>,</div><div class="line">   <span class="attr">"active_primary_shards"</span>: <span class="number">3</span>,</div><div class="line">   <span class="attr">"active_shards"</span>:         <span class="number">3</span>,</div><div class="line">   <span class="attr">"relocating_shards"</span>:     <span class="number">0</span>,</div><div class="line">   <span class="attr">"initializing_shards"</span>:   <span class="number">0</span>,</div><div class="line">   <span class="attr">"unassigned_shards"</span>:     <span class="number">3</span> </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>集群的健康状态变成了黄色，同时响应中还说明了有3个未被分配的分片。</p>
+<p>黄色说明了所有的主分片都正在正常运行，处于活动状态 - 集群现在能够成功处理来自外部的请求 - 但是并不是所有的副本分片都处于活动状态。实际上，所有的3个副本分片目前都处于”未分配”的状态 - 它们不存在于任何节点上。这是因为将相同数据的拷贝存放在同一节点上是没有意义的。如果我们失去了该节点，那么我们会失去所有数据和它们的拷贝。</p>
+<p>因此当前我们的集群能够正常工作，只不过抵御不了硬件故障带来的风险。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/集群/" rel="tag"># 集群</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/16/Java-并发-Java并发编程实践-思维导图-第四章-对象的组合/" rel="next" title="[Java 并发] Java并发编程实践 思维导图 - 第四章 对象的组合">
+                <i class="fa fa-chevron-left"></i> [Java 并发] Java并发编程实践 思维导图 - 第四章 对象的组合
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/11/18/Elasticsearch-分布式文档存储/" rel="prev" title="[Elasticsearch] 分布式文档存储">
+                [Elasticsearch] 分布式文档存储 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一个空的集群"><span class="nav-number">1.</span> <span class="nav-text">一个空的集群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集群健康指标-Cluster-Health"><span class="nav-number">2.</span> <span class="nav-text">集群健康指标(Cluster Health)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#添加索引"><span class="nav-number">3.</span> <span class="nav-text">添加索引</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

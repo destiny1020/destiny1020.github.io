@@ -1,0 +1,819 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,全文搜索," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="多字段搜索(Multifield Search)本文翻译自官方指南的Multifield Search一章。
+查询很少是只拥有一个match查询子句的查询。我们经常需要对一个或者多个字段使用相同或者不同的查询字符串进行搜索，这意味着我们需要将多个查询子句和它们得到的相关度分值以一种有意义的方式进行合并。
+也许我们正在寻找一本名为战争与和平的书，它的作者是Leo Tolstoy。也许我们正在使用”最">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 多字段搜索 (一) - 多个及单个查询字符串">
+<meta property="og:url" content="http://rxjiang.com/2014/12/08/Elasticsearch-多字段搜索-一-多个及单个查询字符串/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="多字段搜索(Multifield Search)本文翻译自官方指南的Multifield Search一章。
+查询很少是只拥有一个match查询子句的查询。我们经常需要对一个或者多个字段使用相同或者不同的查询字符串进行搜索，这意味着我们需要将多个查询子句和它们得到的相关度分值以一种有意义的方式进行合并。
+也许我们正在寻找一本名为战争与和平的书，它的作者是Leo Tolstoy。也许我们正在使用”最">
+<meta property="og:updated_time" content="2017-02-20T03:06:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 多字段搜索 (一) - 多个及单个查询字符串">
+<meta name="twitter:description" content="多字段搜索(Multifield Search)本文翻译自官方指南的Multifield Search一章。
+查询很少是只拥有一个match查询子句的查询。我们经常需要对一个或者多个字段使用相同或者不同的查询字符串进行搜索，这意味着我们需要将多个查询子句和它们得到的相关度分值以一种有意义的方式进行合并。
+也许我们正在寻找一本名为战争与和平的书，它的作者是Leo Tolstoy。也许我们正在使用”最">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/12/08/Elasticsearch-多字段搜索-一-多个及单个查询字符串/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 多字段搜索 (一) - 多个及单个查询字符串 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/08/Elasticsearch-多字段搜索-一-多个及单个查询字符串/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 多字段搜索 (一) - 多个及单个查询字符串
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-08T10:19:00+08:00">
+                2014-12-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="多字段搜索-Multifield-Search"><a href="#多字段搜索-Multifield-Search" class="headerlink" title="多字段搜索(Multifield Search)"></a>多字段搜索(Multifield Search)</h1><p>本文翻译自官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/multi-field-search.html" target="_blank" rel="external">Multifield Search</a>一章。</p>
+<p>查询很少是只拥有一个match查询子句的查询。我们经常需要对一个或者多个字段使用相同或者不同的查询字符串进行搜索，这意味着我们需要将多个查询子句和它们得到的相关度分值以一种有意义的方式进行合并。</p>
+<p>也许我们正在寻找一本名为战争与和平的书，它的作者是Leo Tolstoy。也许我们正在使用”最少应该匹配(Minimum Should Match)”来搜索ES中的文档。另外我们也可能会寻找拥有名为John而姓为Smith的用户。</p>
+<p>在本章中我们会讨论一些构建多字段搜索的工具，以及如何根据你的实际情况来决定使用哪种方案。</p>
+<a id="more"></a>
+<h2 id="多个查询字符串-Multiple-Query-Strings"><a href="#多个查询字符串-Multiple-Query-Strings" class="headerlink" title="多个查询字符串(Multiple Query Strings)"></a>多个查询字符串(Multiple Query Strings)</h2><p>处理字段查询最简单的方法是将搜索词条对应到特定的字段上。如果我们知道战争与和平是标题，而Leo Tolstoy是作者，那么我们可以简单地将每个条件当做一个match子句，然后通过<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/bool-query.html" target="_blank" rel="external">bool查询</a>将它们合并：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "should": [</div><div class="line">        &#123; "match": &#123; "title":  "War and Peace" &#125;&#125;,</div><div class="line">        &#123; "match": &#123; "author": "Leo Tolstoy"   &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>bool查询采用了一种”匹配越多越好(More-matches-is-better)”的方法，因此每个match子句的分值会被累加来得到文档最终的_score。匹配两个子句的文档相比那些只匹配一个子句的文档的分值会高一些。</p>
+<p>当然，你并不是只能使用match子句：bool查询可以包含任何其他类型的查询，包括其它的bool查询。我们可以添加一个子句来指定我们希望的译者：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "should": [</div><div class="line">        &#123; "match": &#123; "title":  "War and Peace" &#125;&#125;,</div><div class="line">        &#123; "match": &#123; "author": "Leo Tolstoy"   &#125;&#125;,</div><div class="line">        &#123; "bool":  &#123;</div><div class="line">          "should": [</div><div class="line">            &#123; "match": &#123; "translator": "Constance Garnett" &#125;&#125;,</div><div class="line">            &#123; "match": &#123; "translator": "Louise Maude"      &#125;&#125;</div><div class="line">          ]</div><div class="line">        &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们为什么将译者的查询子句放在一个单独的bool查询中？所有的4个match查询都是should子句，那么为何不将译者的查询子句和标题及作者的查询子句放在同一层次上呢？</p>
+<p>答案在于分值是如何计算的。bool查询会运行每个match查询，将它们的分值相加，然后乘以匹配的查询子句的数量，最后除以所有查询子句的数量。相同层次的每个子句都拥有相同的权重。在上述查询中，bool查询中包含的译者查询子句只占了总分值的三分之一。如果我们将译者查询子句放到和标题及作者相同的层次上，就会减少标题和作者子句的权重，让它们各自只占四分之一。</p>
+<h3 id="设置子句优先级"><a href="#设置子句优先级" class="headerlink" title="设置子句优先级"></a>设置子句优先级</h3><p>上述查询中每个子句占有三分之一的权重也许并不是我们需要的。相比译者字段，我们可能对标题和作者字段更有兴趣。我们对查询进行调整来让标题和作者相对更重要。</p>
+<p>在所有可用措施中，我们可以采用的最简单的方法是boost参数。为了增加title和author字段的权重，我们可以给它们一个大于1的boost值：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">  "query": &#123;</div><div class="line">    "bool": &#123;</div><div class="line">      "should": [</div><div class="line">        &#123; "match": &#123; </div><div class="line">            "title":  &#123;</div><div class="line">              "query": "War and Peace",</div><div class="line">              "boost": 2</div><div class="line">        &#125;&#125;&#125;,</div><div class="line">        &#123; "match": &#123; </div><div class="line">            "author":  &#123;</div><div class="line">              "query": "Leo Tolstoy",</div><div class="line">              "boost": 2</div><div class="line">        &#125;&#125;&#125;,</div><div class="line">        &#123; "bool":  &#123; </div><div class="line">            "should": [</div><div class="line">              &#123; "match": &#123; "translator": "Constance Garnett" &#125;&#125;,</div><div class="line">              &#123; "match": &#123; "translator": "Louise Maude"      &#125;&#125;</div><div class="line">            ]</div><div class="line">        &#125;&#125;</div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上的title和k字段的boost值为2。 嵌套的bool查询自居的默认boost值为k。</p>
+<p>通过试错(Trial and Error)的方式可以确定”最佳”的boost值：设置一个boost值，执行测试查询，重复这个过程。一个合理boost值的范围在1和10之间，也可能是15。比它更高的值的影响不会起到很大的作用，因为分值会被<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_boosting_query_clauses.html#boost-normalization" target="_blank" rel="external">规范化(Normalized)</a>。</p>
+<h2 id="单一查询字符串-Single-Query-String"><a href="#单一查询字符串-Single-Query-String" class="headerlink" title="单一查询字符串(Single Query String)"></a>单一查询字符串(Single Query String)</h2><p>bool查询是多字段查询的中流砥柱。在很多场合下它都能很好地工作，特别是当你能够将不同的查询字符串映射到不同的字段时。</p>
+<p>问题在于，现在的用户期望能够在一个地方输入所有的搜索词条，然后应用能够知道如何为他们得到正确的结果。所以当我们把含有多个字段的搜索表单称为高级搜索(Advanced Search)时，是有一些讽刺意味的。高级搜索虽然对用户而言会显得更”高级”，但是实际上它的实现方式更简单。</p>
+<p>对于多词，多字段查询并没有一种万能的方法。要得到最佳的结果，你需要了解你的数据以及如何使用恰当的工具。</p>
+<h3 id="了解你的数据"><a href="#了解你的数据" class="headerlink" title="了解你的数据"></a>了解你的数据</h3><p>当用户的唯一输入就是一个查询字符串时，你会经常碰到以下三种情况：</p>
+<p><strong>最佳字段(Best fields)</strong></p>
+<p>当搜索代表某些概念的单词时，例如”brown fox”，几个单词合在一起表达出来的意思比单独的单词更多。类似title和body的字段，尽管它们是相关联的，但是也是互相竞争着的。文档在相同的字段中应该有尽可能多的单词(译注：搜索的目标单词)，文档的分数应该来自拥有最佳匹配的字段。</p>
+<p><strong>多数字段(Most fields)</strong></p>
+<p>一个用来调优相关度的常用技术是将相同的数据索引到多个字段中，每个字段拥有自己的分析链(Analysis Chain)。</p>
+<p>主要字段会含有单词的词干部分，同义词和消除了变音符号的单词。它用来尽可能多地匹配文档。</p>
+<p>相同的文本可以被索引到其它的字段中来提供更加精确的匹配。一个字段或许会包含未被提取词干的单词，另一个字段是包含了变音符号的单词，第三个字段则使用shingle来提供关于<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/proximity-matching.html" target="_blank" rel="external">单词邻近度(Word Proximity)</a>的信息。</p>
+<p>以上这些额外的字段扮演者signal的角色，用来增加每个匹配的文档的相关度分值。越多的字段被匹配则意味着文档的相关度越高。</p>
+<p><strong>跨字段(Cross fields)</strong></p>
+<p>对于一些实体，标识信息会在多个字段中出现，每个字段中只含有一部分信息：</p>
+<ul>
+<li>Person：first_name 和 last_name</li>
+<li>Book：title，author 和 description</li>
+<li>Address：street，city，country 和 postcode</li>
+</ul>
+<p>此时，我们希望在任意字段中找到尽可能多的单词。我们需要在多个字段中进行查询，就好像这些字段是一个字段那样。</p>
+<p>以上这些都是多词，多字段查询，但是每种都需要使用不同的策略。我们会在本章剩下的部分解释每种策略。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/全文搜索/" rel="tag"># 全文搜索</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/12/06/Elasticsearch-全文搜索-四-控制分析及相关度/" rel="next" title="[Elasticsearch] 全文搜索 (四) - 控制分析及相关度">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 全文搜索 (四) - 控制分析及相关度
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/09/Elasticsearch-多字段搜索-二-最佳字段查询及其调优/" rel="prev" title="[Elasticsearch] 多字段搜索 (二) - 最佳字段查询及其调优">
+                [Elasticsearch] 多字段搜索 (二) - 最佳字段查询及其调优 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#多字段搜索-Multifield-Search"><span class="nav-number">1.</span> <span class="nav-text">多字段搜索(Multifield Search)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#多个查询字符串-Multiple-Query-Strings"><span class="nav-number">1.1.</span> <span class="nav-text">多个查询字符串(Multiple Query Strings)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#设置子句优先级"><span class="nav-number">1.1.1.</span> <span class="nav-text">设置子句优先级</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单一查询字符串-Single-Query-String"><span class="nav-number">1.2.</span> <span class="nav-text">单一查询字符串(Single Query String)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#了解你的数据"><span class="nav-number">1.2.1.</span> <span class="nav-text">了解你的数据</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

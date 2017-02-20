@@ -1,0 +1,820 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,索引," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="默认映射(Default Mapping)一般情况下，索引中的所有类型都会有相似的字段和设置。因此将这些常用设置在_default映射中指定会更加方便，这样就不需要在每次创建新类型的时候都重复设置。_default映射的角色是新类型的模板。所有在_default映射之后创建的类型都会包含所有的默认设置，除非显式地在类型映射中进行覆盖。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 索引管理 (五) - 默认映射，重索引，索引别名">
+<meta property="og:url" content="http://rxjiang.com/2014/12/01/Elasticsearch-索引管理-五-默认映射，重索引，索引别名/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="默认映射(Default Mapping)一般情况下，索引中的所有类型都会有相似的字段和设置。因此将这些常用设置在_default映射中指定会更加方便，这样就不需要在每次创建新类型的时候都重复设置。_default映射的角色是新类型的模板。所有在_default映射之后创建的类型都会包含所有的默认设置，除非显式地在类型映射中进行覆盖。">
+<meta property="og:updated_time" content="2017-02-20T02:34:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 索引管理 (五) - 默认映射，重索引，索引别名">
+<meta name="twitter:description" content="默认映射(Default Mapping)一般情况下，索引中的所有类型都会有相似的字段和设置。因此将这些常用设置在_default映射中指定会更加方便，这样就不需要在每次创建新类型的时候都重复设置。_default映射的角色是新类型的模板。所有在_default映射之后创建的类型都会包含所有的默认设置，除非显式地在类型映射中进行覆盖。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2014/12/01/Elasticsearch-索引管理-五-默认映射，重索引，索引别名/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 索引管理 (五) - 默认映射，重索引，索引别名 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2014/12/01/Elasticsearch-索引管理-五-默认映射，重索引，索引别名/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 索引管理 (五) - 默认映射，重索引，索引别名
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-12-01T10:13:00+08:00">
+                2014-12-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="默认映射-Default-Mapping"><a href="#默认映射-Default-Mapping" class="headerlink" title="默认映射(Default Mapping)"></a>默认映射(Default Mapping)</h2><p>一般情况下，索引中的所有类型都会有相似的字段和设置。因此将这些常用设置在_default映射中指定会更加方便，这样就不需要在每次创建新类型的时候都重复设置。_default映射的角色是新类型的模板。所有在_default映射之后创建的类型都会包含所有的默认设置，除非显式地在类型映射中进行覆盖。</p>
+<a id="more"></a>
+<p>比如，我们使用_default映射对所有类型禁用_all字段，唯独对blog类型启用它。可以这样实现：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">PUT /my_index</div><div class="line">&#123;</div><div class="line">    "mappings": &#123;</div><div class="line">        "_default_": &#123;</div><div class="line">            "_all": &#123; "enabled":  false &#125;</div><div class="line">        &#125;,</div><div class="line">        "blog": &#123;</div><div class="line">            "_all": &#123; "enabled":  true  &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><em>default</em>映射同时也是一个声明作用于整个索引的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/custom-dynamic-mapping.html#dynamic-templates" target="_blank" rel="external">动态模板(Dynamic Templates)</a>的好地方。</p>
+<h2 id="数据重索引"><a href="#数据重索引" class="headerlink" title="数据重索引"></a>数据重索引</h2><p>虽然你可以向索引中添加新的类型，或者像类型中添加新的字段，但是你不能添加新的解析器或者对现有字段进行修改。如果你这么做了，就会让已经索引的数据变的不正确，导致搜索不能正常的进行。</p>
+<p>为已经存在的数据适用这些更改的最简单的方法就是重索引(Reindex)：新建一个拥有最新配置的索引，然后将所有旧索引中的数据拷贝到新的索引中。</p>
+<p>_source字段的一个优势是在ES中你已经拥有了整个文档。你不需要通过数据库来重建你的索引，这种方法通常会更慢。</p>
+<p>为了从旧索引中高效地对所有文档进行重索引，可以使用<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/scan-scroll.html" target="_blank" rel="external">scan和scroll</a>来批量地从旧索引中获取文档，然后使用<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/bulk.html" target="_blank" rel="external">bulk API</a>将它们添加到新索引中。</p>
+<blockquote>
+<p>批量重索引</p>
+<p>你可以同时执行多个重索引任务，但是你显然不想要它们的结果有任何重叠。可以根据date或者timestamp字段对重索引的任务进行划分，成为规模较小的任务：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">&gt; GET /old_index/_search?search_type=scan&amp;scroll=1m</div><div class="line">&gt; &#123;</div><div class="line">&gt;     "query": &#123;</div><div class="line">&gt;         "range": &#123;</div><div class="line">&gt;             "date": &#123;</div><div class="line">&gt;                 "gte":  "2014-01-01",</div><div class="line">&gt;                 "lt":   "2014-02-01"</div><div class="line">&gt;             &#125;</div><div class="line">&gt;         &#125;</div><div class="line">&gt;     &#125;,</div><div class="line">&gt;     "size":  1000</div><div class="line">&gt; &#125;</div><div class="line">&gt;</div></pre></td></tr></table></figure>
+<p>如果你正在持续地更改旧索引中的数据，想必你也希望这些更改也会被反映到新索引中。这可以通过再次运行重索引任务来完成，但是还是可以通过对日期字段进行过滤来得到在上次重索引开始后才被添加的文档。</p>
+</blockquote>
+<h2 id="索引别名和零停机时间-Index-Alias-and-Zero-Downtime"><a href="#索引别名和零停机时间-Index-Alias-and-Zero-Downtime" class="headerlink" title="索引别名和零停机时间(Index Alias and Zero Downtime)"></a>索引别名和零停机时间(Index Alias and Zero Downtime)</h2><p>重索引的问题在于你需要更新你的应用让它使用新的索引名。而索引别名可以解决这个问题。</p>
+<p>一个索引别名就好比一个快捷方式(Shortcut)或一个符号链接(Symbolic Link)，索引别名可以指向一个或者多个索引，可以在任何需要索引名的API中使用。使用别名可以给我们非常多的灵活性。它能够让我们：</p>
+<ul>
+<li>在一个运行的集群中透明地从一个索引切换到另一个索引</li>
+<li>让多个索引形成一个组，比如last_three_months</li>
+<li>为一个索引中的一部分文档创建一个视图(View)</li>
+</ul>
+<p>我们会在本书的后面讨论更多关于别名的其它用途。现在我们要解释的是如何在零停机时间的前提下，使用别名来完成从旧索引切换到新索引。</p>
+<p>有两个用来管理别名的端点(Endpoint)：_alias用来完成单一操作，_aliases用来原子地完成多个操作。</p>
+<p>在这个场景中，我们假设你的应用正在使用一个名为my_index的索引。实际上，my_index是一个别名，它指向了当前正在使用的真实索引。我们会在真实索引的名字中包含一个版本号码：my_index_v1，my_index_v2等。</p>
+<p>首先，创建索引my_index_v1，然后让别名my_index指向它：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">PUT /my_index_v1 </div><div class="line">PUT /my_index_v1/_alias/my_index</div></pre></td></tr></table></figure>
+<p>可以通过下面的请求得到别名指向的索引：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">GET /*/_alias/my_index</div></pre></td></tr></table></figure>
+<p>或者查询指向真实索引的有哪些别名：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">GET /my_index_v1/_alias/*</div></pre></td></tr></table></figure>
+<p>它们都会返回：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="attr">"my_index_v1"</span> : &#123;</div><div class="line">        <span class="attr">"aliases"</span> : &#123;</div><div class="line">            <span class="attr">"my_index"</span> : &#123; &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后，我们决定要为索引中的一个字段更改其映射。当然，我们是不能修改当前的映射的，因此我们只好对数据进行重索引。此时我们创建了拥有新的映射的索引my_index_v2：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">PUT /my_index_v2</div><div class="line">&#123;</div><div class="line">    "mappings": &#123;</div><div class="line">        "my_type": &#123;</div><div class="line">            "properties": &#123;</div><div class="line">                "tags": &#123;</div><div class="line">                    "type":   "string",</div><div class="line">                    "index":  "not_analyzed"</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>紧接着，我们会根据<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/reindex.html" target="_blank" rel="external">数据重索引</a>中的流程将my_index_v1中的数据重索引到my_index_v2。一旦我们确定了文档已经被正确地索引，我们就能够将别名切换到新的索引上了。</p>
+<p>一个别名能够指向多个索引，因此当我们将别名指向新的索引时，我们还需要删除别名原来到旧索引的指向。这个改变需要是原子的，即意味着我们需要使用_aliases端点：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">POST /_aliases</div><div class="line">&#123;</div><div class="line">    "actions": [</div><div class="line">        &#123; "remove": &#123; "index": "my_index_v1", "alias": "my_index" &#125;&#125;,</div><div class="line">        &#123; "add":    &#123; "index": "my_index_v2", "alias": "my_index" &#125;&#125;</div><div class="line">    ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>现在你的应用就在零停机时间的前提下，实现了旧索引到新索引的透明切换。</p>
+<blockquote>
+<p>TIP</p>
+<p>即使你认为当前的索引设计是完美的，将来你也会发现有一些部分需要被改变，而那个时候你的索引已经在生产环境中被使用了。</p>
+<p>在应用中使用索引别名而不是索引的真实名称，这样你就能够在任何需要的时候执行重索引操作。应该充分地使用别名。</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/索引/" rel="tag"># 索引</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/29/Elasticsearch-索引管理-四-动态映射/" rel="next" title="[Elasticsearch] 索引管理 (四) - 动态映射">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 索引管理 (四) - 动态映射
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/02/AngularJS-Elasticsearch-使用AngularJS为基于Elasticsearch的应用创建前端/" rel="prev" title="[AngularJS/Elasticsearch] 使用AngularJS为基于Elasticsearch的应用创建前端">
+                [AngularJS/Elasticsearch] 使用AngularJS为基于Elasticsearch的应用创建前端 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#默认映射-Default-Mapping"><span class="nav-number">1.</span> <span class="nav-text">默认映射(Default Mapping)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据重索引"><span class="nav-number">2.</span> <span class="nav-text">数据重索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#索引别名和零停机时间-Index-Alias-and-Zero-Downtime"><span class="nav-number">3.</span> <span class="nav-text">索引别名和零停机时间(Index Alias and Zero Downtime)</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

@@ -420,7 +420,7 @@
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">isWinner</span>(<span class="params">player, others</span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> highest = <span class="number">0</span>;  </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = others.length; i &lt; n; i++) &#123;  </div><div class="line">        <span class="keyword">var</span> player = others[i];  </div><div class="line">        <span class="keyword">if</span> (player.score &gt; highest) &#123;  </div><div class="line">            highest = player.score;  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> player.score &gt; highest;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <a id="more"></a>
 <p>上面的代码中，在for循环中声明了一个变量player，因为Variable Hoisting的原因，这个变量实际上被声明成了下面这个样子：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">isWinner</span>(<span class="params">player, others</span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> player;  </div><div class="line">    <span class="keyword">var</span> highest = <span class="number">0</span>;  </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = others.length; i &lt; n; i++) &#123;  </div><div class="line">        &lt;span style=<span class="string">"color:#ff0000;"</span>&gt;player = others[i];&lt;/span&gt;  </div><div class="line">        <span class="keyword">if</span> (player.score &gt; highest) &#123;  </div><div class="line">            highest = player.score;  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> player.score &gt; highest;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">isWinner</span>(<span class="params">player, others</span>) </span>&#123;  </div><div class="line">    <span class="keyword">var</span> player;  </div><div class="line">    <span class="keyword">var</span> highest = <span class="number">0</span>;  </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, n = others.length; i &lt; n; i++) &#123;  </div><div class="line">        &lt;span style=<span class="string">"color:#ff0000;"</span>&gt;player = others[i];<span class="xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span>  </div><div class="line">        <span class="keyword">if</span> (player.score &gt; highest) &#123;  </div><div class="line">            highest = player.score;  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> player.score &gt; highest;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>因此，传入到function中的player参数被覆盖掉了。程序不能按预期行为运行。</p>
 <p>在JavaScript中，对于变量的声明实际上包含了两个部分：</p>
 <ol>
@@ -559,7 +559,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">85</span>
+                <span class="site-state-item-count">109</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -568,7 +568,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -577,7 +577,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
