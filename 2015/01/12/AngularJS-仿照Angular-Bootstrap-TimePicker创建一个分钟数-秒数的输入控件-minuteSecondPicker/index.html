@@ -1,0 +1,792 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="AngularJS,Bootstrap,Directive,控件," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在一个项目中需要一个用来输入分钟数和秒数的控件，然而调查了一些开源项目后并未发现合适的控件。在Angular Bootstrap UI中有一个类似的控件TimePicker，但是它并没有深入到分钟和秒的精度。
+因此，决定参考它的源码然后自己进行实现。
+最终的效果如下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[AngularJS] 仿照Angular Bootstrap TimePicker创建一个分钟数-秒数的输入控件(minuteSecondPicker)">
+<meta property="og:url" content="http://rxjiang.com/2015/01/12/AngularJS-仿照Angular-Bootstrap-TimePicker创建一个分钟数-秒数的输入控件-minuteSecondPicker/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="在一个项目中需要一个用来输入分钟数和秒数的控件，然而调查了一些开源项目后并未发现合适的控件。在Angular Bootstrap UI中有一个类似的控件TimePicker，但是它并没有深入到分钟和秒的精度。
+因此，决定参考它的源码然后自己进行实现。
+最终的效果如下：">
+<meta property="og:image" content="https://github.com/destiny1020/js-learning-notes-cn/raw/master/images/minute-second-picker.png">
+<meta property="og:updated_time" content="2017-02-20T08:24:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[AngularJS] 仿照Angular Bootstrap TimePicker创建一个分钟数-秒数的输入控件(minuteSecondPicker)">
+<meta name="twitter:description" content="在一个项目中需要一个用来输入分钟数和秒数的控件，然而调查了一些开源项目后并未发现合适的控件。在Angular Bootstrap UI中有一个类似的控件TimePicker，但是它并没有深入到分钟和秒的精度。
+因此，决定参考它的源码然后自己进行实现。
+最终的效果如下：">
+<meta name="twitter:image" content="https://github.com/destiny1020/js-learning-notes-cn/raw/master/images/minute-second-picker.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2015/01/12/AngularJS-仿照Angular-Bootstrap-TimePicker创建一个分钟数-秒数的输入控件-minuteSecondPicker/"/>
+
+
+
+
+
+  <title> [AngularJS] 仿照Angular Bootstrap TimePicker创建一个分钟数-秒数的输入控件(minuteSecondPicker) | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/01/12/AngularJS-仿照Angular-Bootstrap-TimePicker创建一个分钟数-秒数的输入控件-minuteSecondPicker/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [AngularJS] 仿照Angular Bootstrap TimePicker创建一个分钟数-秒数的输入控件(minuteSecondPicker)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-12T00:34:00+08:00">
+                2015-01-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库和框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库和框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库和框架/AngularJS/" itemprop="url" rel="index">
+                    <span itemprop="name">AngularJS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在一个项目中需要一个用来输入分钟数和秒数的控件，然而调查了一些开源项目后并未发现合适的控件。在Angular Bootstrap UI中有一个类似的控件TimePicker，但是它并没有深入到分钟和秒的精度。</p>
+<p>因此，决定参考它的源码然后自己进行实现。</p>
+<p>最终的效果如下：</p>
+<p><img src="https://github.com/destiny1020/js-learning-notes-cn/raw/master/images/minute-second-picker.png" alt=""></p>
+<a id="more"></a>
+<p>首先是该directive的定义：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">app.directive(<span class="string">'minuteSecondPicker'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">        <span class="attr">restrict</span>: <span class="string">'EA'</span>,</div><div class="line">        <span class="attr">require</span>: [<span class="string">'minuteSecondPicker'</span>, <span class="string">'?^ngModel'</span>],</div><div class="line">        <span class="attr">controller</span>: <span class="string">'minuteSecondPickerController'</span>,</div><div class="line">        <span class="attr">replace</span>: <span class="literal">true</span>,</div><div class="line">        <span class="attr">scope</span>: &#123;</div><div class="line">            <span class="attr">validity</span>: <span class="string">'='</span></div><div class="line">        &#125;,</div><div class="line">        <span class="attr">templateUrl</span>: <span class="string">'partials/directives/minuteSecondPicker.html'</span>,</div><div class="line">        <span class="attr">link</span>: <span class="function"><span class="keyword">function</span>(<span class="params">scope, element, attrs, ctrls</span>) </span>&#123;</div><div class="line">            <span class="keyword">var</span> minuteSecondPickerCtrl = ctrls[<span class="number">0</span>],</div><div class="line">                ngModelCtrl = ctrls[<span class="number">1</span>];</div><div class="line"></div><div class="line">            <span class="keyword">if</span>(ngModelCtrl) &#123;</div><div class="line">                minuteSecondPickerCtrl.init(ngModelCtrl, element.find(<span class="string">'input'</span>));</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>在以上的link函数中，ctrls是一个数组： ctrls[0]是定义在本directive上的controller实例，ctrls[1]是ngModelCtrl，即ng-model对应的controller实例。这个顺序实际上是通过require: [‘minuteSecondPicker’, ‘?^ngModel’]定义的。</p>
+<p>注意到第一个依赖就是directive本身的名字，此时会将该directive中controller声明的对应实例传入。第二个依赖的写法有些奇怪：”?^ngModel”，?的含义是即使没有找到该依赖，也不要抛出异常，即该依赖是一个可选项。^的含义是查找父元素的controller。</p>
+<p>然后，定义该directive中用到的一些默认设置，通过constant directive实现：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">app.constant(<span class="string">'minuteSecondPickerConfig'</span>, &#123;</div><div class="line">    <span class="attr">minuteStep</span>: <span class="number">1</span>,</div><div class="line">    <span class="attr">secondStep</span>: <span class="number">1</span>,</div><div class="line">    <span class="attr">readonlyInput</span>: <span class="literal">false</span>,</div><div class="line">    <span class="attr">mousewheel</span>: <span class="literal">true</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>紧接着是directive对应的controller，它的声明如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">app.controller(<span class="string">'minuteSecondPickerController'</span>, [<span class="string">'$scope'</span>, <span class="string">'$attrs'</span>, <span class="string">'$parse'</span>, <span class="string">'minuteSecondPickerConfig'</span>, </div><div class="line">    <span class="function"><span class="keyword">function</span>(<span class="params">$scope, $attrs, $parse, minuteSecondPickerConfig</span>) </span>&#123;</div><div class="line">    ...</div><div class="line">&#125;]);</div></pre></td></tr></table></figure>
+<p>在directive的link函数中，调用了此controller的init方法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>.init = <span class="function"><span class="keyword">function</span>(<span class="params">ngModelCtrl_, inputs</span>) </span>&#123;</div><div class="line">     ngModelCtrl = ngModelCtrl_;</div><div class="line">     ngModelCtrl.$render = <span class="keyword">this</span>.render;</div><div class="line"></div><div class="line">     <span class="keyword">var</span> minutesInputEl = inputs.eq(<span class="number">0</span>),</div><div class="line">         secondsInputEl = inputs.eq(<span class="number">1</span>);</div><div class="line"></div><div class="line">     <span class="keyword">var</span> mousewheel = angular.isDefined($attrs.mousewheel) ? </div><div class="line">         $scope.$parent.$<span class="built_in">eval</span>($attrs.mousewheel) : minuteSecondPickerConfig.mousewheel;</div><div class="line">     <span class="keyword">if</span>(mousewheel) &#123;</div><div class="line">         <span class="keyword">this</span>.setupMousewheelEvents(minutesInputEl, secondsInputEl);</div><div class="line">     &#125;</div><div class="line"></div><div class="line">     $scope.readonlyInput = angular.isDefined($attrs.readonlyInput) ?</div><div class="line">         $scope.$parent.$<span class="built_in">eval</span>($attrs.readonlyInput) : minuteSecondPickerConfig.readonlyInput;</div><div class="line">     <span class="keyword">this</span>.setupInputEvents(minutesInputEl, secondsInputEl);</div><div class="line"> &#125;;</div></pre></td></tr></table></figure>
+<p>init方法接受的第二个参数是inputs，在link函数中传入的是：element.find(‘input’)。 所以第一个输入框用来输入分钟，第二个输入框用来输入秒。</p>
+<p>然后，检查是否覆盖了mousewheel属性，如果没有覆盖则使用在constant中设置的默认mousewheel，并进行相关设置如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// respond on mousewheel spin</span></div><div class="line"><span class="keyword">this</span>.setupMousewheelEvents = <span class="function"><span class="keyword">function</span>(<span class="params">minutesInputEl, secondsInputEl</span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> isScrollingUp = <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">        <span class="keyword">if</span>(e.originalEvent) &#123;</div><div class="line">            e = e.originalEvent;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// pick correct delta variable depending on event</span></div><div class="line">        <span class="keyword">var</span> delta = (e.wheelData) ? e.wheelData : -e.deltaY;</div><div class="line">        <span class="keyword">return</span> (e.detail || delta &gt; <span class="number">0</span>);</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    minutesInputEl.bind(<span class="string">'mousewheel wheel'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">        $scope.$apply((isScrollingUp(e)) ? $scope.incrementMinutes() : $scope.decrementMinutes());</div><div class="line">        e.preventDefault();</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    secondsInputEl.bind(<span class="string">'mousewheel wheel'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">        $scope.$apply((isScrollingUp(e)) ? $scope.incrementSeconds() : $scope.decrementSeconds());</div><div class="line">        e.preventDefault();</div><div class="line">    &#125;);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>init方法最后会对inputs本身进行一些设置：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// respond on direct input</span></div><div class="line"><span class="keyword">this</span>.setupInputEvents = <span class="function"><span class="keyword">function</span>(<span class="params">minutesInputEl, secondsInputEl</span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span>($scope.readonlyInput) &#123;</div><div class="line">        $scope.updateMinutes = angular.noop;</div><div class="line">        $scope.updateSeconds = angular.noop;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">var</span> invalidate = <span class="function"><span class="keyword">function</span>(<span class="params">invalidMinutes, invalidSeconds</span>) </span>&#123;</div><div class="line">        ngModelCtrl.$setViewValue(<span class="literal">null</span>);</div><div class="line">        ngModelCtrl.$setValidity(<span class="string">'time'</span>, <span class="literal">false</span>);</div><div class="line">        $scope.validity = <span class="literal">false</span>;</div><div class="line">        <span class="keyword">if</span>(angular.isDefined(invalidMinutes)) &#123;</div><div class="line">            $scope.invalidMinutes = invalidMinutes;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span>(angular.isDefined(invalidSeconds)) &#123;</div><div class="line">            $scope.invalidSeconds = invalidSeconds;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    $scope.updateMinutes = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> minutes = getMinutesFromTemplate();</div><div class="line"></div><div class="line">        <span class="keyword">if</span>(angular.isDefined(minutes)) &#123;</div><div class="line">            selected.minutes = minutes;</div><div class="line">            refresh(<span class="string">'m'</span>);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            invalidate(<span class="literal">true</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    minutesInputEl.bind(<span class="string">'blur'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">        <span class="keyword">if</span>(!$scope.invalidMinutes &amp;&amp; $scope.minutes &lt; <span class="number">10</span>) &#123;</div><div class="line">            $scope.$apply(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">                $scope.minutes = pad($scope.minutes);</div><div class="line">            &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    $scope.updateSeconds = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> seconds = getSecondsFromTemplate();</div><div class="line"></div><div class="line">        <span class="keyword">if</span>(angular.isDefined(seconds)) &#123;</div><div class="line">            selected.seconds = seconds;</div><div class="line">            refresh(<span class="string">'s'</span>);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            invalidate(<span class="literal">undefined</span>, <span class="literal">true</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    secondsInputEl.bind(<span class="string">'blur'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">        <span class="keyword">if</span>(!$scope.invalidSeconds &amp;&amp; $scope.seconds &lt; <span class="number">10</span>) &#123;</div><div class="line">            $scope.$apply(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">                $scope.seconds = pad($scope.seconds);</div><div class="line">            &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>此方法中，声明了用于设置输入非法的invalidate函数，它会在scope中暴露一个validity = false属性让页面有机会做出合适的反应。</p>
+<p>如果用户使用了一个变量来表示minuteStep或者secondStep，那么还需要设置相应的watchers：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> minuteStep = minuteSecondPickerConfig.minuteStep;</div><div class="line"><span class="keyword">if</span>($attrs.minuteStep) &#123;</div><div class="line">    $scope.parent.$watch($parse($attrs.minuteStep), <span class="function"><span class="keyword">function</span>(<span class="params">value</span>) </span>&#123;</div><div class="line">        minuteStep = <span class="built_in">parseInt</span>(value, <span class="number">10</span>);</div><div class="line">    &#125;);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> secondStep = minuteSecondPickerConfig.secondStep;</div><div class="line"><span class="keyword">if</span>($attrs.secondStep) &#123;</div><div class="line">    $scope.parent.$watch($parse($attrs.secondStep), <span class="function"><span class="keyword">function</span>(<span class="params">value</span>) </span>&#123;</div><div class="line">        secondStep = <span class="built_in">parseInt</span>(value, <span class="number">10</span>);</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>完整的directive实现代码如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> app = angular.module(<span class="string">"minuteSecondPickerDemo"</span>);</div><div class="line"></div><div class="line">app.directive(<span class="string">'minuteSecondPicker'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">        <span class="attr">restrict</span>: <span class="string">'EA'</span>,</div><div class="line">        <span class="attr">require</span>: [<span class="string">'minuteSecondPicker'</span>, <span class="string">'?^ngModel'</span>],</div><div class="line">        <span class="attr">controller</span>: <span class="string">'minuteSecondPickerController'</span>,</div><div class="line">        <span class="attr">replace</span>: <span class="literal">true</span>,</div><div class="line">        <span class="attr">scope</span>: &#123;</div><div class="line">            <span class="attr">validity</span>: <span class="string">'='</span></div><div class="line">        &#125;,</div><div class="line">        <span class="attr">templateUrl</span>: <span class="string">'partials/directives/minuteSecondPicker.html'</span>,</div><div class="line">        <span class="attr">link</span>: <span class="function"><span class="keyword">function</span>(<span class="params">scope, element, attrs, ctrls</span>) </span>&#123;</div><div class="line">            <span class="keyword">var</span> minuteSecondPickerCtrl = ctrls[<span class="number">0</span>],</div><div class="line">                ngModelCtrl = ctrls[<span class="number">1</span>];</div><div class="line"></div><div class="line">            <span class="keyword">if</span>(ngModelCtrl) &#123;</div><div class="line">                minuteSecondPickerCtrl.init(ngModelCtrl, element.find(<span class="string">'input'</span>));</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">&#125;);</div><div class="line"></div><div class="line">app.constant(<span class="string">'minuteSecondPickerConfig'</span>, &#123;</div><div class="line">    <span class="attr">minuteStep</span>: <span class="number">1</span>,</div><div class="line">    <span class="attr">secondStep</span>: <span class="number">1</span>,</div><div class="line">    <span class="attr">readonlyInput</span>: <span class="literal">false</span>,</div><div class="line">    <span class="attr">mousewheel</span>: <span class="literal">true</span></div><div class="line">&#125;);</div><div class="line"></div><div class="line">app.controller(<span class="string">'minuteSecondPickerController'</span>, [<span class="string">'$scope'</span>, <span class="string">'$attrs'</span>, <span class="string">'$parse'</span>, <span class="string">'minuteSecondPickerConfig'</span>, </div><div class="line">    <span class="function"><span class="keyword">function</span>(<span class="params">$scope, $attrs, $parse, minuteSecondPickerConfig</span>) </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">var</span> selected = &#123;</div><div class="line">            <span class="attr">minutes</span>: <span class="number">0</span>,</div><div class="line">            <span class="attr">seconds</span>: <span class="number">0</span></div><div class="line">        &#125;,</div><div class="line">        ngModelCtrl = &#123;</div><div class="line">            <span class="attr">$setViewValue</span>: angular.noop</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">    <span class="keyword">this</span>.init = <span class="function"><span class="keyword">function</span>(<span class="params">ngModelCtrl_, inputs</span>) </span>&#123;</div><div class="line">        ngModelCtrl = ngModelCtrl_;</div><div class="line">        ngModelCtrl.$render = <span class="keyword">this</span>.render;</div><div class="line"></div><div class="line">        <span class="keyword">var</span> minutesInputEl = inputs.eq(<span class="number">0</span>),</div><div class="line">            secondsInputEl = inputs.eq(<span class="number">1</span>);</div><div class="line"></div><div class="line">        <span class="keyword">var</span> mousewheel = angular.isDefined($attrs.mousewheel) ? </div><div class="line">            $scope.$parent.$<span class="built_in">eval</span>($attrs.mousewheel) : minuteSecondPickerConfig.mousewheel;</div><div class="line">        <span class="keyword">if</span>(mousewheel) &#123;</div><div class="line">            <span class="keyword">this</span>.setupMousewheelEvents(minutesInputEl, secondsInputEl);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        $scope.readonlyInput = angular.isDefined($attrs.readonlyInput) ?</div><div class="line">            $scope.$parent.$<span class="built_in">eval</span>($attrs.readonlyInput) : minuteSecondPickerConfig.readonlyInput;</div><div class="line">        <span class="keyword">this</span>.setupInputEvents(minutesInputEl, secondsInputEl);</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="keyword">var</span> minuteStep = minuteSecondPickerConfig.minuteStep;</div><div class="line">    <span class="keyword">if</span>($attrs.minuteStep) &#123;</div><div class="line">        $scope.parent.$watch($parse($attrs.minuteStep), <span class="function"><span class="keyword">function</span>(<span class="params">value</span>) </span>&#123;</div><div class="line">            minuteStep = <span class="built_in">parseInt</span>(value, <span class="number">10</span>);</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">var</span> secondStep = minuteSecondPickerConfig.secondStep;</div><div class="line">    <span class="keyword">if</span>($attrs.secondStep) &#123;</div><div class="line">        $scope.parent.$watch($parse($attrs.secondStep), <span class="function"><span class="keyword">function</span>(<span class="params">value</span>) </span>&#123;</div><div class="line">            secondStep = <span class="built_in">parseInt</span>(value, <span class="number">10</span>);</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// respond on mousewheel spin</span></div><div class="line">    <span class="keyword">this</span>.setupMousewheelEvents = <span class="function"><span class="keyword">function</span>(<span class="params">minutesInputEl, secondsInputEl</span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> isScrollingUp = <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">            <span class="keyword">if</span>(e.originalEvent) &#123;</div><div class="line">                e = e.originalEvent;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="comment">// pick correct delta variable depending on event</span></div><div class="line">            <span class="keyword">var</span> delta = (e.wheelData) ? e.wheelData : -e.deltaY;</div><div class="line">            <span class="keyword">return</span> (e.detail || delta &gt; <span class="number">0</span>);</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        minutesInputEl.bind(<span class="string">'mousewheel wheel'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">            $scope.$apply((isScrollingUp(e)) ? $scope.incrementMinutes() : $scope.decrementMinutes());</div><div class="line">            e.preventDefault();</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        secondsInputEl.bind(<span class="string">'mousewheel wheel'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">            $scope.$apply((isScrollingUp(e)) ? $scope.incrementSeconds() : $scope.decrementSeconds());</div><div class="line">            e.preventDefault();</div><div class="line">        &#125;);</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="comment">// respond on direct input</span></div><div class="line">    <span class="keyword">this</span>.setupInputEvents = <span class="function"><span class="keyword">function</span>(<span class="params">minutesInputEl, secondsInputEl</span>) </span>&#123;</div><div class="line">        <span class="keyword">if</span>($scope.readonlyInput) &#123;</div><div class="line">            $scope.updateMinutes = angular.noop;</div><div class="line">            $scope.updateSeconds = angular.noop;</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">var</span> invalidate = <span class="function"><span class="keyword">function</span>(<span class="params">invalidMinutes, invalidSeconds</span>) </span>&#123;</div><div class="line">            ngModelCtrl.$setViewValue(<span class="literal">null</span>);</div><div class="line">            ngModelCtrl.$setValidity(<span class="string">'time'</span>, <span class="literal">false</span>);</div><div class="line">            $scope.validity = <span class="literal">false</span>;</div><div class="line">            <span class="keyword">if</span>(angular.isDefined(invalidMinutes)) &#123;</div><div class="line">                $scope.invalidMinutes = invalidMinutes;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span>(angular.isDefined(invalidSeconds)) &#123;</div><div class="line">                $scope.invalidSeconds = invalidSeconds;</div><div class="line">            &#125;</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        $scope.updateMinutes = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">            <span class="keyword">var</span> minutes = getMinutesFromTemplate();</div><div class="line"></div><div class="line">            <span class="keyword">if</span>(angular.isDefined(minutes)) &#123;</div><div class="line">                selected.minutes = minutes;</div><div class="line">                refresh(<span class="string">'m'</span>);</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                invalidate(<span class="literal">true</span>);</div><div class="line">            &#125;</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        minutesInputEl.bind(<span class="string">'blur'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">            <span class="keyword">if</span>(!$scope.invalidMinutes &amp;&amp; $scope.minutes &lt; <span class="number">10</span>) &#123;</div><div class="line">                $scope.$apply(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">                    $scope.minutes = pad($scope.minutes);</div><div class="line">                &#125;);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        $scope.updateSeconds = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">            <span class="keyword">var</span> seconds = getSecondsFromTemplate();</div><div class="line"></div><div class="line">            <span class="keyword">if</span>(angular.isDefined(seconds)) &#123;</div><div class="line">                selected.seconds = seconds;</div><div class="line">                refresh(<span class="string">'s'</span>);</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                invalidate(<span class="literal">undefined</span>, <span class="literal">true</span>);</div><div class="line">            &#125;</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        secondsInputEl.bind(<span class="string">'blur'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</div><div class="line">            <span class="keyword">if</span>(!$scope.invalidSeconds &amp;&amp; $scope.seconds &lt; <span class="number">10</span>) &#123;</div><div class="line">                $scope.$apply(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">                    $scope.seconds = pad($scope.seconds);</div><div class="line">                &#125;);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="keyword">this</span>.render = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> time = ngModelCtrl.$modelValue ? &#123;</div><div class="line">            <span class="attr">minutes</span>: ngModelCtrl.$modelValue.minutes,</div><div class="line">            <span class="attr">seconds</span>: ngModelCtrl.$modelValue.seconds</div><div class="line">        &#125; : <span class="literal">null</span>;</div><div class="line"></div><div class="line">        <span class="comment">// adjust the time for invalid value at first time</span></div><div class="line">        <span class="keyword">if</span>(time.minutes &lt; <span class="number">0</span>) &#123;</div><div class="line">            time.minutes = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span>(time.seconds &lt; <span class="number">0</span>) &#123;</div><div class="line">            time.seconds = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">var</span> totalSeconds = time.minutes * <span class="number">60</span> + time.seconds;</div><div class="line">        time = &#123;</div><div class="line">            <span class="attr">minutes</span>: <span class="built_in">Math</span>.floor(totalSeconds / <span class="number">60</span>),</div><div class="line">            <span class="attr">seconds</span>: totalSeconds % <span class="number">60</span></div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        <span class="keyword">if</span>(time) &#123;</div><div class="line">            selected = time;</div><div class="line">            makeValid();</div><div class="line">            updateTemplate();</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="comment">// call internally when the model is valid</span></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">refresh</span>(<span class="params">keyboardChange</span>) </span>&#123;</div><div class="line">        makeValid();</div><div class="line">        ngModelCtrl.$setViewValue(&#123;</div><div class="line">            <span class="attr">minutes</span>: selected.minutes,</div><div class="line">            <span class="attr">seconds</span>: selected.seconds</div><div class="line">        &#125;);</div><div class="line">        updateTemplate(keyboardChange);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">makeValid</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        ngModelCtrl.$setValidity(<span class="string">'time'</span>, <span class="literal">true</span>);</div><div class="line">        $scope.validity = <span class="literal">true</span>;</div><div class="line">        $scope.invalidMinutes = <span class="literal">false</span>;</div><div class="line">        $scope.invalidSeconds = <span class="literal">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">updateTemplate</span>(<span class="params">keyboardChange</span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> minutes = selected.minutes,</div><div class="line">            seconds = selected.seconds;</div><div class="line"></div><div class="line">        $scope.minutes = keyboardChange === <span class="string">'m'</span> ? minutes : pad(minutes);</div><div class="line">        $scope.seconds = keyboardChange === <span class="string">'s'</span> ? seconds : pad(seconds);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">pad</span>(<span class="params">value</span>) </span>&#123;</div><div class="line">        <span class="keyword">return</span> ( angular.isDefined(value) &amp;&amp; value.toString().length &lt; <span class="number">2</span> ) ? <span class="string">'0'</span> + value : value;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">getMinutesFromTemplate</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> minutes = <span class="built_in">parseInt</span>($scope.minutes, <span class="number">10</span>);</div><div class="line">        <span class="keyword">return</span> (minutes &gt;= <span class="number">0</span>) ? minutes : <span class="literal">undefined</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">getSecondsFromTemplate</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> seconds = <span class="built_in">parseInt</span>($scope.seconds, <span class="number">10</span>);</div><div class="line">        <span class="keyword">if</span>(seconds &gt;= <span class="number">60</span>) &#123;</div><div class="line">            seconds = <span class="number">59</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> (seconds &gt;= <span class="number">0</span>) ? seconds : <span class="literal">undefined</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    $scope.incrementMinutes = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        addSeconds(minuteStep * <span class="number">60</span>);</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    $scope.decrementMinutes = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        addSeconds(-minuteStep * <span class="number">60</span>);</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    $scope.incrementSeconds = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        addSeconds(secondStep);</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    $scope.decrementSeconds = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        addSeconds(-secondStep);</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">addSeconds</span>(<span class="params">seconds</span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> newSeconds = selected.minutes * <span class="number">60</span> + selected.seconds + seconds;</div><div class="line">        <span class="keyword">if</span>(newSeconds &lt; <span class="number">0</span>) &#123;</div><div class="line">            newSeconds = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        selected = &#123;</div><div class="line">            <span class="attr">minutes</span>: <span class="built_in">Math</span>.floor(newSeconds / <span class="number">60</span>),</div><div class="line">            <span class="attr">seconds</span>: newSeconds % <span class="number">60</span></div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        refresh();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    $scope.previewTime = <span class="function"><span class="keyword">function</span>(<span class="params">minutes, seconds</span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> totalSeconds = <span class="built_in">parseInt</span>(minutes, <span class="number">10</span>) * <span class="number">60</span> + <span class="built_in">parseInt</span>(seconds, <span class="number">10</span>),</div><div class="line">            hh = pad(<span class="built_in">Math</span>.floor(totalSeconds / <span class="number">3600</span>)),</div><div class="line">            mm = pad(minutes % <span class="number">60</span>),</div><div class="line">            ss = pad(seconds);</div><div class="line"></div><div class="line">        <span class="keyword">return</span> hh + <span class="string">':'</span> + mm + <span class="string">':'</span> + ss;</div><div class="line">    &#125;;</div><div class="line">&#125;]);</div></pre></td></tr></table></figure>
+<p>对应的Template实现：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">table</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">tbody</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"text-center"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">ng-click</span>=<span class="string">"incrementMinutes()"</span> <span class="attr">class</span>=<span class="string">"btn btn-link"</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"glyphicon glyphicon-chevron-up"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>&amp;nbsp;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">ng-click</span>=<span class="string">"incrementSeconds()"</span> <span class="attr">class</span>=<span class="string">"btn btn-link"</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"glyphicon glyphicon-chevron-up"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>&amp;nbsp;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">tr</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span> <span class="attr">style</span>=<span class="string">"width:50px;"</span> <span class="attr">class</span>=<span class="string">"form-group"</span> <span class="attr">ng-class</span>=<span class="string">"&#123;'has-error': invalidMinutes&#125;"</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">ng-model</span>=<span class="string">"minutes"</span> <span class="attr">ng-change</span>=<span class="string">"updateMinutes()"</span> <span class="attr">class</span>=<span class="string">"form-control text-center"</span> <span class="attr">ng-mousewheel</span>=<span class="string">"incrementMinutes()"</span> <span class="attr">ng-readonly</span>=<span class="string">"readonlyInput"</span> <span class="attr">maxlength</span>=<span class="string">"3"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>:<span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span> <span class="attr">style</span>=<span class="string">"width:50px;"</span> <span class="attr">class</span>=<span class="string">"form-group"</span> <span class="attr">ng-class</span>=<span class="string">"&#123;'has-error': invalidSeconds&#125;"</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">ng-model</span>=<span class="string">"seconds"</span> <span class="attr">ng-change</span>=<span class="string">"updateSeconds()"</span> <span class="attr">class</span>=<span class="string">"form-control text-center"</span> <span class="attr">ng-mousewheel</span>=<span class="string">"incrementSeconds()"</span> <span class="attr">ng-readonly</span>=<span class="string">"readonlyInput"</span> <span class="attr">maxlength</span>=<span class="string">"2"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span></div><div class="line">            <span class="comment">&lt;!-- preview column --&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"label label-primary"</span> <span class="attr">ng-show</span>=<span class="string">"validity"</span>&gt;</span></div><div class="line">                    &#123;&#123; previewTime(minutes, seconds) &#125;&#125;</div><div class="line">                <span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">tr</span> <span class="attr">class</span>=<span class="string">"text-center"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">ng-click</span>=<span class="string">"decrementMinutes()"</span> <span class="attr">class</span>=<span class="string">"btn btn-link"</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"glyphicon glyphicon-chevron-down"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>&amp;nbsp;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">ng-click</span>=<span class="string">"decrementSeconds()"</span> <span class="attr">class</span>=<span class="string">"btn btn-link"</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"glyphicon glyphicon-chevron-down"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">td</span>&gt;</span>&amp;nbsp;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">tbody</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>测试代码(即前面截图dialog的源代码)：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"modal-header"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">h3</span> <span class="attr">class</span>=<span class="string">"modal-title"</span>&gt;</span>Highlight on <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"label label-primary"</span>&gt;</span>&#123;&#123; movieName &#125;&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">h3</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"modal-body"</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"highlight-start"</span> <span class="attr">class</span>=<span class="string">"col-xs-6"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">h4</span>&gt;</span>Start Time:<span class="tag">&lt;/<span class="name">h4</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">minute-second-picker</span> <span class="attr">ng-model</span>=<span class="string">"startTime"</span> <span class="attr">validity</span>=<span class="string">"startTimeValidity"</span>&gt;</span><span class="tag">&lt;/<span class="name">minute-second-picker</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"></div><div class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"highlight-end"</span> <span class="attr">class</span>=<span class="string">"col-xs-6"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">h4</span>&gt;</span>End Time:<span class="tag">&lt;/<span class="name">h4</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">minute-second-picker</span> <span class="attr">ng-model</span>=<span class="string">"endTime"</span> <span class="attr">validity</span>=<span class="string">"endTimeValidity"</span>&gt;</span><span class="tag">&lt;/<span class="name">minute-second-picker</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col-xs-2"</span>&gt;</span></div><div class="line">            Tags:</div><div class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col-xs-10"</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">tags</span> <span class="attr">model</span>=<span class="string">"tags"</span> <span class="attr">src</span>=<span class="string">"s as s.name for s in sourceTags"</span> <span class="attr">options</span>=<span class="string">"&#123; addable: 'true' &#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">tags</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"modal-footer"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span> <span class="attr">ng-click</span>=<span class="string">"ok()"</span> <span class="attr">ng-disabled</span>=<span class="string">"!startTimeValidity || !endTimeValidity || durationIncorrect(endTime, startTime)"</span>&gt;</span>OK<span class="tag">&lt;/<span class="name">button</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">"btn btn-warning"</span> <span class="attr">ng-click</span>=<span class="string">"cancel()"</span>&gt;</span>Cancel<span class="tag">&lt;/<span class="name">button</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/AngularJS/" rel="tag"># AngularJS</a>
+          
+            <a href="/tags/Bootstrap/" rel="tag"># Bootstrap</a>
+          
+            <a href="/tags/Directive/" rel="tag"># Directive</a>
+          
+            <a href="/tags/控件/" rel="tag"># 控件</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/01/11/Elasticsearch-聚合-时间数据处理-Looking-at-Time/" rel="next" title="[Elasticsearch] 聚合 - 时间数据处理(Looking at Time)">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 聚合 - 时间数据处理(Looking at Time)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/01/14/Elasticsearch-聚合作用域-Scoping-Aggregations/" rel="prev" title="[Elasticsearch] 聚合作用域(Scoping Aggregations)">
+                [Elasticsearch] 聚合作用域(Scoping Aggregations) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">132</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">75</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

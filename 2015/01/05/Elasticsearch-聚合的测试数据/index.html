@@ -1,0 +1,838 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elasticsearch,聚合," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本章翻译自Elasticsearch官方指南的Aggregation Test-Drive一章。
+聚合的测试数据(Aggregation Test-Drive)我们将学习各种聚合以及它们的语法，但是最好的学习方法还是通过例子。一旦你了解了如何思考聚合以及如何对它们进行合适的嵌套，那么语法本身是不难的。
+让我们从一个例子开始。我们会建立一个也许对汽车交易商有所用处的聚合。数据是关于汽车交易的：汽车型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Elasticsearch] 聚合的测试数据">
+<meta property="og:url" content="http://rxjiang.com/2015/01/05/Elasticsearch-聚合的测试数据/index.html">
+<meta property="og:site_name" content="RXJIANG's Home">
+<meta property="og:description" content="本章翻译自Elasticsearch官方指南的Aggregation Test-Drive一章。
+聚合的测试数据(Aggregation Test-Drive)我们将学习各种聚合以及它们的语法，但是最好的学习方法还是通过例子。一旦你了解了如何思考聚合以及如何对它们进行合适的嵌套，那么语法本身是不难的。
+让我们从一个例子开始。我们会建立一个也许对汽车交易商有所用处的聚合。数据是关于汽车交易的：汽车型">
+<meta property="og:updated_time" content="2017-02-20T08:06:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Elasticsearch] 聚合的测试数据">
+<meta name="twitter:description" content="本章翻译自Elasticsearch官方指南的Aggregation Test-Drive一章。
+聚合的测试数据(Aggregation Test-Drive)我们将学习各种聚合以及它们的语法，但是最好的学习方法还是通过例子。一旦你了解了如何思考聚合以及如何对它们进行合适的嵌套，那么语法本身是不难的。
+让我们从一个例子开始。我们会建立一个也许对汽车交易商有所用处的聚合。数据是关于汽车交易的：汽车型">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: false,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'DE93VMN0XP',
+      apiKey: '8a11f9fb09e96faa64f003ffb6bd0f68',
+      indexName: 'blog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"没法找到任何结果哟: ${query}, 换个关键词试试 :)","hits_stats":"找到了 ${hits} 条结果, 用时 ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://rxjiang.com/2015/01/05/Elasticsearch-聚合的测试数据/"/>
+
+
+
+
+
+  <title> [Elasticsearch] 聚合的测试数据 | RXJIANG's Home </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">RXJIANG's Home</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">后端工程师，前端技术爱好者</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2015/01/05/Elasticsearch-聚合的测试数据/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Ruixiang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [Elasticsearch] 聚合的测试数据
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-05T00:02:00+08:00">
+                2015-01-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/" itemprop="url" rel="index">
+                    <span itemprop="name">译文</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/译文/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本章翻译自Elasticsearch官方指南的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_aggregation_test_drive.html" target="_blank" rel="external">Aggregation Test-Drive</a>一章。</p>
+<h1 id="聚合的测试数据-Aggregation-Test-Drive"><a href="#聚合的测试数据-Aggregation-Test-Drive" class="headerlink" title="聚合的测试数据(Aggregation Test-Drive)"></a>聚合的测试数据(Aggregation Test-Drive)</h1><p>我们将学习各种聚合以及它们的语法，但是最好的学习方法还是通过例子。一旦你了解了如何思考聚合以及如何对它们进行合适的嵌套，那么语法本身是不难的。</p>
+<p>让我们从一个例子开始。我们会建立一个也许对汽车交易商有所用处的聚合。数据是关于汽车交易的：汽车型号，制造商，销售价格，销售时间以及一些其他的相关数据。</p>
+<p>首先，通过批量索引(Bulk-Index)来添加一些数据：</p>
+<a id="more"></a>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">POST /cars/transactions/_bulk</div><div class="line">&#123; "index": &#123;&#125;&#125;</div><div class="line">&#123; "price" : 10000, "color" : "red", "make" : "honda", "sold" : "2014-10-28" &#125;</div><div class="line">&#123; "index": &#123;&#125;&#125;</div><div class="line">&#123; "price" : 20000, "color" : "red", "make" : "honda", "sold" : "2014-11-05" &#125;</div><div class="line">&#123; "index": &#123;&#125;&#125;</div><div class="line">&#123; "price" : 30000, "color" : "green", "make" : "ford", "sold" : "2014-05-18" &#125;</div><div class="line">&#123; "index": &#123;&#125;&#125;</div><div class="line">&#123; "price" : 15000, "color" : "blue", "make" : "toyota", "sold" : "2014-07-02" &#125;</div><div class="line">&#123; "index": &#123;&#125;&#125;</div><div class="line">&#123; "price" : 12000, "color" : "green", "make" : "toyota", "sold" : "2014-08-19" &#125;</div><div class="line">&#123; "index": &#123;&#125;&#125;</div><div class="line">&#123; "price" : 20000, "color" : "red", "make" : "honda", "sold" : "2014-11-05" &#125;</div><div class="line">&#123; "index": &#123;&#125;&#125;</div><div class="line">&#123; "price" : 80000, "color" : "red", "make" : "bmw", "sold" : "2014-01-01" &#125;</div><div class="line">&#123; "index": &#123;&#125;&#125;</div><div class="line">&#123; "price" : 25000, "color" : "blue", "make" : "ford", "sold" : "2014-02-12" &#125;</div></pre></td></tr></table></figure>
+<p>现在我们有了一些数据，来创建一个聚合吧。一个汽车交易商也许希望知道哪种颜色的车卖的最好。这可以通过一个简单的聚合完成。使用terms桶：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">GET /cars/transactions/_search?search_type=count </div><div class="line">&#123;</div><div class="line">    "aggs" : &#123; </div><div class="line">        "colors" : &#123; </div><div class="line">            "terms" : &#123;</div><div class="line">              "field" : "color" </div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>因为我们并不关心搜索结果，使用的search_type是count，它的速度更快。 聚合工作在顶层的aggs参数下(当然你也可以使用更长的aggregations)。 然后给这个聚合起了一个名字：colors。 最后，我们定义了一个terms类型的桶，它针对color字段。</p>
+<p>聚合是以搜索结果为上下文而执行的，这意味着它是搜索请求(比如，使用/_search端点)中的另一个顶层参数(Top-level Parameter)。聚合可以和查询同时使用，这一点我们在后续的<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_scoping_aggregations.html" target="_blank" rel="external">范围聚合(Scoping Aggregations)</a>中介绍。</p>
+<p>接下来我们为聚合起一个名字。命名规则是有你决定的; 聚合的响应会被该名字标记，因此在应用中你就能够根据名字来得到聚合结果，并对它们进行操作了。</p>
+<p>然后，我们开始定义聚合本身。比如，我们定义了一个terms类型的桶。terms桶会动态地为每一个它遇到的不重复的词条创建一个新的桶。因为我们针对的是color字段，那么terms桶会动态地为每种颜色创建一个新桶。</p>
+<p>让我们执行该聚合来看看其结果：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">   <span class="attr">"hits"</span>: &#123;</div><div class="line">      <span class="attr">"hits"</span>: [] </div><div class="line">   &#125;,</div><div class="line">   <span class="attr">"aggregations"</span>: &#123;</div><div class="line">      <span class="attr">"colors"</span>: &#123; </div><div class="line">         <span class="attr">"buckets"</span>: [</div><div class="line">            &#123;</div><div class="line">               <span class="attr">"key"</span>: <span class="string">"red"</span>, </div><div class="line">               <span class="attr">"doc_count"</span>: <span class="number">4</span> </div><div class="line">            &#125;,</div><div class="line">            &#123;</div><div class="line">               <span class="attr">"key"</span>: <span class="string">"blue"</span>,</div><div class="line">               <span class="attr">"doc_count"</span>: <span class="number">2</span></div><div class="line">            &#125;,</div><div class="line">            &#123;</div><div class="line">               <span class="attr">"key"</span>: <span class="string">"green"</span>,</div><div class="line">               <span class="attr">"doc_count"</span>: <span class="number">2</span></div><div class="line">            &#125;</div><div class="line">         ]</div><div class="line">      &#125;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>因为我们使用的search_type为count，所以没有搜索结果被返回。 每个桶中的key对应的是在color字段中找到的不重复的词条。它同时也包含了一个doc_count，用来表示包含了该词条的文档数量。</p>
+<p>响应包含了一个桶列表，每个桶都对应着一个不重复的颜色(比如，红色或者绿色)。每个桶也包含了“掉入”该桶中的文档数量。比如，有4辆红色的车。</p>
+<p>前面的例子是完全实时(Real-Time)的：如果文档是可搜索的，那么它们就能够被聚合。这意味着你能够将拿到的聚合结果置入到一个图形库中来生成实时的仪表板(Dashboard)。一旦你卖出了一台银色汽车，在图形上关于银色汽车的统计数据就会被动态地更新。</p>
+<p>瞧！你的第一个聚合！</p>
+<h2 id="添加一个指标-Metric"><a href="#添加一个指标-Metric" class="headerlink" title="添加一个指标(Metric)"></a>添加一个指标(Metric)</h2><p>从前面的例子中，我们可以知道每个桶中的文档数量。但是，通常我们的应用会需要基于那些文档的更加复杂的指标(Metric)。比如，每个桶中的汽车的平均价格是多少？</p>
+<p>为了得到该信息，我们得告诉ES需要为哪些字段计算哪些指标。这需要将指标嵌套到桶中。指标会基于桶中的文档的值来计算相应的统计信息。</p>
+<p>让我们添加一个计算平均值的指标：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">GET /cars/transactions/_search?search_type=count</div><div class="line">&#123;</div><div class="line">   "aggs": &#123;</div><div class="line">      "colors": &#123;</div><div class="line">         "terms": &#123;</div><div class="line">            "field": "color"</div><div class="line">         &#125;,</div><div class="line">         "aggs": &#123; </div><div class="line">            "avg_price": &#123; </div><div class="line">               "avg": &#123;</div><div class="line">                  "field": "price" </div><div class="line">               &#125;</div><div class="line">            &#125;</div><div class="line">         &#125;</div><div class="line">      &#125;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们添加了一个新的aggs层级来包含该指标。然后给该指标起了一个名字：avg_price。最后定义了该指标作用的字段为price。.</p>
+<p>正如你所看到的，我们向前面的例子中添加了一个新的aggs层级。这个新的聚合层级能够让我们将avg指标嵌套在terms桶中。这意味着我们能为每种颜色都计算一个平均值。</p>
+<p>同样的，我们需要给指标起一个名(avg_price)来让我们能够在将来得到其值。最后，我们指定了指标本身(avg)以及该指标作用的字段(price)：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">   <span class="attr">"aggregations"</span>: &#123;</div><div class="line">      <span class="attr">"colors"</span>: &#123;</div><div class="line">         <span class="attr">"buckets"</span>: [</div><div class="line">            &#123;</div><div class="line">               <span class="attr">"key"</span>: <span class="string">"red"</span>,</div><div class="line">               <span class="attr">"doc_count"</span>: <span class="number">4</span>,</div><div class="line">               <span class="attr">"avg_price"</span>: &#123; </div><div class="line">                  <span class="attr">"value"</span>: <span class="number">32500</span></div><div class="line">               &#125;</div><div class="line">            &#125;,</div><div class="line">            &#123;</div><div class="line">               <span class="attr">"key"</span>: <span class="string">"blue"</span>,</div><div class="line">               <span class="attr">"doc_count"</span>: <span class="number">2</span>,</div><div class="line">               <span class="attr">"avg_price"</span>: &#123;</div><div class="line">                  <span class="attr">"value"</span>: <span class="number">20000</span></div><div class="line">               &#125;</div><div class="line">            &#125;,</div><div class="line">            &#123;</div><div class="line">               <span class="attr">"key"</span>: <span class="string">"green"</span>,</div><div class="line">               <span class="attr">"doc_count"</span>: <span class="number">2</span>,</div><div class="line">               <span class="attr">"avg_price"</span>: &#123;</div><div class="line">                  <span class="attr">"value"</span>: <span class="number">21000</span></div><div class="line">               &#125;</div><div class="line">            &#125;</div><div class="line">         ]</div><div class="line">      &#125;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>现在，在响应中多了一个avg_price元素。</p>
+<p>尽管得到的响应只是稍稍有些变化，但是获得的数据增加的了许多。之前我们只知道有4辆红色汽车。现在我们知道了红色汽车的平均价格是32500刀。这些数据你可以直接插入到报表中。</p>
+<h2 id="桶中的桶-Buckets-inside-Buckets"><a href="#桶中的桶-Buckets-inside-Buckets" class="headerlink" title="桶中的桶(Buckets inside Buckets)"></a>桶中的桶(Buckets inside Buckets)</h2><p>当你开始使用不同的嵌套模式时，聚合强大的能力才会显现出来。在前面的例子中，我们已经知道了如何将一个指标嵌套进一个桶的，它的功能已经十分强大了。</p>
+<p>但是真正激动人心的分析功能来源于嵌套在其它桶中的桶。现在，让我们来看看如何找到每种颜色的汽车的制造商分布信息：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">GET /cars/transactions/_search?search_type=count</div><div class="line">&#123;</div><div class="line">   "aggs": &#123;</div><div class="line">      "colors": &#123;</div><div class="line">         "terms": &#123;</div><div class="line">            "field": "color"</div><div class="line">         &#125;,</div><div class="line">         "aggs": &#123;</div><div class="line">            "avg_price": &#123; </div><div class="line">               "avg": &#123;</div><div class="line">                  "field": "price"</div><div class="line">               &#125;</div><div class="line">            &#125;,</div><div class="line">            "make": &#123; </div><div class="line">                "terms": &#123;</div><div class="line">                    "field": "make" </div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">         &#125;</div><div class="line">      &#125;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>此时发生了一些有意思的事情。首先，你会注意到前面的avg_price指标完全没有变化。一个聚合的每个层级都能够拥有多个指标或者桶。avg_price指标告诉了我们每种汽车颜色的平均价格。为每种颜色创建的桶和指标是各自独立的。</p>
+<p>这个性质对你的应用而言是很重要的，因为你经常需要收集一些互相关联却又完全不同的指标。聚合能够让你对数据遍历一次就得到所有需要的信息。</p>
+<p>另外一件重要的事情是添加了新聚合make，它是一个terms类型的桶(嵌套在名为colors的terms桶中)。这意味着我们会根据数据集创建不重复的(color, make)组合。</p>
+<p>让我们来看看得到的响应(有省略，因为响应太长了)：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">   <span class="attr">"aggregations"</span>: &#123;</div><div class="line">      <span class="attr">"colors"</span>: &#123;</div><div class="line">         <span class="attr">"buckets"</span>: [</div><div class="line">            &#123;</div><div class="line">               <span class="attr">"key"</span>: <span class="string">"red"</span>,</div><div class="line">               <span class="attr">"doc_count"</span>: <span class="number">4</span>,</div><div class="line">               <span class="attr">"make"</span>: &#123; </div><div class="line">                  <span class="attr">"buckets"</span>: [</div><div class="line">                     &#123;</div><div class="line">                        <span class="attr">"key"</span>: <span class="string">"honda"</span>, </div><div class="line">                        <span class="attr">"doc_count"</span>: <span class="number">3</span></div><div class="line">                     &#125;,</div><div class="line">                     &#123;</div><div class="line">                        <span class="attr">"key"</span>: <span class="string">"bmw"</span>,</div><div class="line">                        <span class="attr">"doc_count"</span>: <span class="number">1</span></div><div class="line">                     &#125;</div><div class="line">                  ]</div><div class="line">               &#125;,</div><div class="line">               <span class="attr">"avg_price"</span>: &#123;</div><div class="line">                  <span class="attr">"value"</span>: <span class="number">32500</span> </div><div class="line">               &#125;</div><div class="line">            &#125;,</div><div class="line">	...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该响应告诉了我们如下信息：</p>
+<ul>
+<li>有4辆红色汽车。</li>
+<li>红色汽车的平均价格是32500美刀。</li>
+<li>红色汽车中的3辆是Honda，1辆是BMW。</li>
+</ul>
+<h2 id="最后的一个修改-One-Final-Modification"><a href="#最后的一个修改-One-Final-Modification" class="headerlink" title="最后的一个修改(One Final Modification)"></a>最后的一个修改(One Final Modification)</h2><p>在继续讨论新的话题前，为了把问题讲清楚让我们对该例子进行最后一个修改。为每个制造商添加两个指标来计算最低和最高价格：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">GET /cars/transactions/_search?search_type=count</div><div class="line">&#123;</div><div class="line">   "aggs": &#123;</div><div class="line">      "colors": &#123;</div><div class="line">         "terms": &#123;</div><div class="line">            "field": "color"</div><div class="line">         &#125;,</div><div class="line">         "aggs": &#123;</div><div class="line">            "avg_price": &#123; "avg": &#123; "field": "price" &#125;</div><div class="line">            &#125;,</div><div class="line">            "make" : &#123;</div><div class="line">                "terms" : &#123;</div><div class="line">                    "field" : "make"</div><div class="line">                &#125;,</div><div class="line">                "aggs" : &#123; </div><div class="line">                    "min_price" : &#123; "min": &#123; "field": "price"&#125; &#125;, </div><div class="line">                    "max_price" : &#123; "max": &#123; "field": "price"&#125; &#125; </div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">         &#125;</div><div class="line">      &#125;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们需要添加另一个aggs层级来进行对min和max的嵌套。</p>
+<p>得到的响应如下(仍然有省略)：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">...</div><div class="line">   "aggregations": &#123;</div><div class="line">      "colors": &#123;</div><div class="line">         "buckets": [</div><div class="line">            &#123;</div><div class="line">               "key": "red",</div><div class="line">               "doc_count": 4,</div><div class="line">               "make": &#123;</div><div class="line">                  "buckets": [</div><div class="line">                     &#123;</div><div class="line">                        "key": "honda",</div><div class="line">                        "doc_count": 3,</div><div class="line">                        "min_price": &#123;</div><div class="line">                           "value": 10000 </div><div class="line">                        &#125;,</div><div class="line">                        "max_price": &#123;</div><div class="line">                           "value": 20000 </div><div class="line">                        &#125;</div><div class="line">                     &#125;,</div><div class="line">                     &#123;</div><div class="line">                        "key": "bmw",</div><div class="line">                        "doc_count": 1,</div><div class="line">                        "min_price": &#123;</div><div class="line">                           "value": 80000</div><div class="line">                        &#125;,</div><div class="line">                        "max_price": &#123;</div><div class="line">                           "value": 80000</div><div class="line">                        &#125;</div><div class="line">                     &#125;</div><div class="line">                  ]</div><div class="line">               &#125;,</div><div class="line">               "avg_price": &#123;</div><div class="line">                  "value": 32500</div><div class="line">               &#125;</div><div class="line">            &#125;,</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>在每个make桶下，多了min和max的指标。</p>
+<p>此时，我们可以得到如下信息：</p>
+<ul>
+<li>有4辆红色汽车。</li>
+<li>红色汽车的平均价格是32500美刀。</li>
+<li>红色汽车中的3辆是Honda，1辆是BMW。</li>
+<li>红色Honda汽车中，最便宜的价格为10000美刀。</li>
+<li>最贵的红色Honda汽车为20000美刀。</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+            <a href="/tags/聚合/" rel="tag"># 聚合</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/01/04/Elasticsearch-聚合中的重要概念-Buckets-桶-及Metrics-指标/" rel="next" title="[Elasticsearch] 聚合中的重要概念 - Buckets(桶)及Metrics(指标)">
+                <i class="fa fa-chevron-left"></i> [Elasticsearch] 聚合中的重要概念 - Buckets(桶)及Metrics(指标)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/01/09/Elasticsearch-聚合-创建条形图-Bar-Chart/" rel="prev" title="[Elasticsearch] 聚合 - 创建条形图(Bar Chart)">
+                [Elasticsearch] 聚合 - 创建条形图(Bar Chart) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg"
+               alt="Ruixiang" />
+          <p class="site-author-name" itemprop="name">Ruixiang</p>
+          <p class="site-description motion-element" itemprop="description">记录学习和生活的点滴</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">132</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">75</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/destiny1020" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.csdn.net/dm_vincent" target="_blank" title="CSDN">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  CSDN
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#聚合的测试数据-Aggregation-Test-Drive"><span class="nav-number">1.</span> <span class="nav-text">聚合的测试数据(Aggregation Test-Drive)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#添加一个指标-Metric"><span class="nav-number">1.1.</span> <span class="nav-text">添加一个指标(Metric)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#桶中的桶-Buckets-inside-Buckets"><span class="nav-number">1.2.</span> <span class="nav-text">桶中的桶(Buckets inside Buckets)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后的一个修改-One-Final-Modification"><span class="nav-number">1.3.</span> <span class="nav-text">最后的一个修改(One Final Modification)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2012 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-envelope"></i>
+  </span>
+  <a href="mailto:blog@rxjiang.com" class="author" itemprop="copyrightHolder">@Ruixiang</a>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
