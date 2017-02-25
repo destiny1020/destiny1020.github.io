@@ -67,7 +67,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="AOP,Advice,Pointcut,Spring AOP," />
+  <meta name="keywords" content="AOP,Advice,Pointcut,Spring AOP,AspectJ," />
 
 
 
@@ -85,22 +85,23 @@
 
 <meta name="description" content="AOP从何而来技术的演化从来都不是随机现象。往往都是为了应对某种特定的问题，而形成的一系列切实可行解决方案或者优雅的最佳实践，然后把它们汇聚在一起，就形成了一个工具，一个库或者是一个框架。
 为应对Cross-cutting问题而生要了解AOP(Aspect Oriented Programming，面向切面编程)从何而来，首先来看看下面这段代码：
-1234567891011public void">
+12345678910111213141516pu">
 <meta property="og:type" content="article">
 <meta property="og:title" content="[AOP] 1. AOP的由来以及快速上手">
 <meta property="og:url" content="http://rxjiang.com/2017/02/25/AOP-1-AOP的由来以及快速上手/index.html">
 <meta property="og:site_name" content="RXJIANG's Home">
 <meta property="og:description" content="AOP从何而来技术的演化从来都不是随机现象。往往都是为了应对某种特定的问题，而形成的一系列切实可行解决方案或者优雅的最佳实践，然后把它们汇聚在一起，就形成了一个工具，一个库或者是一个框架。
 为应对Cross-cutting问题而生要了解AOP(Aspect Oriented Programming，面向切面编程)从何而来，首先来看看下面这段代码：
-1234567891011public void">
+12345678910111213141516pu">
 <meta property="og:image" content="http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-1.jpg">
 <meta property="og:image" content="http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-2.jpg">
-<meta property="og:updated_time" content="2017-02-25T08:24:42.000Z">
+<meta property="og:image" content="http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-3.jpg">
+<meta property="og:updated_time" content="2017-02-25T14:38:44.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[AOP] 1. AOP的由来以及快速上手">
 <meta name="twitter:description" content="AOP从何而来技术的演化从来都不是随机现象。往往都是为了应对某种特定的问题，而形成的一系列切实可行解决方案或者优雅的最佳实践，然后把它们汇聚在一起，就形成了一个工具，一个库或者是一个框架。
 为应对Cross-cutting问题而生要了解AOP(Aspect Oriented Programming，面向切面编程)从何而来，首先来看看下面这段代码：
-1234567891011public void">
+12345678910111213141516pu">
 <meta name="twitter:image" content="http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-1.jpg">
 
 
@@ -349,7 +350,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-25T10:25:00+08:00">
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-25T14:44:00+08:00">
                 2017-02-25
               </time>
             
@@ -420,7 +421,7 @@
       
         <h2 id="AOP从何而来"><a href="#AOP从何而来" class="headerlink" title="AOP从何而来"></a>AOP从何而来</h2><p>技术的演化从来都不是随机现象。往往都是为了应对某种特定的问题，而形成的一系列切实可行解决方案或者优雅的最佳实践，然后把它们汇聚在一起，就形成了一个工具，一个库或者是一个框架。</p>
 <h3 id="为应对Cross-cutting问题而生"><a href="#为应对Cross-cutting问题而生" class="headerlink" title="为应对Cross-cutting问题而生"></a>为应对Cross-cutting问题而生</h3><p>要了解AOP(Aspect Oriented Programming，面向切面编程)从何而来，首先来看看下面这段代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doBusinessLogic</span><span class="params">()</span> </span>&#123;</div><div class="line">  logger.trace(<span class="string">"进入 "</span> + CLASS_NAME + <span class="string">"."</span> + METHOD_NAME);</div><div class="line">  TransactionStatus tx = transactionManager.getTransaction(<span class="keyword">new</span> DefaultTransactionDefinition()); </div><div class="line">  <span class="keyword">try</span> &#123;    <span class="comment">// 开始执行业务逻辑</span></div><div class="line">    <span class="comment">// ......</span></div><div class="line">    <span class="comment">// 业务逻辑结束</span>  &#125; <span class="keyword">catch</span> (Exception e) &#123;    logger.error(<span class="string">"异常 "</span> + CLASS_NAME + <span class="string">"."</span> + METHOD_NAME, e); </div><div class="line">    tx.setRollbackOnly();    <span class="keyword">throw</span> e;  &#125; <span class="keyword">finally</span> &#123; </div><div class="line">    transactionManager.commit(tx);</div><div class="line">    logger.trace(<span class="string">"退出 "</span> + CLASS_NAME + <span class="string">"."</span> + METHOD_NAME);</div><div class="line">  &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doBusinessLogic</span><span class="params">()</span> </span>&#123;</div><div class="line">  logger.trace(<span class="string">"进入 "</span> + CLASS_NAME + <span class="string">"."</span> + METHOD_NAME);</div><div class="line">  TransactionStatus tx = transactionManager.getTransaction(<span class="keyword">new</span> DefaultTransactionDefinition()); </div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    <span class="comment">// 开始执行业务逻辑</span></div><div class="line">    <span class="comment">// ......</span></div><div class="line">    <span class="comment">// 业务逻辑结束</span></div><div class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">    logger.error(<span class="string">"异常 "</span> + CLASS_NAME + <span class="string">"."</span> + METHOD_NAME, e); </div><div class="line">    tx.setRollbackOnly();</div><div class="line">    <span class="keyword">throw</span> e;</div><div class="line">  &#125; <span class="keyword">finally</span> &#123; </div><div class="line">    transactionManager.commit(tx);</div><div class="line">    logger.trace(<span class="string">"退出 "</span> + CLASS_NAME + <span class="string">"."</span> + METHOD_NAME);</div><div class="line">  &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <a id="more"></a>
 <p>发现上面这段代码有什么问题了吗？很明显，样板代码(Boilerplate)太多了，真正重要的业务逻辑反而只占了很小的一部分(如果执行的业务逻辑比较简单的话)。这种代码结构合理吗？显然不合理。上述的样板代码还只包含了简单的Tracing，Transaction以及Exception处理，如果还需要更多的这类处理，那么代码将臃肿不堪。</p>
 <p>所以，为了处理这类公用需求，最大程度地避免重复代码而遵循DRY原则。AOP应运而生。那么AOP要解决一个什么问题呢？</p>
@@ -454,10 +455,16 @@
 </ol>
 <p>下面我们来看看如何在工程中启用AOP。</p>
 <h3 id="如何工程中启用"><a href="#如何工程中启用" class="headerlink" title="如何工程中启用"></a>如何工程中启用</h3><p>在一个传统的Spring项目中，可以采用XML或者Java Config的方式来开启对于AOP的支持：</p>
-<h4 id="XML的配置方式"><a href="#XML的配置方式" class="headerlink" title="XML的配置方式"></a>XML的配置方式</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span> /&gt;</span>  <span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.destiny1020"</span> /&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure>
+<ul>
+<li>XML的配置方式</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span> /&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.destiny1020"</span> /&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure>
 <p><code>&lt;aop:aspectj-autoproxy /&gt;</code>的功能是开启对于@Aspect的支持。</p>
-<h4 id="Java-Config的配置方式"><a href="#Java-Config的配置方式" class="headerlink" title="Java Config的配置方式"></a>Java Config的配置方式</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Configuration</span><span class="meta">@EnableAspectJAutoProxy</span></div><div class="line"><span class="meta">@ComponentScan</span>(basePackages=<span class="string">"com.destiny1020"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AOPConfiguration</span> </span>&#123;&#125;</div></pre></td></tr></table></figure>
-<p>上述的@EnableAspectJAutoProxy就对应着XML配置中的<code>&lt;aop:aspectj-autoproxy /&gt;</code></p>
+<ul>
+<li>Java Config的配置方式</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Configuration</span></div><div class="line"><span class="meta">@EnableAspectJAutoProxy</span> </div><div class="line"><span class="meta">@ComponentScan</span>(basePackages=<span class="string">"com.destiny1020"</span>) </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AOPConfiguration</span> </span>&#123;&#125;</div></pre></td></tr></table></figure>
+<p>上述的<code>@EnableAspectJAutoProxy</code>就对应着XML配置中的<code>&lt;aop:aspectj-autoproxy /&gt;</code></p>
 <h2 id="Advice的5种类型"><a href="#Advice的5种类型" class="headerlink" title="Advice的5种类型"></a>Advice的5种类型</h2><p>Advice的类型有5种：</p>
 <p><img src="http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-2.jpg" alt=""></p>
 <p>简单介绍如下：</p>
@@ -487,27 +494,54 @@
 </ol>
 <p>因此，Around Advice是所有Advice中功能最强大的一个。更灵活与更强大也就意味着更大的责任，它的使用也确实也相对复杂一些。在应用它的时候需要仔细调试确保能够满足所有的业务需求且不产生副作用。</p>
 <h3 id="After-Returning-Advice"><a href="#After-Returning-Advice" class="headerlink" title="After Returning Advice"></a>After Returning Advice</h3><p>一个例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@AfterReturning</span>(pointcut = <span class="string">"execution(* *(..))"</span>, returning = <span class="string">"result"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">returnLogging</span><span class="params">(String result)</span> </span>&#123; </div><div class="line">  logger.trace(<span class="string">"结果 "</span>+ result);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"> </div><div class="line"><span class="meta">@AfterReturning</span>(pointcut = <span class="string">"execution(* *(..))"</span>, returning = <span class="string">"result"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">returnLogging</span><span class="params">(String result)</span> </span>&#123; </div><div class="line">  logger.trace(<span class="string">"结果 "</span>+ result);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>值得注意的地方有：</p>
 <ol>
 <li>只有在目标方法成功执行完毕后才会执行Advice</li>
 <li>可以通过指定returning属性指定目标方法的返回类型，即只有特定类型的结果被返回的时候才会触发Advice的执行。returning指定的值和参数的名称需要相同，比如上述的result</li>
 </ol>
 <h3 id="After-Throwing-Advice"><a href="#After-Throwing-Advice" class="headerlink" title="After Throwing Advice"></a>After Throwing Advice</h3><p>一个例子：</p>
-<pre><code class="java"><span class="meta">@AfterThrowing</span>(pointcut = <span class="string">"execution(* *(..))"</span>, throwing = <span class="string">"iae"</span>)
-<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">throwLogging</span><span class="params">(IllegalArgumentException iae)</span> </span>{
-  logger.error(<span class="string">"非法参数异常 "</span>, iae);
-}
-&lt;!--￼<span class="number">7</span>--&gt;
-
-然后在Advice的注解中使用即可：
-
-```java
-<span class="meta">@Around</span>(<span class="string">"PointcutDefinitions.loadBalancedAnnotated()"</span>)
-<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">trace</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable </span>{ 
-  <span class="comment">// 定义Advice的逻辑</span>
-}
-</code></pre>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@AfterThrowing</span>(pointcut = <span class="string">"execution(* *(..))"</span>, throwing = <span class="string">"iae"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">throwLogging</span><span class="params">(IllegalArgumentException iae)</span> </span>&#123;</div><div class="line">  logger.error(<span class="string">"非法参数异常 "</span>, iae);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>值得注意的地方有：</p>
+<ol>
+<li>只有在目标方法抛出异常时才会执行Advice</li>
+<li>抛出的异常类型可以作为参数传入到Advice实现方法中，异常最终也会被抛出给调用者</li>
+<li>可以通过指定throwing属性指定抛出的类型异常，即只有特定类型的异常被抛出的时候才会触发Advice的执行。throwing指定的值和参数的名称需要相同，比如上述的iae</li>
+</ol>
+<h2 id="Pointcut的声明和使用方式"><a href="#Pointcut的声明和使用方式" class="headerlink" title="Pointcut的声明和使用方式"></a>Pointcut的声明和使用方式</h2><h3 id="Pointcut语法规则"><a href="#Pointcut语法规则" class="headerlink" title="Pointcut语法规则"></a>Pointcut语法规则</h3><p>拿上面一直出现的<code>execution(* *(..))</code>作为例子：</p>
+<p><img src="http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-3.jpg" alt=""></p>
+<p>所以，Pointcut有几个重要的组成部分：</p>
+<ol>
+<li>Pointcut原语(Primitive Pointcut) - 表明Advice介入的阶段，上述的execution表明介入的阶段是在目标方法的执行期间，除此之外还有很多的别的介入时机，具体可以参考文末的相关资料。</li>
+<li>Pointcut表达式 - 每种原语对应着自己的表达式语法规则，就拿最常见的execution而言，它的表达式形如<code>* *(..)</code><ol>
+<li>第一个* ：任意的返回类型</li>
+<li>第二个* ：任意的方法名称(可以为带上包名和类名的完整限定名)</li>
+<li>(..) ：任意的参数类型，不限定个数，不限定类型</li>
+</ol>
+</li>
+</ol>
+<p>举几个例子：</p>
+<ul>
+<li><code>execution(* register())</code> - 匹配所有不接受参数，名为register的方法，不限返回类型</li>
+<li><code>execution(int register(int, int))</code> - 匹配接受两个int类型作为参数，名为register的方法，且返回类型为int类型</li>
+<li><code>execution(* register(*))</code> - 匹配接受1个不限定参数类型，名为register的方法，不限返回类型</li>
+<li><code>execution(* com.destiny1020.AuthService.register(..)</code> - 匹配<code>com.destiny1020.AuthService</code>类下的所有register重载</li>
+<li><code>execution(* com.destiny1020..*AuthService.register(..)</code> - 匹配<code>com.destiny1020</code>子包下的类名以AuthService结尾的所有类中的register重载</li>
+</ul>
+<h3 id="使用注解的情况"><a href="#使用注解的情况" class="headerlink" title="使用注解的情况"></a>使用注解的情况</h3><p>另外，还可以利用注解来限定Pointcut的范围。这个特性其实我们用得最多，诸如<code>@Transactional</code>，<code>@Cacheable</code>等等都可以归为这一类。那么如何在Pointcut表达式中进行声明呢，实际上可以分为两种情况：</p>
+<ol>
+<li>方法注解 - <code>execution(@com.destiny1020.anno.LoadBalanced * *(..))</code></li>
+<li>类注解 - <code>execution(* (@com.destiny1020.anno.LoadBalanced *).*(..))</code></li>
+</ol>
+<p>也就是说，一旦方法或者类被指定的注解给标注了，那么该方法或者类中的所有方法都会被定义为Advice的目标方法。需要注意的是，注解的名称需要是带有完整包名的限定名。</p>
+<h3 id="使用逻辑操作符的情况"><a href="#使用逻辑操作符的情况" class="headerlink" title="使用逻辑操作符的情况"></a>使用逻辑操作符的情况</h3><p>在Pointcut表达式中还能够使用逻辑操作符：</p>
+<p>比如这个表达式：</p>
+<p><code>execution(* com.destiny1020.service..*.load(..)) || execution(* com.destiny1020.repository..*.load(..))</code></p>
+<p>它的意思很直观，即匹配service包或者repository包下的所有名为load的方法及其重载，不考虑参数数量和类型，也不考虑返回类型。</p>
+<h3 id="Pointcut的重用"><a href="#Pointcut的重用" class="headerlink" title="Pointcut的重用"></a>Pointcut的重用</h3><p>在实际的工作中可能会出现重复编写Pointcut的情况，与其到处粘贴复制，有没有一种方法能够仅仅定义一次呢，答案是可以通过<code>@Pointcut</code>注解来帮我们：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PointcutDefinitions</span> </span>&#123;</div><div class="line">  <span class="meta">@Pointcut</span>(<span class="string">"execution(@com.destiny1020.anno.LoadBalanced * *(..))"</span>) </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadBalancedAnnotated</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="comment">// 空方法就OK</span></div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后在Advice的注解中使用即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Around</span>(<span class="string">"PointcutDefinitions.loadBalancedAnnotated()"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">trace</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable </span>&#123; </div><div class="line">  <span class="comment">// 定义Advice的逻辑</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>这样就可以将所有的Pointcut集中定义，不会把复杂而难以理解(至少乍一眼看上去是如此)的Pointcut弄的到处都是而难以维护了。</p>
 <p>在下一篇文章中，会探讨AOP的两种实现：</p>
 <ul>
@@ -541,6 +575,8 @@
             <a href="/tags/Pointcut/" rel="tag"># Pointcut</a>
           
             <a href="/tags/Spring-AOP/" rel="tag"># Spring AOP</a>
+          
+            <a href="/tags/AspectJ/" rel="tag"># AspectJ</a>
           
         </div>
       
@@ -704,7 +740,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AOP从何而来"><span class="nav-number">1.</span> <span class="nav-text">AOP从何而来</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为应对Cross-cutting问题而生"><span class="nav-number">1.1.</span> <span class="nav-text">为应对Cross-cutting问题而生</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOP概述"><span class="nav-number">1.2.</span> <span class="nav-text">AOP概述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快速上手"><span class="nav-number">2.</span> <span class="nav-text">快速上手</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个简单的用于Tracing的例子"><span class="nav-number">2.1.</span> <span class="nav-text">一个简单的用于Tracing的例子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何工程中启用"><span class="nav-number">2.2.</span> <span class="nav-text">如何工程中启用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#XML的配置方式"><span class="nav-number">2.2.1.</span> <span class="nav-text">XML的配置方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Java-Config的配置方式"><span class="nav-number">2.2.2.</span> <span class="nav-text">Java Config的配置方式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Advice的5种类型"><span class="nav-number">3.</span> <span class="nav-text">Advice的5种类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Before-Advice"><span class="nav-number">3.1.</span> <span class="nav-text">Before Advice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#After-Advice"><span class="nav-number">3.2.</span> <span class="nav-text">After Advice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Around-Advice"><span class="nav-number">3.3.</span> <span class="nav-text">Around Advice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#After-Returning-Advice"><span class="nav-number">3.4.</span> <span class="nav-text">After Returning Advice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#After-Throwing-Advice"><span class="nav-number">3.5.</span> <span class="nav-text">After Throwing Advice</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AOP从何而来"><span class="nav-number">1.</span> <span class="nav-text">AOP从何而来</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为应对Cross-cutting问题而生"><span class="nav-number">1.1.</span> <span class="nav-text">为应对Cross-cutting问题而生</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOP概述"><span class="nav-number">1.2.</span> <span class="nav-text">AOP概述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快速上手"><span class="nav-number">2.</span> <span class="nav-text">快速上手</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个简单的用于Tracing的例子"><span class="nav-number">2.1.</span> <span class="nav-text">一个简单的用于Tracing的例子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何工程中启用"><span class="nav-number">2.2.</span> <span class="nav-text">如何工程中启用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Advice的5种类型"><span class="nav-number">3.</span> <span class="nav-text">Advice的5种类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Before-Advice"><span class="nav-number">3.1.</span> <span class="nav-text">Before Advice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#After-Advice"><span class="nav-number">3.2.</span> <span class="nav-text">After Advice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Around-Advice"><span class="nav-number">3.3.</span> <span class="nav-text">Around Advice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#After-Returning-Advice"><span class="nav-number">3.4.</span> <span class="nav-text">After Returning Advice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#After-Throwing-Advice"><span class="nav-number">3.5.</span> <span class="nav-text">After Throwing Advice</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pointcut的声明和使用方式"><span class="nav-number">4.</span> <span class="nav-text">Pointcut的声明和使用方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Pointcut语法规则"><span class="nav-number">4.1.</span> <span class="nav-text">Pointcut语法规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用注解的情况"><span class="nav-number">4.2.</span> <span class="nav-text">使用注解的情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用逻辑操作符的情况"><span class="nav-number">4.3.</span> <span class="nav-text">使用逻辑操作符的情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pointcut的重用"><span class="nav-number">4.4.</span> <span class="nav-text">Pointcut的重用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
