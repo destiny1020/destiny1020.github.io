@@ -302,6 +302,270 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2017/02/25/AOP-1-AOP的由来以及快速上手/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="RXJIANG">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="RXJIANG's Home">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/25/AOP-1-AOP的由来以及快速上手/" itemprop="url">
+                  [AOP] 1. AOP的由来以及快速上手
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-25T10:25:00+08:00">
+                2017-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/" itemprop="url" rel="index">
+                    <span itemprop="name">工具, 库与框架</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/工具-库与框架/AOP/" itemprop="url" rel="index">
+                    <span itemprop="name">AOP</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="AOP从何而来"><a href="#AOP从何而来" class="headerlink" title="AOP从何而来"></a>AOP从何而来</h2><p>技术的演化从来都不是随机现象。往往都是为了应对某种特定的问题，而形成的一系列切实可行解决方案或者优雅的最佳实践，然后把它们汇聚在一起，就形成了一个工具，一个库或者是一个框架。</p>
+<h3 id="为应对Cross-cutting问题而生"><a href="#为应对Cross-cutting问题而生" class="headerlink" title="为应对Cross-cutting问题而生"></a>为应对Cross-cutting问题而生</h3><p>要了解AOP(Aspect Oriented Programming，面向切面编程)从何而来，首先来看看下面这段代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doBusinessLogic</span><span class="params">()</span> </span>&#123;</div><div class="line">	logger.trace(<span class="string">"进入 "</span> + CLASS_NAME + <span class="string">"."</span> + METHOD_NAME); 	TransactionStatus tx = transactionManager.getTransaction(<span class="keyword">new</span> DefaultTransactionDefinition()); </div><div class="line">	<span class="keyword">try</span> &#123;		<span class="comment">// 开始执行业务逻辑</span></div><div class="line">		<span class="comment">// ......</span></div><div class="line">		<span class="comment">// 业务逻辑结束</span>	&#125; <span class="keyword">catch</span> (Exception e) &#123;		logger.error(<span class="string">"异常 "</span> + CLASS_NAME + <span class="string">"."</span> + METHOD_NAME, e); </div><div class="line">		tx.setRollbackOnly();		<span class="keyword">throw</span> e;	&#125; <span class="keyword">finally</span> &#123; </div><div class="line">		transactionManager.commit(tx);</div><div class="line">		logger.trace(<span class="string">"退出 "</span> + CLASS_NAME + <span class="string">"."</span> + METHOD_NAME);	&#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>发现上面这段代码有什么问题了吗？很明显，样板代码(Boilerplate)太多了，真正重要的业务逻辑反而只占了很小的一部分(如果执行的业务逻辑比较简单的话)。这种代码结构合理吗？显然不合理。上述的样板代码还只包含了简单的Tracing，Transaction以及Exception处理，如果还需要更多的这类处理，那么代码将臃肿不堪。</p>
+<p>所以，为了处理这类公用需求，最大程度地避免重复代码而遵循DRY原则。AOP应运而生。那么AOP要解决一个什么问题呢？</p>
+<p><img src="http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-1.jpg" alt=""></p>
+<p>上面这张图能够说明要解决的问题。</p>
+<p>每种颜色的代码就相当于公用的需求点，比如绿色的Tracing，蓝色的Transaction以及红色的Exception Handling。这些代码存在于不止一个类中，通常而言是分散的到处都是，就像上面的那段代码一样。</p>
+<p>而这些重复而通用的代码就是AOP要解决的问题，每一个共同的横切关注点(Cross-cutting Concern)对应于一个切面(Aspect)。这些切面的目的就是将四处散落的通用代码集中管理，然后采用声明式的方式将这些代码再注入到需要执行的位置。</p>
+<h3 id="AOP概述"><a href="#AOP概述" class="headerlink" title="AOP概述"></a>AOP概述</h3><p>Aspect， Advice以及Pointcut的关系。</p>
+<p>那么，什么是切面(Aspect)呢？</p>
+<p>回顾一下上面的那张示意图。里面表达了切面的两个要素：</p>
+<ol>
+<li>执行什么，比如Tracing亦或是Transaction</li>
+<li>在哪执行，比如是在Class A还是Class B</li>
+</ol>
+<p>那么反映到AOP的概念中，这两个要素分别对应的是Advice以及Pointcut。</p>
+<p>所以，简而言之：Aspect = Advice(做什么) + Pointcut(在哪做)</p>
+<p>比如对于上面的Tracing功能而言：</p>
+<ol>
+<li>Advice - 执行Logging相关操作</li>
+<li>Pointcut - 在方法的开始和结束处执行</li>
+</ol>
+<h2 id="快速上手"><a href="#快速上手" class="headerlink" title="快速上手"></a>快速上手</h2><h3 id="一个简单的用于Tracing的例子"><a href="#一个简单的用于Tracing的例子" class="headerlink" title="一个简单的用于Tracing的例子"></a>一个简单的用于Tracing的例子</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="meta">@Aspect</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TracingAspect</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> Logger logger = LoggerFactory.getLogger(TracingAspect.class);</div><div class="line"></div><div class="line">	<span class="meta">@Before</span>(<span class="string">"execution(* *(..))"</span>)</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">beforeLogging</span><span class="params">(JoinPoint joinPoint)</span> </span>&#123;</div><div class="line">		logger.trace(<span class="string">"进入 "</span></div><div class="line">				+ joinPoint.getStaticPart().getSignature().toString());</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码实现了一个在执行方法时使用日志记录Tracing信息的切面(Aspect)。它的逻辑很清晰：</p>
+<ol>
+<li>使用@Aspect注解说明这是一个切面(Aspect)</li>
+<li>使用@Component注解说明这是一个Spring Bean</li>
+<li>使用@Before注解来表达切面的类型，也就是在方法执行之前会首先调用Advice</li>
+<li>在@Before注解中使用表达式<code>execution(* *(..))</code>来表达Pointcut的概念</li>
+<li>实现beforeLogging方法，它代表了具体的Advice</li>
+<li>使用JoinPoint参数来得到将要调用的方法信息</li>
+</ol>
+<p>下面我们来看看如何在工程中启用AOP。</p>
+<h3 id="如何工程中启用"><a href="#如何工程中启用" class="headerlink" title="如何工程中启用"></a>如何工程中启用</h3><p>在一个传统的Spring项目中，可以采用XML或者Java Config的方式来开启对于AOP的支持：</p>
+<ul>
+<li>XML的配置方式</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span> /&gt;</span>	<span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.destiny1020"</span> /&gt;</span><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure>
+<p><code>&lt;aop:aspectj-autoproxy /&gt;</code>的功能是开启对于@Aspect的支持。</p>
+<ul>
+<li>Java Config的配置方式</li>
+</ul>
+<pre><code class="java">@Configuration
+@EnableAspectJAutoProxy 
+@ComponentScan(basePackages="com.destiny1020") 
+public class AOPConfiguration {
+
+}
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">上述的`@EnableAspectJAutoProxy`就对应着XML配置中的`&lt;aop:aspectj-autoproxy /&gt;`</div><div class="line"></div><div class="line">## Advice的5种类型</div><div class="line"></div><div class="line">Advice的类型有5种：</div><div class="line"></div><div class="line">![](http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-2.jpg)</div><div class="line"></div><div class="line">简单介绍如下：</div><div class="line"></div><div class="line">### Before Advice</div><div class="line"></div><div class="line">上面的例子中使用的就是Before Advice。它使用@Before注解来表达。</div><div class="line"></div><div class="line">对于这类Advice，有几个注意事项：</div><div class="line"></div><div class="line">1. Advice的执行在执行目标方法之前(并没有进入目标方法)</div><div class="line">2. 如果Advice的执行中抛出了异常，那么会阻止目标方法运行，异常会被传递给目标方法的调用者</div><div class="line"></div><div class="line">### After Advice</div><div class="line"></div><div class="line">一个简单的例子：</div><div class="line"></div><div class="line">```java</div><div class="line">@After(&quot;execution(* *(..))&quot;)</div><div class="line">public void afterLogging(JoinPoint joinPoint) &#123;</div><div class="line">	logger.trace(&quot;退出 &quot; + joinPoint.getSignature());</div><div class="line">	</div><div class="line">	// 获取调用目标方法时的参数</div><div class="line">	for (Object arg : joinPoint.getArgs()) &#123;</div><div class="line">	  logger.trace(&quot;参数 : &quot; + arg);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+关于Pointcut表达式`execution(* *(..))`会在后面Pointcut一节中进行介绍。
+
+对于After Advice，有几个注意事项：
+
+1. Advice的执行在执行目标方法之后(退出目标方法后)
+2. 如果目标方法抛出了异常，After Advice仍然会被执行
+
+### Around Advice
+
+Around Advice是功能最强大的一种Advice。
+
+下面是一例：
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Around</span>(<span class="string">"execution(* *(..))"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">aroundAdvice</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">	String minfo = </div><div class="line">			pjp.getStaticPart().getSignature().toString();</div><div class="line">	logger.trace(<span class="string">"进入 "</span> + minfo);</div><div class="line">	<span class="keyword">try</span> &#123;</div><div class="line">		<span class="keyword">return</span> pjp.proceed();</div><div class="line">	&#125; <span class="keyword">catch</span> (Throwable ex) &#123;</div><div class="line">		logger.error(<span class="string">"异常 "</span> + minfo, ex);</div><div class="line">		<span class="keyword">throw</span> ex;</div><div class="line">	&#125; <span class="keyword">finally</span> &#123;</div><div class="line">		logger.trace(<span class="string">"退出 "</span> + minfo);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+如上面的图片所示，Around Advice可以被看成目标方法的一个Wrapper。它能够灵活地控制何时调用甚至不调用原本的目标方法。它有以下几个特点和注意事项：
+
+1. 需要接受一个`ProceedingJoinPoint`作为参数，通过调用它的proceed方法来调用目标方法
+2. 能够捕获目标方法可能抛出的异常，所有Advice种类中只有Around Advice能够做到
+3. 能够修改目标方法的返回结果，所有Advice种类中只有Around Advice能够做到
+4. 能够直接忽略目标方法，所有Advice种类中只有Around Advice能够做到
+
+因此，Around Advice是所有Advice中功能最强大的一个。更灵活与更强大也就意味着更大的责任，它的使用也确实也相对复杂一些。在应用它的时候需要仔细调试确保能够满足所有的业务需求且不产生副作用。
+
+### After Returning Advice
+
+一个例子：
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> <span class="meta">@AfterReturning</span>(pointcut = <span class="string">"execution(* *(..))"</span>, returning = <span class="string">"result"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">returnLogging</span><span class="params">(String result)</span> </span>&#123; </div><div class="line">	logger.trace(<span class="string">"结果 "</span>+ result);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+值得注意的地方有：
+
+1. 只有在目标方法成功执行完毕后才会执行Advice
+2. 可以通过指定returning属性指定目标方法的返回类型，即只有特定类型的结果被返回的时候才会触发Advice的执行。returning指定的值和参数的名称需要相同，比如上述的result
+
+### After Throwing Advice
+
+一个例子：
+
+```java
+@AfterThrowing(pointcut = "execution(* *(..))", throwing = "iae")
+public void throwLogging(IllegalArgumentException iae) {
+    logger.error("非法参数异常 ", iae);
+}
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">值得注意的地方有：</div><div class="line"></div><div class="line">1. 只有在目标方法抛出异常时才会执行Advice</div><div class="line">2. 抛出的异常类型可以作为参数传入到Advice实现方法中，异常最终也会被抛出给调用者</div><div class="line">3. 可以通过指定throwing属性指定抛出的类型异常，即只有特定类型的异常被抛出的时候才会触发Advice的执行。throwing指定的值和参数的名称需要相同，比如上述的iae</div><div class="line"></div><div class="line">## Pointcut的声明和使用方式</div><div class="line"></div><div class="line">### Pointcut语法规则</div><div class="line"></div><div class="line">拿上面一直出现的`execution(* *(..))`作为例子：</div><div class="line"></div><div class="line">![](http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-3.jpg)</div><div class="line"></div><div class="line">所以，Pointcut有几个重要的组成部分：</div><div class="line"></div><div class="line">1. Pointcut原语(Primitive Pointcut) - 表明Advice介入的阶段，上述的execution表明介入的阶段是在目标方法的执行期间，除此之外还有很多的别的介入时机，具体可以参考文末的相关资料。</div><div class="line">2. Pointcut表达式 - 每种原语对应着自己的表达式语法规则，就拿最常见的execution而言，它的表达式形如`* *(..)`</div><div class="line">	1. 第一个* ：任意的返回类型</div><div class="line">	2. 第二个* ：任意的方法名称(可以为带上包名和类名的完整限定名)</div><div class="line">	3. (..) ：任意的参数类型，不限定个数，不限定类型</div><div class="line"></div><div class="line">举几个例子：</div><div class="line"></div><div class="line">- `execution(* register())` - 匹配所有不接受参数，名为register的方法，不限返回类型</div><div class="line">- `execution(int register(int, int))` - 匹配接受两个int类型作为参数，名为register的方法，且返回类型为int类型</div><div class="line">- `execution(* register(*))` - 匹配接受1个不限定参数类型，名为register的方法，不限返回类型</div><div class="line">- `execution(* com.destiny1020.AuthService.register(..)` - 匹配`com.destiny1020.AuthService`类下的所有register重载</div><div class="line">- `execution(* com.destiny1020..*AuthService.register(..)` - 匹配`com.destiny1020`子包下的类名以AuthService结尾的所有类中的register重载</div><div class="line"></div><div class="line">### 使用注解的情况</div><div class="line"></div><div class="line">另外，还可以利用注解来限定Pointcut的范围。这个特性其实我们用得最多，诸如`@Transactional`，`@Cacheable`等等都可以归为这一类。那么如何在Pointcut表达式中进行声明呢，实际上可以分为两种情况：</div><div class="line"></div><div class="line">1. 方法注解 - `execution(@com.destiny1020.anno.LoadBalanced * *(..))`</div><div class="line">2. 类注解 - `execution(* (@com.destiny1020.anno.LoadBalanced *).*(..))`</div><div class="line"></div><div class="line">也就是说，一旦方法或者类被指定的注解给标注了，那么该方法或者类中的所有方法都会被定义为Advice的目标方法。需要注意的是，注解的名称需要是带有完整包名的限定名。</div><div class="line"></div><div class="line">### 使用逻辑操作符的情况</div><div class="line"></div><div class="line">在Pointcut表达式中还能够使用逻辑操作符：</div><div class="line"></div><div class="line">比如这个表达式：</div><div class="line"></div><div class="line">`execution(* com.destiny1020.service..*.load(..)) || execution(* com.destiny1020.repository..*.load(..))`</div><div class="line"></div><div class="line">它的意思很直观，即匹配service包或者repository包下的所有名为load的方法及其重载，不考虑参数数量和类型，也不考虑返回类型。</div><div class="line"></div><div class="line">### Pointcut的重用</div><div class="line"></div><div class="line">在实际的工作中可能会出现重复编写Pointcut的情况，与其到处粘贴复制，有没有一种方法能够仅仅定义一次呢，答案是可以通过`@Pointcut`注解来帮我们：</div><div class="line"></div><div class="line">```javapublic class PointcutDefinitions &#123;	@Pointcut(&quot;execution(@com.destiny1020.anno.LoadBalanced * *(..))&quot;) </div><div class="line">	public void loadBalancedAnnotated() &#123;</div><div class="line">		// 空方法就OK	&#125;&#125;</div></pre></td></tr></table></figure>
+
+然后在Advice的注解中使用即可：
+
+```java
+@Around("PointcutDefinitions.loadBalancedAnnotated()")
+public void trace(ProceedingJoinPoint pjp) throws Throwable { 
+    // 定义Advice的逻辑
+}
+</code></pre>
+<p>这样就可以将所有的Pointcut集中定义，不会把复杂而难以理解(至少乍一眼看上去是如此)的Pointcut弄的到处都是而难以维护了。</p>
+<p>在下一篇文章中，会探讨AOP的两种实现：</p>
+<ul>
+<li>Spring AOP</li>
+<li>AspectJ</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/html/aop.html" target="_blank" rel="external">Spring AOP Reference</a></p>
+<p><a href="https://eclipse.org/aspectj/doc/next/quick5.pdf" target="_blank" rel="external">AspectJ Quick Reference</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/12/03/JavaEE-JPA-性能优化-如何定位性能问题/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1740,165 +2004,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://rxjiang.com/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="RXJIANG">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="http://o6rdpbay0.bkt.clouddn.com/avatar.jpeg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="RXJIANG's Home">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="RXJIANG's Home" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/" itemprop="url">
-                  [AngularJS面面观] 24. 依赖注入 --- Value以及Decorator
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-28T18:55:00+08:00">
-                2016-08-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/" itemprop="url" rel="index">
-                    <span itemprop="name">源码分析</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/源码分析/AngularJS/" itemprop="url" rel="index">
-                    <span itemprop="name">AngularJS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>module中定义的高层API现在已经介绍的差不多了，本文就把后面剩下的几个能介绍的先介绍了(不能介绍的还有蛮多的，比如filter，controller，directive，这些使我们后面讨论的内容，敬请期待 :) )。</p>
-<p>和依赖注入关系比较紧密的剩下2个方法分别是value和decorator。</p>
-<h2 id="Value"><a href="#Value" class="headerlink" title="Value"></a>Value</h2><p>在angular中，比较常见的问题除了service，factory和provider三者之间有何区别和联系之外(想知道答案就去看<a href="http://blog.csdn.net/dm_vincent/article/details/52200952">依赖注入 — Factory vs Service</a>)，还有一个问题也算比较热门。那就是constant和value有什么区别？</p>
-<p>光从定义方式上看，它们两者好像是没有什么区别：</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/08/28/AngularJS面面观-24-依赖注入-Value以及Decorator/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1946,7 +2051,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">177</span>
+                <span class="site-state-item-count">178</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1955,7 +2060,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-count">27</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1964,7 +2069,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">103</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
