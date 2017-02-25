@@ -94,7 +94,7 @@
 为应对Cross-cutting问题而生要了解AOP(Aspect Oriented Programming，面向切面编程)从何而来，首先来看看下面这段代码：
 12345678910public void do">
 <meta property="og:image" content="http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-1.jpg">
-<meta property="og:updated_time" content="2017-02-25T08:09:51.000Z">
+<meta property="og:updated_time" content="2017-02-25T08:13:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[AOP] 1. AOP的由来以及快速上手">
 <meta name="twitter:description" content="AOP从何而来技术的演化从来都不是随机现象。往往都是为了应对某种特定的问题，而形成的一系列切实可行解决方案或者优雅的最佳实践，然后把它们汇聚在一起，就形成了一个工具，一个库或者是一个框架。
@@ -453,14 +453,12 @@
 </ol>
 <p>下面我们来看看如何在工程中启用AOP。</p>
 <h3 id="如何工程中启用"><a href="#如何工程中启用" class="headerlink" title="如何工程中启用"></a>如何工程中启用</h3><p>在一个传统的Spring项目中，可以采用XML或者Java Config的方式来开启对于AOP的支持：</p>
-<h4 id="XML的配置方式"><a href="#XML的配置方式" class="headerlink" title="XML的配置方式"></a>XML的配置方式</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span> /&gt;</span>	<span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.destiny1020"</span> /&gt;</span><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure>
+<h4 id="XML的配置方式"><a href="#XML的配置方式" class="headerlink" title="XML的配置方式"></a>XML的配置方式</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span> /&gt;</span>	<span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.destiny1020"</span> /&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure>
 <p><code>&lt;aop:aspectj-autoproxy /&gt;</code>的功能是开启对于@Aspect的支持。</p>
 <h4 id="Java-Config的配置方式"><a href="#Java-Config的配置方式" class="headerlink" title="Java Config的配置方式"></a>Java Config的配置方式</h4><pre><code class="java">@Configuration
-@EnableAspectJAutoProxy 
-@ComponentScan(basePackages="com.destiny1020") 
-public class AOPConfiguration {
-
-}
+@EnableAspectJAutoProxy
+@ComponentScan(basePackages="com.destiny1020")
+public class AOPConfiguration { }
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">上述的`@EnableAspectJAutoProxy`就对应着XML配置中的`&lt;aop:aspectj-autoproxy /&gt;`</div><div class="line"></div><div class="line">## Advice的5种类型</div><div class="line"></div><div class="line">Advice的类型有5种：</div><div class="line"></div><div class="line">![](http://o6rdpbay0.bkt.clouddn.com/blog/aop/aop-2.jpg)</div><div class="line"></div><div class="line">简单介绍如下：</div><div class="line"></div><div class="line">### Before Advice</div><div class="line"></div><div class="line">上面的例子中使用的就是Before Advice。它使用@Before注解来表达。</div><div class="line"></div><div class="line">对于这类Advice，有几个注意事项：</div><div class="line"></div><div class="line">1. Advice的执行在执行目标方法之前(并没有进入目标方法)</div><div class="line">2. 如果Advice的执行中抛出了异常，那么会阻止目标方法运行，异常会被传递给目标方法的调用者</div><div class="line"></div><div class="line">### After Advice</div><div class="line"></div><div class="line">一个简单的例子：</div><div class="line"></div><div class="line">```java</div><div class="line">@After(&quot;execution(* *(..))&quot;)</div><div class="line">public void afterLogging(JoinPoint joinPoint) &#123;</div><div class="line">	logger.trace(&quot;退出 &quot; + joinPoint.getSignature());</div><div class="line">	</div><div class="line">	// 获取调用目标方法时的参数</div><div class="line">	for (Object arg : joinPoint.getArgs()) &#123;</div><div class="line">		logger.trace(&quot;参数 : &quot; + arg);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 
 关于Pointcut表达式`execution(* *(..))`会在后面Pointcut一节中进行介绍。
